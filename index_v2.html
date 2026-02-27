@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organizational Worldviews — Concept Map v2</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #000;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      font-family: 'Suisse Intl', 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+
+    svg#canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ── Node text — ALL same size ── */
+    .label-concept {
+      font-size: 13px;
+      font-weight: 400;
+      fill: rgba(255,255,255,0.90);
+      letter-spacing: 0.01em;
+      cursor: pointer;
+    }
+
+    .label-concept:hover {
+      fill: rgba(255,255,255,1);
+    }
+
+    .label-ref {
+      font-size: 13px;
+      font-weight: 300;
+      fill: rgba(255,255,255,0.38);
+      letter-spacing: 0.01em;
+      cursor: pointer;
+    }
+    .label-ref:hover {
+      fill: rgba(255,255,255,0.68);
+    }
+
+    /* ── Rhizomatic curves ── */
+    .rhizo-link {
+      fill: none;
+      stroke-width: 0.5;
+    }
+
+    /* ── Corner UI ── */
+    #title-block {
+      position: fixed;
+      top: 28px;
+      left: 36px;
+      pointer-events: none;
+      line-height: 1;
+    }
+    #title-main {
+      font-size: 20px;
+      font-weight: 400;
+      color: rgba(255,255,255,0.92);
+      letter-spacing: 0.01em;
+      line-height: 1.3;
+    }
+    #title-sub {
+      font-size: 10px;
+      font-weight: 300;
+      color: rgba(255,255,255,0.28);
+      letter-spacing: 0.12em;
+      margin-top: 6px;
+    }
+
+    #hint {
+      position: fixed;
+      bottom: 24px;
+      right: 36px;
+      font-size: 10px;
+      font-weight: 300;
+      letter-spacing: 0.10em;
+      color: rgba(255,255,255,0.16);
+      pointer-events: none;
+    }
+    #meta {
+      position: fixed;
+      bottom: 24px;
+      left: 36px;
+      font-size: 10px;
+      font-weight: 300;
+      letter-spacing: 0.10em;
+      color: rgba(255,255,255,0.16);
+      pointer-events: none;
+    }
+
+    /* ── Info panel ── */
+    #info-panel {
+      position: fixed;
+      bottom: 50px;
+      right: 28px;
+      width: 300px;
+      max-height: 280px;
+      background: #fff;
+      color: #111;
+      overflow-y: auto;
+      padding: 14px 16px;
+      font-size: 11px;
+      line-height: 1.7;
+      letter-spacing: 0.02em;
+      display: none;
+      z-index: 50;
+      font-family: 'Suisse Intl', 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+    #info-panel.visible { display: block; }
+    #info-panel h3 {
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 6px;
+      letter-spacing: 0.01em;
+    }
+    #info-panel .section-tag {
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 8px;
+    }
+    #info-panel .section-desc {
+      color: #333;
+      margin-bottom: 10px;
+    }
+    #info-panel .sources-label {
+      font-size: 9px;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 5px;
+    }
+    #info-panel a {
+      display: block;
+      color: #000;
+      text-decoration: none;
+      border-bottom: 0.5px solid #ddd;
+      padding: 2px 0;
+      font-size: 10px;
+    }
+    #info-panel a:hover {
+      background: #f0f0f0;
+      color: #000;
+    }
+    #info-close {
+      float: right;
+      cursor: pointer;
+      color: #999;
+      font-size: 14px;
+      margin-top: -2px;
+      margin-left: 6px;
+    }
+    #info-close:hover { color: #000; }
+    /* ── Mobile ── */
+    @media (max-width: 768px) {
+      #title-main {
+        font-size: 14px;
+        line-height: 1.4;
+      }
+      #title-sub {
+        font-size: 8px;
+        letter-spacing: 0.08em;
+        margin-top: 4px;
+      }
+      #title-block {
+        top: 16px;
+        left: 16px;
+        max-width: 70vw;
+      }
+      #meta {
+        font-size: 8px;
+        bottom: 14px;
+        left: 16px;
+      }
+      #hint {
+        font-size: 8px;
+        bottom: 14px;
+        right: 16px;
+      }
+      #info-panel {
+        right: 10px;
+        left: 10px;
+        width: auto;
+        bottom: 36px;
+        max-height: 45vh;
+        font-size: 10.5px;
+      }
+      .label-concept { font-size: 12px; }
+      .label-ref      { font-size: 12px; }
+    }
+    /* ── Annotations link ── */
+    #annotations-link {
+      position: fixed;
+      top: 32px;
+      right: 36px;
+      font-size: 10px;
+      font-weight: 300;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.38);
+      text-decoration: none;
+      z-index: 100;
+      transition: color 0.2s;
+      pointer-events: auto;
+    }
+    #annotations-link:hover { color: rgba(255,255,255,0.88); }
+    #annotations-link::after { content: " →"; }
+  </style>
+</head>
+<body>
+
+<!-- Title -->
+<div id="title-block">
+  <div id="title-main">Organizational Worldviews:<br>Leadership, Culture, and More-than-Human Practice</div>
+  <div id="title-sub">Posthumanism · Relational OB · Indigenous Worldviews · Practice Theory · Sensemaking · Regeneration</div>
+</div>
+
+<div id="meta">mbejtlich &nbsp;·&nbsp; doctoral directed study &nbsp;·&nbsp; 60 sources &nbsp;·&nbsp; 2025–2026</div>
+<div id="hint">scroll to zoom &nbsp;·&nbsp; drag to pan &nbsp;·&nbsp; click theme to open info</div>
+<a id="annotations-link" href="annotations.html">Annotations</a>
+
+<!-- Info panel -->
+<div id="info-panel">
+  <span id="info-close" onclick="closePanel()">✕</span>
+  <div id="info-content"></div>
+</div>
+
+<svg id="canvas"></svg>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+
+const LINE = 17;
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  SECTION DESCRIPTIONS  (from bibliography section headers)
+// ══════════════════════════════════════════════════════════════════════════════
+const sectionDesc = {
+  0: { name: "§1 · Foundations of Organizational Theory and Worldviews", text: "These texts establish the foundational paradigms, metaphors, and institutional logics through which organizations have been theorized and contested. They show how worldview assumptions shape what we see — and miss — in organizational life." },
+  1: { name: "§2 · Leadership, Values, and Organizational Culture", text: "This section interrogates how leadership is conceptualized, enacted, and institutionalized across organizational worldviews — from transformational and authentic approaches to relational and feminist framings." },
+  2: { name: "§3 · Sensemaking, Enactment, and Meaning-Making", text: "Drawing primarily on Weick's tradition, these texts foreground how meaning is constructed through ongoing social interaction rather than discovered as pre-given fact. Sensemaking is retrospective, social, and action-oriented." },
+  3: { name: "§4 · Practice Theory, Sociomateriality, and Process Ontology", text: "These texts challenge the primacy of the individual actor and the subject–object separation in organizational life. Practice theory, sociomateriality, and process ontology foreground the entanglement of knowing, doing, and material arrangements." },
+  4: { name: "§5 · Posthumanist and More-than-Human Organization Studies", text: "Departing from humanist assumptions about the sovereign organizational subject, these texts draw on new materialism, feminist posthumanism, and multispecies thinking. They question who and what counts as an organizational actor." },
+  5: { name: "§6 · Indigenous Worldviews, Decolonial Knowledge, and Relational Accountability", text: "These sources introduce Indigenous, decolonial, and relational epistemologies that fundamentally challenge Western organizational worldviews, offering alternative ontologies grounded in land, kinship, and relational accountability." },
+  6: { name: "§7 · Ecological Embeddedness, Living Systems, and Regenerative Organizing", text: "This section situates organizations within living systems rather than apart from them. Drawing on systems thinking, ecological science, and regenerative design, these texts propose organizational logics that restore rather than extract." },
+  7: { name: "§8 · Care Ethics, Eco-Feminism, and Creative Practice", text: "These texts bring together ethics of care, eco-feminist critique, and creative approaches to organizational life. They challenge disembodied rationality, proposing situated, relational, and aesthetic ways of knowing and organizing." },
+  8: { name: "§9 · Grey Literature and Practitioner Knowledge", text: "These practitioner-oriented texts offer influential framings of organizational life shaped by systems thinking, relational approaches, and regenerative design — each engaging the limits of mechanistic organization." },
+};
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  NODES  — 47 concept nodes, 56 bibliography sub-lines (sources 1–56)
+//  refs[] = array of {label, url}  ← exactly one per bibliography source
+// ══════════════════════════════════════════════════════════════════════════════
+const nodes = [
+
+  // ── §1 Foundations ────────────────────────────────────────────────────────
+  {
+    id: "Organizational Worldviews",
+    refs: [
+      { label: "Burrell & Morgan, 1979", url: "https://scholar.google.com/scholar?q=Burrell+Morgan+Sociological+Paradigms+Organisational+Analysis", num: 1 },
+      { label: "Morgan, 1997", url: "https://scholar.google.com/scholar?q=Morgan+1997+Images+of+Organization", num: 2 },
+    ], group: 0
+  },
+  {
+    id: "Institutional Isomorphism",
+    refs: [
+      { label: "DiMaggio & Powell, 1983", url: "https://doi.org/10.2307/2095101", num: 3 },
+    ], group: 0
+  },
+  {
+    id: "Organizational Becoming",
+    refs: [
+      { label: "Tsoukas & Chia, 2002", url: "https://doi.org/10.1287/orsc.13.5.567.7810", num: 4 },
+    ], group: 0
+  },
+  {
+    id: "Organizations as Open Systems",
+    refs: [
+      { label: "Scott & Davis, 2007", url: "https://scholar.google.com/scholar?q=Scott+Davis+2007+Organizations+Organizing", num: 5 },
+    ], group: 0
+  },
+
+  // ── §2 Leadership ─────────────────────────────────────────────────────────
+  {
+    id: "Transformational Leadership",
+    refs: [
+      { label: "Burns, 1978", url: "https://scholar.google.com/scholar?q=Burns+1978+Leadership", num: 6 },
+    ], group: 1
+  },
+  {
+    id: "Relational Leadership Theory",
+    refs: [
+      { label: "Uhl-Bien, 2006", url: "https://doi.org/10.1016/j.leaqua.2006.10.007", num: 7 },
+    ], group: 1
+  },
+  {
+    id: "Organizational Culture & Leadership",
+    refs: [
+      { label: "Schein, 2010", url: "https://scholar.google.com/scholar?q=Schein+2010+Organizational+Culture+Leadership", num: 8 },
+      { label: "Avolio & Gardner, 2005", url: "https://doi.org/10.1016/j.leaqua.2005.03.001", num: 9 },
+    ], group: 1
+  },
+  {
+    id: "Cultural Leadership (GLOBE)",
+    refs: [
+      { label: "House et al., 2004", url: "https://scholar.google.com/scholar?q=House+2004+Culture+Leadership+Organizations+GLOBE", num: 10 },
+    ], group: 1
+  },
+  {
+    id: "Feminist Organization Studies",
+    refs: [
+      { label: "Grosser & Moon, 2019", url: "https://doi.org/10.1007/s10551-017-3669-9", num: 11 },
+    ], group: 1
+  },
+
+  // ── §3 Sensemaking ────────────────────────────────────────────────────────
+  {
+    id: "Sensemaking",
+    refs: [
+      { label: "Weick, 1995", url: "https://scholar.google.com/scholar?q=Weick+1995+Sensemaking+in+Organizations", num: 12 },
+      { label: "Weick, Sutcliffe & Obstfeld, 2005", url: "https://doi.org/10.1287/orsc.1050.0133", num: 13 },
+    ], group: 2
+  },
+  {
+    id: "Sensemaking: Taking Stock",
+    refs: [
+      { label: "Maitlis & Christianson, 2014", url: "https://doi.org/10.5465/19416520.2014.873177", num: 14 },
+    ], group: 2
+  },
+  {
+    id: "Sensegiving in Strategy",
+    refs: [
+      { label: "Gioia & Chittipeddi, 1991", url: "https://doi.org/10.1002/smj.4250120604", num: 15 },
+    ], group: 2
+  },
+
+  // ── §4 Practice Theory ────────────────────────────────────────────────────
+  {
+    id: "Sociomateriality",
+    refs: [
+      { label: "Orlikowski, 2007", url: "https://doi.org/10.1177/0170840607081138", num: 16 },
+      { label: "Orlikowski & Scott, 2008", url: "https://doi.org/10.5465/19416520.2008.10252175", num: 17 },
+    ], group: 3
+  },
+  {
+    id: "Practice Theory",
+    refs: [
+      { label: "Nicolini, 2012", url: "https://scholar.google.com/scholar?q=Nicolini+2012+Practice+Theory+Work+Organization", num: 20 },
+      { label: "Gherardi, 2016", url: "https://doi.org/10.1177/1350508416629441", num: 18 },
+      { label: "Schatzki, 1996", url: "https://scholar.google.com/scholar?q=Schatzki+1996+Social+Practices+Wittgensteinian", num: 51 },
+    ], group: 3
+  },
+  {
+    id: "Theorizing Practice",
+    refs: [
+      { label: "Feldman & Orlikowski, 2011", url: "https://doi.org/10.1287/orsc.1100.0582", num: 21 },
+    ], group: 3
+  },
+  {
+    id: "Entrepreneuring at Work",
+    refs: [
+      { label: "Champenois et al., 2025", url: "https://scholar.google.com/scholar?q=Champenois+Dimov+Gherardi+2025+Entrepreneuring+Practices", num: 19 },
+    ], group: 3
+  },
+  {
+    id: "Actor-Network Theory",
+    refs: [
+      { label: "Latour, 2005", url: "https://scholar.google.com/scholar?q=Latour+2005+Reassembling+Social+Actor+Network", num: 52 },
+    ], group: 3
+  },
+
+  // ── §5 Posthumanism ───────────────────────────────────────────────────────
+  {
+    id: "Posthumanist Organization Studies",
+    refs: [
+      { label: "de Vaujany, Gherardi & Silva, 2024", url: "https://doi.org/10.4324/9781032617169", num: 22 },
+      { label: "Gherardi, de Vaujany & Silva, 2024", url: "https://doi.org/10.4324/9781032617169", num: 23 },
+    ], group: 4
+  },
+  {
+    id: "Multispecies Organizing",
+    refs: [
+      { label: "Ehrnström-Fuentes et al., 2025", url: "https://doi.org/10.1017/beq.2025.8", num: 24 },
+    ], group: 4
+  },
+  {
+    id: "Organized Carelessness",
+    refs: [
+      { label: "Wenzel, 2025", url: "https://doi.org/10.1017/beq.2025.10083", num: 25 },
+    ], group: 4
+  },
+  {
+    id: "Aesthetic Encounters & Animals",
+    refs: [
+      { label: "Huopalainen, Satama & Tallberg, 2026", url: "https://scholar.google.com/scholar?q=Huopalainen+Satama+Tallberg+2026+Canines+Care+Multispecies", num: 26 },
+    ], group: 4
+  },
+  {
+    id: "Ecocentric Ethics & Garden",
+    refs: [
+      { label: "Allen & Strauß, 2026", url: "https://scholar.google.com/scholar?q=Allen+Strauss+2026+Garden+Ecocentric+Ethics+Organising", num: 27 },
+    ], group: 4
+  },
+  {
+    id: "Agential Realism",
+    refs: [
+      { label: "Barad, 2007", url: "https://scholar.google.com/scholar?q=Barad+2007+Meeting+Universe+Halfway", num: 28 },
+    ], group: 4
+  },
+  {
+    id: "Situated Knowledges",
+    refs: [
+      { label: "Haraway, 1988", url: "https://doi.org/10.2307/3178066", num: 29 },
+    ], group: 4
+  },
+  {
+    id: "The Posthuman",
+    refs: [
+      { label: "Braidotti, 2013", url: "https://scholar.google.com/scholar?q=Braidotti+2013+The+Posthuman", num: 53 },
+    ], group: 4
+  },
+  {
+    id: "A Thousand Plateaus",
+    refs: [
+      { label: "Deleuze & Guattari, 1987", url: "https://scholar.google.com/scholar?q=Deleuze+Guattari+1987+Thousand+Plateaus", num: 54 },
+    ], group: 4
+  },
+
+  // ── §6 Indigenous / Decolonial ────────────────────────────────────────────
+  {
+    id: "Regenerative Indigenous Business",
+    refs: [
+      { label: "Oberholzer, 2026", url: "https://scholar.google.com/scholar?q=Oberholzer+2026+Regenerative+Value+Indigenous+Businesses", num: 30 },
+    ], group: 5
+  },
+  {
+    id: "Decolonizing Management",
+    refs: [
+      { label: "Banerjee, 2022", url: "https://doi.org/10.1111/joms.12831", num: 31 },
+      { label: "Banerjee, 2003", url: "https://doi.org/10.1177/0170840603024002003", num: 32 },
+    ], group: 5
+  },
+  {
+    id: "Ontological Turn & Colonialism",
+    refs: [
+      { label: "Todd, 2016", url: "https://scholar.google.com/scholar?q=Todd+2016+Indigenous+Feminist+Ontological+Turn", num: 33 },
+    ], group: 5
+  },
+  {
+    id: "Decolonizing Methodologies",
+    refs: [
+      { label: "Tuhiwai Smith, 2012", url: "https://scholar.google.com/scholar?q=Linda+Tuhiwai+Smith+2012+Decolonizing+Methodologies", num: 34 },
+    ], group: 5
+  },
+  {
+    id: "Decolonization as Practice",
+    refs: [
+      { label: "Tuck & Yang, 2012", url: "https://jps.library.utoronto.ca/index.php/des/article/view/18630", num: 35 },
+    ], group: 5
+  },
+  {
+    id: "Decolonial Options",
+    refs: [
+      { label: "Mignolo, 2011", url: "https://doi.org/10.1215/9780822394501", num: 55 },
+    ], group: 5
+  },
+
+  // ── §7 Ecological / Regenerative ──────────────────────────────────────────
+  {
+    id: "Ecological Embeddedness",
+    refs: [
+      { label: "Whiteman & Cooper, 2000", url: "https://doi.org/10.2307/1556349", num: 36 },
+    ], group: 6
+  },
+  {
+    id: "Web of Life",
+    refs: [
+      { label: "Capra, 1996", url: "https://scholar.google.com/scholar?q=Capra+1996+Web+of+Life", num: 37 },
+    ], group: 6
+  },
+  {
+    id: "Dwelling, Skill & Perception",
+    refs: [
+      { label: "Ingold, 2000", url: "https://scholar.google.com/scholar?q=Ingold+2000+Perception+of+Environment", num: 38 },
+    ], group: 6
+  },
+  {
+    id: "Systems Thinking",
+    refs: [
+      { label: "Meadows, 2008", url: "https://scholar.google.com/scholar?q=Meadows+2008+Thinking+in+Systems", num: 39 },
+    ], group: 6
+  },
+  {
+    id: "Shifting to Regeneration",
+    refs: [
+      { label: "Reed, 2007", url: "https://doi.org/10.1080/09613210701475753", num: 40 },
+    ], group: 6
+  },
+  {
+    id: "Ecology of Mind",
+    refs: [
+      { label: "Bateson, 1972", url: "https://scholar.google.com/scholar?q=Bateson+1972+Steps+Ecology+Mind", num: 56 },
+    ], group: 6
+  },
+
+  // ── §8 Care & Creative ────────────────────────────────────────────────────
+  {
+    id: "Eco-feminist Critique",
+    refs: [
+      { label: "Plumwood, 1993", url: "https://scholar.google.com/scholar?q=Plumwood+1993+Feminism+Mastery+Nature", num: 41 },
+    ], group: 7
+  },
+  {
+    id: "Ethics of Care",
+    refs: [
+      { label: "Tronto, 1993", url: "https://scholar.google.com/scholar?q=Tronto+1993+Moral+Boundaries+Ethics+Care", num: 42 },
+      { label: "Held, 2006", url: "https://scholar.google.com/scholar?q=Held+2006+Ethics+of+Care", num: 43 },
+    ], group: 7
+  },
+  {
+    id: "Deleuzian Creativity",
+    refs: [
+      { label: "Karakilic & Painter, 2022", url: "https://doi.org/10.1177/01708406221095654", num: 44 },
+    ], group: 7
+  },
+  {
+    id: "Apocalyptic Reflexivity",
+    refs: [
+      { label: "Carollo, Sferrazzo & Shymko, 2025", url: "https://scholar.google.com/scholar?q=Carollo+Sferrazzo+Shymko+2025+Apocalyptic+Reflexivity", num: 45 },
+    ], group: 7
+  },
+
+  // ── Classic OB/OS Foundations (added to §1) ──────────────────────────────
+  {
+    id: "Scientific Revolutions & Paradigms",
+    refs: [
+      { label: "Kuhn, 1962", url: "", num: 57 },
+    ], group: 0
+  },
+  {
+    id: "Organizational Structure",
+    refs: [
+      { label: "Mintzberg, 1979", url: "", num: 58 },
+    ], group: 0
+  },
+  {
+    id: "Bounded Rationality & Decision-Making",
+    refs: [
+      { label: "March & Simon, 1958", url: "", num: 59 },
+    ], group: 0
+  },
+  {
+    id: "Contingency Theory",
+    refs: [
+      { label: "Lawrence & Lorsch, 1967", url: "", num: 60 },
+    ], group: 0
+  },
+
+  // ── §9 Grey Literature ────────────────────────────────────────────────────
+  {
+    id: "Reinventing Organizations",
+    refs: [
+      { label: "Laloux, 2014", url: "https://scholar.google.com/scholar?q=Laloux+2014+Reinventing+Organizations", num: 46 },
+    ], group: 8
+  },
+  {
+    id: "Leadership & the New Science",
+    refs: [
+      { label: "Wheatley, 1992", url: "https://scholar.google.com/scholar?q=Wheatley+1992+Leadership+New+Science", num: 47 },
+    ], group: 8
+  },
+  {
+    id: "The Fifth Discipline",
+    refs: [
+      { label: "Senge, 1990", url: "https://scholar.google.com/scholar?q=Senge+1990+Fifth+Discipline+Learning+Organization", num: 48 },
+    ], group: 8
+  },
+  {
+    id: "Servant Leadership",
+    refs: [
+      { label: "Greenleaf, 1977", url: "https://scholar.google.com/scholar?q=Greenleaf+1977+Servant+Leadership", num: 49 },
+    ], group: 8
+  },
+  {
+    id: "Designing Regenerative Cultures",
+    refs: [
+      { label: "Wahl, 2016", url: "https://scholar.google.com/scholar?q=Wahl+2016+Designing+Regenerative+Cultures", num: 50 },
+    ], group: 8
+  },
+
+];
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  LINKS  (concept-level connections — rhizomatic)
+// ══════════════════════════════════════════════════════════════════════════════
+const rawLinks = [
+  // Foundations ↔ Leadership
+  ["Organizational Worldviews", "Organizational Becoming"],
+  ["Organizational Worldviews", "Institutional Isomorphism"],
+  ["Organizational Worldviews", "Organizations as Open Systems"],
+  ["Organizational Worldviews", "Sensemaking"],
+  ["Organizational Worldviews", "Practice Theory"],
+  ["Organizational Worldviews", "Relational Leadership Theory"],
+  ["Organizational Worldviews", "Posthumanist Organization Studies"],
+  ["Institutional Isomorphism", "Organizations as Open Systems"],
+  ["Organizational Becoming", "Practice Theory"],
+
+  // Leadership
+  ["Transformational Leadership", "Relational Leadership Theory"],
+  ["Relational Leadership Theory", "Organizational Culture & Leadership"],
+  ["Relational Leadership Theory", "Ethics of Care"],
+  ["Relational Leadership Theory", "Sensemaking"],
+  ["Organizational Culture & Leadership", "Cultural Leadership (GLOBE)"],
+  ["Organizational Culture & Leadership", "Transformational Leadership"],
+  ["Feminist Organization Studies", "Relational Leadership Theory"],
+  ["Feminist Organization Studies", "Ethics of Care"],
+  ["Servant Leadership", "Relational Leadership Theory"],
+  ["Servant Leadership", "Ethics of Care"],
+
+  // Sensemaking
+  ["Sensemaking", "Sensemaking: Taking Stock"],
+  ["Sensemaking", "Sensegiving in Strategy"],
+  ["Sensemaking", "Organizational Culture & Leadership"],
+  ["Sensemaking", "Organizational Becoming"],
+  ["Sensemaking", "Practice Theory"],
+
+  // Practice Theory
+  ["Practice Theory", "Sociomateriality"],
+  ["Practice Theory", "Theorizing Practice"],
+  ["Practice Theory", "Entrepreneuring at Work"],
+  ["Practice Theory", "Actor-Network Theory"],
+  ["Sociomateriality", "Agential Realism"],
+  ["Sociomateriality", "Actor-Network Theory"],
+  ["Actor-Network Theory", "Posthumanist Organization Studies"],
+  ["Theorizing Practice", "Sociomateriality"],
+
+  // Posthumanism
+  ["Posthumanist Organization Studies", "Agential Realism"],
+  ["Posthumanist Organization Studies", "Situated Knowledges"],
+  ["Posthumanist Organization Studies", "Multispecies Organizing"],
+  ["Posthumanist Organization Studies", "Organized Carelessness"],
+  ["Posthumanist Organization Studies", "Aesthetic Encounters & Animals"],
+  ["Posthumanist Organization Studies", "Ecocentric Ethics & Garden"],
+  ["Posthumanist Organization Studies", "The Posthuman"],
+  ["Posthumanist Organization Studies", "A Thousand Plateaus"],
+  ["The Posthuman", "Situated Knowledges"],
+  ["The Posthuman", "Eco-feminist Critique"],
+  ["A Thousand Plateaus", "Deleuzian Creativity"],
+  ["A Thousand Plateaus", "Organizational Becoming"],
+  ["Agential Realism", "Practice Theory"],
+  ["Multispecies Organizing", "Ecological Embeddedness"],
+  ["Aesthetic Encounters & Animals", "Ethics of Care"],
+  ["Ecocentric Ethics & Garden", "Ecological Embeddedness"],
+
+  // Indigenous / Decolonial
+  ["Decolonizing Management", "Ontological Turn & Colonialism"],
+  ["Decolonizing Management", "Decolonizing Methodologies"],
+  ["Decolonizing Management", "Decolonization as Practice"],
+  ["Decolonizing Management", "Decolonial Options"],
+  ["Decolonizing Methodologies", "Decolonization as Practice"],
+  ["Ontological Turn & Colonialism", "Posthumanist Organization Studies"],
+  ["Decolonial Options", "Posthumanist Organization Studies"],
+  ["Regenerative Indigenous Business", "Decolonizing Management"],
+  ["Regenerative Indigenous Business", "Ecological Embeddedness"],
+  ["Decolonizing Management", "Organizational Worldviews"],
+
+  // Ecological / Regenerative
+  ["Ecological Embeddedness", "Web of Life"],
+  ["Ecological Embeddedness", "Shifting to Regeneration"],
+  ["Web of Life", "Systems Thinking"],
+  ["Web of Life", "Ecology of Mind"],
+  ["Web of Life", "Dwelling, Skill & Perception"],
+  ["Systems Thinking", "Reinventing Organizations"],
+  ["Systems Thinking", "The Fifth Discipline"],
+  ["Systems Thinking", "Designing Regenerative Cultures"],
+  ["Ecology of Mind", "Ecological Embeddedness"],
+  ["Ecology of Mind", "Posthumanist Organization Studies"],
+  ["Dwelling, Skill & Perception", "Practice Theory"],
+  ["Shifting to Regeneration", "Designing Regenerative Cultures"],
+  ["Shifting to Regeneration", "Leadership & the New Science"],
+
+  // Care & Creative
+  ["Ethics of Care", "Eco-feminist Critique"],
+  ["Ethics of Care", "Deleuzian Creativity"],
+  ["Ethics of Care", "Apocalyptic Reflexivity"],
+  ["Eco-feminist Critique", "Ecological Embeddedness"],
+  ["Deleuzian Creativity", "Practice Theory"],
+  ["Apocalyptic Reflexivity", "Posthumanist Organization Studies"],
+
+  // Classic OB connections
+  ["Scientific Revolutions & Paradigms", "Organizational Worldviews"],
+  ["Scientific Revolutions & Paradigms", "Institutional Isomorphism"],
+  ["Organizational Structure", "Organizations as Open Systems"],
+  ["Organizational Structure", "Contingency Theory"],
+  ["Bounded Rationality & Decision-Making", "Organizations as Open Systems"],
+  ["Bounded Rationality & Decision-Making", "Sensemaking"],
+  ["Contingency Theory", "Organizational Structure"],
+  ["Contingency Theory", "Organizations as Open Systems"],
+
+  // Grey ↔ main themes
+  ["Reinventing Organizations", "Organizational Worldviews"],
+  ["Leadership & the New Science", "Systems Thinking"],
+  ["Servant Leadership", "Organizational Culture & Leadership"],
+  ["Designing Regenerative Cultures", "Ecological Embeddedness"],
+].map(([s, t]) => ({ source: s, target: t }));
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  D3 SETUP
+// ══════════════════════════════════════════════════════════════════════════════
+
+const W = window.innerWidth;
+const H = window.innerHeight;
+
+const svg = d3.select("#canvas")
+  .attr("width", W)
+  .attr("height", H);
+
+const g = svg.append("g");
+
+svg.call(
+  d3.zoom()
+    .scaleExtent([0.08, 6])
+    .on("zoom", e => g.attr("transform", e.transform))
+);
+
+// Clear panel on canvas click
+svg.on("click", () => closePanel());
+
+// Approximate width for collision
+function approxW(d) {
+  const all = [d.id, ...d.refs.map(r => r.label)];
+  return Math.max(...all.map(s => s.length * 6.4), 40);
+}
+
+// ── Simulation ────────────────────────────────────────────────────────────────
+const simulation = d3.forceSimulation(nodes)
+  .force("link",    d3.forceLink(rawLinks).id(d => d.id).distance(180).strength(0.25))
+  .force("charge",  d3.forceManyBody().strength(-700).distanceMax(700))
+  .force("center",  d3.forceCenter(W / 2, H / 2))
+  .force("collide", d3.forceCollide().radius(d => approxW(d) / 2 + 38))
+  .force("x",       d3.forceX(W / 2).strength(0.025))
+  .force("y",       d3.forceY(H / 2).strength(0.025));
+
+// ── Links — quadratic bezier (rhizomatic, no arrows) ─────────────────────────
+rawLinks.forEach(l => {
+  l._cx = (Math.random() - 0.5) * 90;
+  l._cy = (Math.random() - 0.5) * 90;
+});
+
+const linkSel = g.append("g")
+  .selectAll("path")
+  .data(rawLinks)
+  .join("path")
+    .attr("class", "rhizo-link")
+    .attr("stroke", () => `rgba(255,255,255,${(Math.random() * 0.06 + 0.06).toFixed(2)})`);
+
+// ── Nodes ─────────────────────────────────────────────────────────────────────
+const nodeSel = g.append("g")
+  .selectAll("g")
+  .data(nodes)
+  .join("g")
+    .call(
+      d3.drag()
+        .on("start", (e, d) => { if (!e.active) simulation.alphaTarget(0.2).restart(); d.fx = d.x; d.fy = d.y; })
+        .on("drag",  (e, d) => { d.fx = e.x; d.fy = e.y; })
+        .on("end",   (e, d) => { if (!e.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; })
+    )
+    .on("click", (event, d) => {
+      event.stopPropagation();
+      showPanel(d);
+    });
+
+// Render each node's text
+const REF_OFFSET = 8; // extra px gap between concept name and first author line
+
+nodeSel.each(function(d) {
+  const grp = d3.select(this);
+
+  // Concept name — clickable (triggers info panel via node click handler)
+  grp.append("text")
+    .attr("class", "label-concept")
+    .attr("text-anchor", "middle")
+    .attr("dy", 0)
+    .text(d.id);
+
+  // Ref lines — click navigates to annotations page
+  d.refs.forEach((ref, i) => {
+    grp.append("text")
+      .attr("class", "label-ref")
+      .attr("text-anchor", "middle")
+      .attr("dy", REF_OFFSET + (i + 1) * LINE)
+      .text(ref.label)
+      .on("click", function(event) {
+        event.stopPropagation();
+        if (ref.num) window.location.href = "annotations.html#source-" + ref.num;
+      });
+  });
+});
+
+// ── Tick ──────────────────────────────────────────────────────────────────────
+simulation.on("tick", () => {
+  linkSel.attr("d", d => {
+    const sx = d.source.x, sy = d.source.y;
+    const tx = d.target.x, ty = d.target.y;
+    const mx = (sx + tx) / 2 + (d._cx || 0);
+    const my = (sy + ty) / 2 + (d._cy || 0);
+    return `M${sx},${sy} Q${mx},${my} ${tx},${ty}`;
+  });
+  nodeSel.attr("transform", d => `translate(${d.x},${d.y})`);
+});
+
+// ── Slow ambient drift ────────────────────────────────────────────────────────
+let t = 0;
+(function drift() {
+  t += 0.0003;
+  nodes.forEach((d, i) => {
+    if (d.fx !== null && d.fx !== undefined) return;
+    const ph = i * 1.4;
+    d.vx += Math.sin(t + ph) * 0.05;
+    d.vy += Math.cos(t + ph * 0.7) * 0.05;
+  });
+  simulation.alpha(Math.max(simulation.alpha(), 0.015)).restart();
+  requestAnimationFrame(drift);
+})();
+
+// ── Info panel ────────────────────────────────────────────────────────────────
+function showPanel(d) {
+  const sec = sectionDesc[d.group];
+  const refsHtml = d.refs.map(r => {
+    const annotUrl = r.num ? `annotations.html#source-${r.num}` : (r.url || '#');
+    return `<a href="${annotUrl}" target="_blank">${r.label}</a>`;
+  }).join("");
+
+  document.getElementById("info-content").innerHTML = `
+    <h3>${d.id}</h3>
+    <div class="section-tag">${sec.name}</div>
+    <div class="section-desc">${sec.text}</div>
+    <div class="sources-label">Sources</div>
+    ${refsHtml}
+  `;
+  document.getElementById("info-panel").classList.add("visible");
+}
+
+function closePanel() {
+  document.getElementById("info-panel").classList.remove("visible");
+}
+
+// ── Mobile: tighten simulation on small screens ───────────────────────────────
+if (W < 768) {
+  simulation
+    .force("link",   d3.forceLink(rawLinks).id(d => d.id).distance(110).strength(0.3))
+    .force("charge", d3.forceManyBody().strength(-350).distanceMax(450))
+    .force("collide",d3.forceCollide().radius(d => approxW(d) / 2 + 22))
+    .alpha(0.8).restart();
+}
+
+// ── Resize ────────────────────────────────────────────────────────────────────
+window.addEventListener("resize", () => {
+  const nw = window.innerWidth, nh = window.innerHeight;
+  svg.attr("width", nw).attr("height", nh);
+  simulation
+    .force("center", d3.forceCenter(nw/2, nh/2))
+    .force("x", d3.forceX(nw/2).strength(0.025))
+    .force("y", d3.forceY(nh/2).strength(0.025))
+    .alpha(0.25).restart();
+});
+
+</script>
+</body>
+</html>
