@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organizational Worldviews — Concept Map</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #000;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+      font-family: 'Suisse Intl', 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+
+    svg#canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* All text same size, same weight */
+    .label-concept {
+      font-size: 13px;
+      font-weight: 400;
+      fill: rgba(255,255,255,0.88);
+      letter-spacing: 0.01em;
+      pointer-events: none;
+    }
+
+    .label-sub {
+      font-size: 13px;
+      font-weight: 400;
+      fill: rgba(255,255,255,0.38);
+      letter-spacing: 0.01em;
+      pointer-events: none;
+    }
+
+    .label-question {
+      font-size: 11px;
+      font-weight: 300;
+      fill: rgba(255,255,255,0.22);
+      letter-spacing: 0.04em;
+      pointer-events: none;
+    }
+
+    /* Rhizomatic paths — curved, directionless */
+    .rhizo-link {
+      fill: none;
+      stroke-width: 0.5;
+    }
+
+    #corner {
+      position: fixed;
+      bottom: 22px;
+      left: 34px;
+      font-size: 10px;
+      font-weight: 300;
+      letter-spacing: 0.10em;
+      color: rgba(255,255,255,0.16);
+      line-height: 1.9;
+      pointer-events: none;
+    }
+    #hint {
+      position: fixed;
+      bottom: 22px;
+      right: 34px;
+      font-size: 10px;
+      font-weight: 300;
+      letter-spacing: 0.10em;
+      color: rgba(255,255,255,0.16);
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+<svg id="canvas"></svg>
+<div id="corner">mbejtlich &nbsp;·&nbsp; doctoral directed study &nbsp;·&nbsp; 2025–2026</div>
+<div id="hint">scroll to zoom &nbsp;·&nbsp; drag to pan</div>
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+
+const LINE = 17;
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  NODES
+// ══════════════════════════════════════════════════════════════════════════════
+// scholars[] → each item = one sub-line beneath the concept name
+
+const nodes = [
+
+  // ── Foundations ──────────────────────────────────────────────────────────
+  { id:"Organizational Worldviews",         scholars:["Morgan, 1980","Burrell & Morgan, 1979"],         group:0 },
+  { id:"Paradigm Incommensurability",       scholars:["Kuhn, 1962","Burrell & Morgan, 1979"],           group:0 },
+  { id:"Organizational Structure",          scholars:["Mintzberg, 1979","Lawrence & Lorsch, 1967"],     group:0 },
+  { id:"Critical Management Studies",       scholars:["Alvesson & Willmott, 1992","Banerjee, 2003"],    group:0 },
+  { id:"Institutional Theory",              scholars:["DiMaggio & Powell, 1983","Scott, 1995"],         group:0 },
+
+  // ── Relational Leadership ─────────────────────────────────────────────────
+  { id:"Relational Leadership Theory",      scholars:["Uhl-Bien, 2006","Murrell, 1997"],               group:1 },
+  { id:"Organizational Culture",            scholars:["Schein, 1985","Martin, 2002"],                   group:1 },
+  { id:"Leadership Values",                 scholars:["House & Aditya, 1997","Yukl, 2013"],             group:1 },
+  { id:"Servant Leadership",                scholars:["Greenleaf, 1977","Liden et al., 2014"],          group:1 },
+  { id:"Transformational Leadership",       scholars:["Burns, 1978","Bass, 1985"],                      group:1 },
+
+  // ── Sensemaking ──────────────────────────────────────────────────────────
+  { id:"Sensemaking (Weick)",               scholars:["Weick, 1979, 1995","Weick, Sutcliffe & Obstfeld, 2005"], group:2 },
+  { id:"Enactment",                         scholars:["Weick, 1988"],                                   group:2 },
+  { id:"Organizing",                        scholars:["Weick, 1979"],                                   group:2 },
+
+  // ── Practice Theory ───────────────────────────────────────────────────────
+  { id:"Practice Theory",                   scholars:["Schatzki, 1996","Davide Nicolini, 2012","Silvia Gherardi, 2017"], group:3 },
+  { id:"Sociomateriality",                  scholars:["Orlikowski, 2007","Orlikowski & Scott, 2008"],  group:3 },
+  { id:"Knowing-in-Practice",               scholars:["Gherardi, 2017, 2019"],                         group:3 },
+  { id:"Communities of Practice",           scholars:["Lave & Wenger, 1991","Wenger, 1998"],           group:3 },
+  { id:"Actor-Network Theory",              scholars:["Latour, 1987","Callon, 1986"],                   group:3 },
+  { id:"Process Theory",                    scholars:["Chia, 1999","Tsoukas & Chia, 2002"],             group:3 },
+
+  // ── Posthumanism & Assemblage ─────────────────────────────────────────────
+  { id:"Posthumanist Organizational Theory", scholars:["Karen Barad, 2007","Donna Haraway, 1991, 2016","Bruno Latour, 1987"], group:4 },
+  { id:"More-than-Human",                   scholars:["de Vaujany, Gherardi & Silva, 2024"],            group:4 },
+  { id:"Agential Realism",                  scholars:["Barad, 2003, 2007"],                             group:4 },
+  { id:"Assemblage",                        scholars:["Deleuze & Guattari, 1987"],                      group:4 },
+  { id:"Rhizome",                           scholars:["Deleuze & Guattari, 1980"],                      group:4 },
+  { id:"Becoming",                          scholars:["Deleuze & Guattari, 1987","Chia, 1999"],         group:4 },
+  { id:"Intra-action",                      scholars:["Barad, 2003"],                                   group:4 },
+  { id:"Ontological Turn",                  scholars:["Woolgar & Lezaun, 2013"],                        group:4 },
+  { id:"Feminist Posthumanism",             scholars:["Haraway, 1991","Braidotti, 2013"],               group:4 },
+
+  // ── Indigenous & Decolonial ───────────────────────────────────────────────
+  { id:"Indigenous Worldviews",             scholars:["Banerjee, 2003","Tuhiwai Smith, 2012"],          group:5 },
+  { id:"Decolonial Thought",                scholars:["Mignolo, 2011","Quijano, 2000"],                 group:5 },
+  { id:"Land as Relation",                  scholars:["Watts, 2013","Coulthard, 2014"],                 group:5 },
+  { id:"Cosmovisión",                       scholars:["Ehrnström-Fuentes et al., 2025"],                group:5 },
+
+  // ── Regenerative ─────────────────────────────────────────────────────────
+  { id:"Regenerative Organization",         scholars:["Mang & Reed, 2012","Hutchins, 2016"],            group:6 },
+  { id:"Ecological Thinking",               scholars:["Bateson, 1972","Capra, 1996"],                   group:6 },
+  { id:"Panarchy",                          scholars:["Gunderson & Holling, 2002"],                     group:6 },
+  { id:"Biomimicry",                        scholars:["Benyus, 1997"],                                  group:6 },
+
+  // ── Care & Creative Practice ──────────────────────────────────────────────
+  { id:"Critical and posthuman organization studies", scholars:["de Vaujany, Gherardi & Silva, 2024"], group:7 },
+  { id:"Ethics of Care",                    scholars:["Tronto, 1993","Held, 2006"],                    group:7 },
+  { id:"Creative Practice",                 scholars:["Strati, 2019","de Vaujany, 2021"],              group:7 },
+  { id:"Organizational Aesthetics",         scholars:["Strati, 1999, 2007"],                           group:7 },
+  { id:"Arts-based Inquiry",                scholars:["Leavy, 2015"],                                  group:7 },
+  { id:"Reflexivity",                       scholars:["Cunliffe, 2003","Alvesson & Sköldberg, 2009"],  group:7 },
+  { id:"Listening Practices",               scholars:["Cunliffe, 2003","Weick, 1995"],                 group:7 },
+
+  // ── Research Question (ghost text) ───────────────────────────────────────
+  {
+    id:"How do different organizational worldviews shape\nleadership values and, in turn, organizational culture,\ndecision-making, and structure?",
+    scholars:[], group:8, isQuestion:true
+  },
+];
+
+// ── Links ─────────────────────────────────────────────────────────────────────
+const links = [
+  // Foundations
+  { s:"Organizational Worldviews",        t:"Organizational Culture" },
+  { s:"Organizational Worldviews",        t:"Paradigm Incommensurability" },
+  { s:"Organizational Worldviews",        t:"Critical Management Studies" },
+  { s:"Organizational Worldviews",        t:"Organizational Structure" },
+  { s:"Organizational Worldviews",        t:"Sensemaking (Weick)" },
+  { s:"Organizational Worldviews",        t:"Practice Theory" },
+  { s:"Organizational Worldviews",        t:"Relational Leadership Theory" },
+  { s:"Organizational Structure",         t:"Institutional Theory" },
+
+  // Leadership
+  { s:"Relational Leadership Theory",     t:"Leadership Values" },
+  { s:"Relational Leadership Theory",     t:"Servant Leadership" },
+  { s:"Relational Leadership Theory",     t:"Transformational Leadership" },
+  { s:"Relational Leadership Theory",     t:"Ethics of Care" },
+  { s:"Relational Leadership Theory",     t:"Sensemaking (Weick)" },
+  { s:"Leadership Values",                t:"Organizational Culture" },
+  { s:"Transformational Leadership",      t:"Organizational Culture" },
+
+  // Sensemaking
+  { s:"Sensemaking (Weick)",              t:"Enactment" },
+  { s:"Sensemaking (Weick)",              t:"Organizing" },
+  { s:"Sensemaking (Weick)",              t:"Organizational Culture" },
+  { s:"Sensemaking (Weick)",              t:"Practice Theory" },
+  { s:"Enactment",                        t:"Becoming" },
+  { s:"Organizing",                       t:"Process Theory" },
+  { s:"Institutional Theory",             t:"Sensemaking (Weick)" },
+
+  // Practice Theory
+  { s:"Practice Theory",                  t:"Sociomateriality" },
+  { s:"Practice Theory",                  t:"Knowing-in-Practice" },
+  { s:"Practice Theory",                  t:"Communities of Practice" },
+  { s:"Practice Theory",                  t:"Actor-Network Theory" },
+  { s:"Practice Theory",                  t:"Process Theory" },
+  { s:"Sociomateriality",                 t:"Agential Realism" },
+  { s:"Sociomateriality",                 t:"Actor-Network Theory" },
+  { s:"Sociomateriality",                 t:"Intra-action" },
+  { s:"Knowing-in-Practice",              t:"Organizational Aesthetics" },
+  { s:"Knowing-in-Practice",              t:"Creative Practice" },
+  { s:"Actor-Network Theory",             t:"Assemblage" },
+
+  // Posthumanism
+  { s:"Posthumanist Organizational Theory", t:"More-than-Human" },
+  { s:"Posthumanist Organizational Theory", t:"Agential Realism" },
+  { s:"Posthumanist Organizational Theory", t:"Assemblage" },
+  { s:"Posthumanist Organizational Theory", t:"Feminist Posthumanism" },
+  { s:"Posthumanist Organizational Theory", t:"Ontological Turn" },
+  { s:"Assemblage",                       t:"Rhizome" },
+  { s:"Assemblage",                       t:"Becoming" },
+  { s:"Rhizome",                          t:"Practice Theory" },
+  { s:"Intra-action",                     t:"Agential Realism" },
+  { s:"More-than-Human",                  t:"Ecological Thinking" },
+  { s:"More-than-Human",                  t:"Land as Relation" },
+  { s:"Feminist Posthumanism",            t:"Ethics of Care" },
+  { s:"Ontological Turn",                 t:"Practice Theory" },
+  { s:"Becoming",                         t:"Process Theory" },
+
+  // Indigenous
+  { s:"Indigenous Worldviews",            t:"Decolonial Thought" },
+  { s:"Indigenous Worldviews",            t:"Land as Relation" },
+  { s:"Indigenous Worldviews",            t:"Cosmovisión" },
+  { s:"Indigenous Worldviews",            t:"Regenerative Organization" },
+  { s:"Decolonial Thought",               t:"Critical Management Studies" },
+  { s:"Land as Relation",                 t:"Ecological Thinking" },
+  { s:"Cosmovisión",                      t:"Ecological Thinking" },
+
+  // Regenerative
+  { s:"Regenerative Organization",        t:"Ecological Thinking" },
+  { s:"Regenerative Organization",        t:"Panarchy" },
+  { s:"Regenerative Organization",        t:"Biomimicry" },
+  { s:"Ecological Thinking",              t:"Panarchy" },
+  { s:"Ecological Thinking",              t:"More-than-Human" },
+
+  // Care & Creative
+  { s:"Critical and posthuman organization studies", t:"Posthumanist Organizational Theory" },
+  { s:"Critical and posthuman organization studies", t:"Reflexivity" },
+  { s:"Critical and posthuman organization studies", t:"Arts-based Inquiry" },
+  { s:"Ethics of Care",                   t:"Creative Practice" },
+  { s:"Creative Practice",               t:"Organizational Aesthetics" },
+  { s:"Creative Practice",               t:"Arts-based Inquiry" },
+  { s:"Listening Practices",             t:"Sensemaking (Weick)" },
+  { s:"Listening Practices",             t:"Relational Leadership Theory" },
+  { s:"Listening Practices",             t:"Ethics of Care" },
+
+  // Cross-rhizome bridges
+  { s:"Practice Theory",                  t:"Posthumanist Organizational Theory" },
+  { s:"Indigenous Worldviews",            t:"Posthumanist Organizational Theory" },
+  { s:"Reflexivity",                      t:"Critical Management Studies" },
+  { s:"Assemblage",                       t:"Organizational Aesthetics" },
+].map(d => ({ source: d.s, target: d.t }));
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  D3 SETUP
+// ══════════════════════════════════════════════════════════════════════════════
+
+const W = window.innerWidth;
+const H = window.innerHeight;
+
+const svg = d3.select("#canvas")
+  .attr("width", W)
+  .attr("height", H);
+
+// No arrowhead marker — pure rhizomatic lines, no direction implied
+// (assemblage has no source/origin)
+
+const g = svg.append("g");
+
+svg.call(
+  d3.zoom()
+    .scaleExtent([0.08, 6])
+    .on("zoom", e => g.attr("transform", e.transform))
+);
+
+// ── Simulation ────────────────────────────────────────────────────────────────
+
+// Approximate text block width for collision
+function approxW(d) {
+  const all = [d.id.split("\n")[0], ...d.scholars];
+  return Math.max(...all.map(s => s.length * 6.5), 40);
+}
+
+const simulation = d3.forceSimulation(nodes)
+  .force("link",    d3.forceLink(links).id(d => d.id)
+                      .distance(180).strength(0.28))
+  .force("charge",  d3.forceManyBody().strength(d => d.isQuestion ? -150 : -700).distanceMax(700))
+  .force("center",  d3.forceCenter(W / 2, H / 2))
+  .force("collide", d3.forceCollide().radius(d => approxW(d) / 2 + 36))
+  .force("x",       d3.forceX(W / 2).strength(0.025))
+  .force("y",       d3.forceY(H / 2).strength(0.025));
+
+// ── Render links as curved quadratic bezier (rhizomatic feel) ────────────────
+
+const linkSel = g.append("g").attr("class", "links")
+  .selectAll("path")
+  .data(links)
+  .join("path")
+    .attr("class", "rhizo-link")
+    .attr("stroke", () => `rgba(255,255,255,${(Math.random() * 0.07 + 0.06).toFixed(2)})`);
+
+// ── Render nodes ──────────────────────────────────────────────────────────────
+
+const nodeSel = g.append("g").attr("class", "nodes")
+  .selectAll("g")
+  .data(nodes)
+  .join("g")
+    .call(
+      d3.drag()
+        .on("start", (e, d) => { if (!e.active) simulation.alphaTarget(0.2).restart(); d.fx = d.x; d.fy = d.y; })
+        .on("drag",  (e, d) => { d.fx = e.x; d.fy = e.y; })
+        .on("end",   (e, d) => { if (!e.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; })
+    );
+
+nodeSel.each(function(d) {
+  const grp = d3.select(this);
+
+  if (d.isQuestion) {
+    d.id.split("\n").forEach((line, i) => {
+      grp.append("text")
+        .attr("class", "label-question")
+        .attr("text-anchor", "middle")
+        .attr("dy", i * LINE - (d.id.split("\n").length - 1) * LINE / 2)
+        .text(line);
+    });
+    return;
+  }
+
+  // Concept name
+  grp.append("text")
+    .attr("class", "label-concept")
+    .attr("text-anchor", "middle")
+    .attr("dy", 0)
+    .text(d.id);
+
+  // Scholar sub-lines
+  d.scholars.forEach((s, i) => {
+    grp.append("text")
+      .attr("class", "label-sub")
+      .attr("text-anchor", "middle")
+      .attr("dy", (i + 1) * LINE)
+      .text(s);
+  });
+});
+
+// ── Tick with curved bezier paths ─────────────────────────────────────────────
+
+// Each link gets a fixed random control-point offset so curves stay stable
+links.forEach(l => {
+  l._cx = (Math.random() - 0.5) * 80;
+  l._cy = (Math.random() - 0.5) * 80;
+});
+
+simulation.on("tick", () => {
+  // Curved path: quadratic bezier with mid-point offset
+  linkSel.attr("d", d => {
+    const sx = d.source.x, sy = d.source.y;
+    const tx = d.target.x, ty = d.target.y;
+    const mx = (sx + tx) / 2 + (d._cx || 0);
+    const my = (sy + ty) / 2 + (d._cy || 0);
+    return `M${sx},${sy} Q${mx},${my} ${tx},${ty}`;
+  });
+
+  nodeSel.attr("transform", d => `translate(${d.x},${d.y})`);
+});
+
+// ── Very slow ambient drift ────────────────────────────────────────────────────
+// Gives the assemblage a living, breathing quality
+let driftT = 0;
+(function drift() {
+  driftT += 0.0004;
+  nodes.forEach((d, i) => {
+    if (d.fx !== null && d.fx !== undefined) return; // skip dragged nodes
+    const phase = i * 1.37;
+    d.vx += Math.sin(driftT + phase) * 0.06;
+    d.vy += Math.cos(driftT + phase * 0.7) * 0.06;
+  });
+  simulation.alpha(Math.max(simulation.alpha(), 0.02)).restart();
+  requestAnimationFrame(drift);
+})();
+
+// ── Resize ────────────────────────────────────────────────────────────────────
+window.addEventListener("resize", () => {
+  const nw = window.innerWidth, nh = window.innerHeight;
+  svg.attr("width", nw).attr("height", nh);
+  simulation
+    .force("center", d3.forceCenter(nw/2, nh/2))
+    .force("x", d3.forceX(nw/2).strength(0.025))
+    .force("y", d3.forceY(nh/2).strength(0.025))
+    .alpha(0.3).restart();
+});
+
+</script>
+</body>
+</html>
