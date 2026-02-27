@@ -29,7 +29,11 @@
       font-weight: 400;
       fill: rgba(255,255,255,0.90);
       letter-spacing: 0.01em;
-      cursor: default;
+      cursor: pointer;
+    }
+
+    .label-concept:hover {
+      fill: rgba(255,255,255,1);
     }
 
     .label-ref {
@@ -37,12 +41,7 @@
       font-weight: 300;
       fill: rgba(255,255,255,0.38);
       letter-spacing: 0.01em;
-      cursor: pointer;
-      text-decoration: none;
-    }
-
-    .label-ref:hover {
-      fill: rgba(255,255,255,0.80) !important;
+      cursor: default;
     }
 
     /* ── Rhizomatic curves ── */
@@ -98,8 +97,8 @@
     /* ── Info panel ── */
     #info-panel {
       position: fixed;
-      bottom: 60px;
-      right: 28px;
+      bottom: 50px;
+      left: 28px;
       width: 300px;
       max-height: 280px;
       background: #fff;
@@ -169,8 +168,8 @@
   <div id="title-sub">Posthumanism · Relational OB · Indigenous Worldviews · Practice Theory · Sensemaking · Regeneration</div>
 </div>
 
-<div id="meta">mbejtlich &nbsp;·&nbsp; doctoral directed study &nbsp;·&nbsp; 56 sources &nbsp;·&nbsp; 2025–2026</div>
-<div id="hint">scroll to zoom &nbsp;·&nbsp; drag to pan &nbsp;·&nbsp; click node for section info &nbsp;·&nbsp; click source to open</div>
+<div id="meta">mbejtlich &nbsp;·&nbsp; doctoral directed study &nbsp;·&nbsp; 60 sources &nbsp;·&nbsp; 2025–2026</div>
+<div id="hint">scroll to zoom &nbsp;·&nbsp; drag to pan &nbsp;·&nbsp; click theme to open info</div>
 
 <!-- Info panel -->
 <div id="info-panel">
@@ -483,6 +482,32 @@ const nodes = [
     ], group: 7
   },
 
+  // ── Classic OB/OS Foundations (added to §1) ──────────────────────────────
+  {
+    id: "Scientific Revolutions & Paradigms",
+    refs: [
+      { label: "Kuhn, 1962", url: "" },
+    ], group: 0
+  },
+  {
+    id: "Organizational Structure",
+    refs: [
+      { label: "Mintzberg, 1979", url: "" },
+    ], group: 0
+  },
+  {
+    id: "Bounded Rationality & Decision-Making",
+    refs: [
+      { label: "March & Simon, 1958", url: "" },
+    ], group: 0
+  },
+  {
+    id: "Contingency Theory",
+    refs: [
+      { label: "Lawrence & Lorsch, 1967", url: "" },
+    ], group: 0
+  },
+
   // ── §9 Grey Literature ────────────────────────────────────────────────────
   {
     id: "Reinventing Organizations",
@@ -614,6 +639,16 @@ const rawLinks = [
   ["Deleuzian Creativity", "Practice Theory"],
   ["Apocalyptic Reflexivity", "Posthumanist Organization Studies"],
 
+  // Classic OB connections
+  ["Scientific Revolutions & Paradigms", "Organizational Worldviews"],
+  ["Scientific Revolutions & Paradigms", "Institutional Isomorphism"],
+  ["Organizational Structure", "Organizations as Open Systems"],
+  ["Organizational Structure", "Contingency Theory"],
+  ["Bounded Rationality & Decision-Making", "Organizations as Open Systems"],
+  ["Bounded Rationality & Decision-Making", "Sensemaking"],
+  ["Contingency Theory", "Organizational Structure"],
+  ["Contingency Theory", "Organizations as Open Systems"],
+
   // Grey ↔ main themes
   ["Reinventing Organizations", "Organizational Worldviews"],
   ["Leadership & the New Science", "Systems Thinking"],
@@ -688,27 +723,24 @@ const nodeSel = g.append("g")
     });
 
 // Render each node's text
+const REF_OFFSET = 8; // extra px gap between concept name and first author line
+
 nodeSel.each(function(d) {
   const grp = d3.select(this);
 
-  // Concept name
+  // Concept name — clickable (triggers info panel via node click handler)
   grp.append("text")
     .attr("class", "label-concept")
     .attr("text-anchor", "middle")
     .attr("dy", 0)
     .text(d.id);
 
-  // Refs — each as an SVG <a> wrapping a <text>
+  // Ref lines — plain text only, NOT links
   d.refs.forEach((ref, i) => {
-    const a = grp.append("a")
-      .attr("href", ref.url)
-      .attr("target", "_blank")
-      .on("click", e => e.stopPropagation()); // don't trigger node click
-
-    a.append("text")
+    grp.append("text")
       .attr("class", "label-ref")
       .attr("text-anchor", "middle")
-      .attr("dy", (i + 1) * LINE)
+      .attr("dy", REF_OFFSET + (i + 1) * LINE)
       .text(ref.label);
   });
 });
