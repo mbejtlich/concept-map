@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Annotations — Organizational Worldviews</title>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:       #ffffff;
+      --ink:      #2448c8;
+      --mid:      rgba(36,72,200,0.52);
+      --faint:    rgba(36,72,200,0.30);
+      --rule:     rgba(36,72,200,0.18);
+      --hover:    rgba(36,72,200,0.04);
+      --ff:       'Suisse Intl', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      --ff-serif: 'EB Garamond', 'Sabon', Georgia, serif;
+    }
+
+    html { scroll-behavior: smooth; overflow-x: hidden; }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--ff);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Top bar ── */
+    .top-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      height: 44px;
+    }
+    .top-bar-left a {
+      font-size: 11px;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: var(--mid);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .top-bar-left a:hover { color: var(--ink); }
+
+    /* ── Section nav (fixed top-right, left-aligned text) ── */
+    .sec-nav {
+      position: fixed;
+      top: 80px;
+      right: 40px;
+      z-index: 90;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+    .sec-nav a {
+      font-size: 11px;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--faint);
+      text-decoration: none;
+      transition: color 0.15s;
+      white-space: nowrap;
+    }
+    .sec-nav a:hover { color: var(--ink); }
+
+    /* ── Page wrap ── */
+    .page-wrap {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 40px 160px;
+    }
+
+    /* ── Page header ── */
+    .page-header {
+      padding: 100px 0 48px;
+    }
+    .page-title {
+      font-size: 52px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      margin-bottom: 32px;
+      padding-left: calc(250px + 24px);
+    }
+    .page-meta-row {
+      display: flex;
+      align-items: baseline;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+    .page-subtitle {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--mid);
+      letter-spacing: 0.01em;
+      flex: 1;
+    }
+    .page-count {
+      font-size: 11px;
+      color: var(--faint);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    /* ── Section divider ── */
+    .sec-divider {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      column-gap: 24px;
+      padding: 72px 0 0;
+      margin: 56px 0 0;
+      position: relative;
+    }
+    .sec-divider::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100vw;
+      height: 1px;
+      background: var(--rule);
+    }
+    .sec-num-prefix {
+      grid-column: 1;
+      font-size: 52px;
+      font-weight: 400;
+      color: var(--ink);
+      padding-top: 24px;
+      line-height: 1;
+      align-self: start;
+    }
+    .sec-title-label {
+      grid-column: 2;
+      font-size: 52px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      color: var(--ink);
+      padding: 24px 0 56px;
+    }
+
+    /* ── Index row ── */
+    .idx-entry {
+      position: relative;
+    }
+    .idx-entry::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100vw;
+      height: 1px;
+      background: var(--rule);
+    }
+    .idx-entry:last-child::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100vw;
+      height: 1px;
+      background: var(--rule);
+    }
+
+    .idx-row {
+      display: grid;
+      grid-template-columns: 250px 1fr auto 52px;
+      align-items: baseline;
+      column-gap: 24px;
+      padding: 22px 0;
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+    .idx-row:hover { cursor: pointer; }
+
+    .idx-num {
+      font-size: 52px;
+      font-weight: 400;
+      color: var(--ink);
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    .idx-author {
+      font-size: 52px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .idx-author em {
+      font-style: normal;
+      font-size: 24px;
+      color: var(--mid);
+      letter-spacing: 0.01em;
+    }
+
+    .idx-section {
+      font-size: 11px;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--mid);
+      text-align: right;
+      align-self: center;
+      white-space: nowrap;
+    }
+
+    .idx-arrow {
+      font-size: 52px;
+      font-weight: 300;
+      line-height: 1;
+      color: var(--ink);
+      text-align: right;
+      align-self: center;
+      width: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+    .idx-arrow::before { content: '+'; }
+    .idx-entry.open .idx-arrow::before { content: '−'; }
+
+
+    /* ── Drawer ── */
+    .idx-drawer {
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.48s cubic-bezier(0.4,0,0.2,1),
+                  opacity 0.28s ease;
+    }
+    .idx-entry.open .idx-drawer {
+      max-height: 2400px;
+      opacity: 1;
+    }
+    .drawer-inner {
+      padding: 28px 0 80px calc(250px + 24px);
+      border-top: 1px solid var(--rule);
+    }
+    .drawer-citation {
+      font-size: 17px;
+      font-weight: 400;
+      line-height: 1.65;
+      color: var(--ink);
+      max-width: 680px;
+      margin-bottom: 28px;
+    }
+    .drawer-citation em { font-style: italic; }
+    .drawer-annotation {
+      font-family: var(--ff-serif);
+      font-size: 21px;
+      line-height: 1.85;
+      color: var(--ink);
+      max-width: 680px;
+    }
+    .pending-text {
+      font-family: var(--ff);
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--faint);
+    }
+    .pending-text em { font-style: normal; }
+
+    /* ── Mobile ── */
+    @media (max-width: 640px) {
+      .top-bar { padding: 0 20px; }
+      .page-wrap { padding: 0 20px 80px; }
+      .page-header { padding: 80px 0 40px; }
+      .idx-row { grid-template-columns: 1fr 28px; column-gap: 16px; }
+      .idx-num { display: none; }
+      .idx-section { display: none; }
+      .drawer-inner { padding: 20px 16px 32px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="top-bar-left">
+    <a href="index_v2.html">← Concept Map</a>
+  </div>
+</div>
+
+<nav class="sec-nav">
+  <a href="#sec-1">01 Foundations</a>
+  <a href="#sec-2">02 Leadership</a>
+  <a href="#sec-3">03 Sensemaking</a>
+  <a href="#sec-4">04 Practice Theory</a>
+  <a href="#sec-5">05 Posthumanism</a>
+  <a href="#sec-6">06 Indigenous</a>
+  <a href="#sec-7">07 Ecological</a>
+  <a href="#sec-8">08 Care Ethics</a>
+  <a href="#sec-9">09 Grey Literature</a>
+</nav>
+
+<div class="page-wrap">
+
+  <header class="page-header">
+    <h1 class="page-title">Annotations</h1>
+  </header>
+
+  <main>
+
+  <div class="sec-divider" id="sec-1">
+    <span class="sec-num-prefix">01:</span><span class="sec-title-label">Foundations of Organizational Theory and Worldviews</span>
+  </div>
+  <div class="idx-entry" id="source-1">
+    <div class="idx-row">
+      <span class="idx-num">01</span>
+      <span class="idx-author">Burrell & Morgan<em>1979</em></span>
+      <span class="idx-section">Foundations</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Burrell, G., &amp; Morgan, G. (1979). <em>Sociological paradigms and organisational analysis: Elements of the sociology of corporate life</em>. Heinemann Educational Books.</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-2">
+    <div class="idx-row">
+      <span class="idx-num">02</span>
+      <span class="idx-author">Morgan<em>1997</em></span>
+      <span class="idx-section">Foundations</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Morgan, G. (1997). <em>Images of organization</em> (2nd ed.). Sage Publications.</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-3">
+    <div class="idx-row">
+      <span class="idx-num">03</span>
+      <span class="idx-author">DiMaggio & Powell<em>1983</em></span>
+      <span class="idx-section">Foundations</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">DiMaggio, P. J., &amp; Powell, W. W. (1983). The iron cage revisited: Institutional isomorphism and collective rationality in organizational fields. <em>American Sociological Review, 48</em>(2), 147–160. https://doi.org/10.2307/2095101</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-4">
+    <div class="idx-row">
+      <span class="idx-num">04</span>
+      <span class="idx-author">Tsoukas & Chia<em>2002</em></span>
+      <span class="idx-section">Foundations</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Tsoukas, H., &amp; Chia, R. (2002). On organizational becoming: Rethinking organizational change. <em>Organization Science, 13</em>(5), 567–582. https://doi.org/10.1287/orsc.13.5.567.7810</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-5">
+    <div class="idx-row">
+      <span class="idx-num">05</span>
+      <span class="idx-author">Scott & Davis<em>2007</em></span>
+      <span class="idx-section">Foundations</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Scott, W. R., &amp; Davis, G. F. (2007). <em>Organizations and organizing: Rational, natural, and open system perspectives</em>. Pearson Prentice Hall.</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-57">
+    <div class="idx-row">
+      <span class="idx-num">57</span>
+      <span class="idx-author">Kuhn<em>1962</em></span>
+      <span class="idx-section">Foundations</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Kuhn, T. S. (1962). <em>The structure of scientific revolutions</em>. University of Chicago Press.</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-58">
+    <div class="idx-row">
+      <span class="idx-num">58</span>
+      <span class="idx-author">Mintzberg<em>1979</em></span>
+      <span class="idx-section">Foundations</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Mintzberg, H. (1979). <em>The structuring of organizations: A synthesis of the research</em>. Prentice Hall.</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-59">
+    <div class="idx-row">
+      <span class="idx-num">59</span>
+      <span class="idx-author">March & Simon<em>1958</em></span>
+      <span class="idx-section">Foundations</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">March, J. G., &amp; Simon, H. A. (1958). <em>Organizations</em>. Wiley.</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-60">
+    <div class="idx-row">
+      <span class="idx-num">60</span>
+      <span class="idx-author">Lawrence & Lorsch<em>1967</em></span>
+      <span class="idx-section">Foundations</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Lawrence, P. R., &amp; Lorsch, J. W. (1967). <em>Organization and environment: Managing differentiation and integration</em>. Harvard Business School Press.</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="sec-divider" id="sec-2">
+    <span class="sec-num-prefix">02:</span><span class="sec-title-label">Leadership, Values, and Organizational Culture</span>
+  </div>
+  <div class="idx-entry" id="source-6">
+    <div class="idx-row">
+      <span class="idx-num">06</span>
+      <span class="idx-author">Burns<em>1978</em></span>
+      <span class="idx-section">Leadership</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Burns, J. M. (1978). <em>Leadership</em>. Harper &amp; Row.</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-7">
+    <div class="idx-row">
+      <span class="idx-num">07</span>
+      <span class="idx-author">Uhl-Bien<em>2006</em></span>
+      <span class="idx-section">Leadership</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Uhl-Bien, M. (2006). Relational leadership theory: Exploring the social processes of leadership and organizing. <em>The Leadership Quarterly, 17</em>(6), 654–676. https://doi.org/10.1016/j.leaqua.2006.10.007</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-8">
+    <div class="idx-row">
+      <span class="idx-num">08</span>
+      <span class="idx-author">Schein<em>2010</em></span>
+      <span class="idx-section">Leadership</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Schein, E. H. (2010). <em>Organizational culture and leadership</em> (4th ed.). Jossey-Bass.</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-9">
+    <div class="idx-row">
+      <span class="idx-num">09</span>
+      <span class="idx-author">Avolio & Gardner<em>2005</em></span>
+      <span class="idx-section">Leadership</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Avolio, B. J., &amp; Gardner, W. L. (2005). Authentic leadership development: Getting to the root of positive forms of leadership. <em>The Leadership Quarterly, 16</em>(3), 315–338. https://doi.org/10.1016/j.leaqua.2005.03.001</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-10">
+    <div class="idx-row">
+      <span class="idx-num">10</span>
+      <span class="idx-author">House & Gupta<em>2004</em></span>
+      <span class="idx-section">Leadership</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">House, R. J., Hanges, P. J., Javidan, M., Dorfman, P. W., &amp; Gupta, V. (Eds.). (2004). <em>Culture, leadership, and organizations: The GLOBE study of 62 societies</em>. Sage Publications.</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-11">
+    <div class="idx-row">
+      <span class="idx-num">11</span>
+      <span class="idx-author">Grosser & Moon<em>2019</em></span>
+      <span class="idx-section">Leadership</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Grosser, K., &amp; Moon, J. (2019). CSR and feminist organization studies: Towards an integrated theorization for the analysis of gender issues. <em>Journal of Business Ethics, 155</em>(2), 321–342. https://doi.org/10.1007/s10551-017-3510-x</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="sec-divider" id="sec-3">
+    <span class="sec-num-prefix">03:</span><span class="sec-title-label">Sensemaking, Enactment, and Meaning-Making</span>
+  </div>
+  <div class="idx-entry" id="source-12">
+    <div class="idx-row">
+      <span class="idx-num">12</span>
+      <span class="idx-author">Weick<em>1995</em></span>
+      <span class="idx-section">Sensemaking</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Weick, K. E. (1995). <em>Sensemaking in organizations</em>. Sage Publications.</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-13">
+    <div class="idx-row">
+      <span class="idx-num">13</span>
+      <span class="idx-author">Weick & Obstfeld<em>2005</em></span>
+      <span class="idx-section">Sensemaking</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Weick, K. E., Sutcliffe, K. M., &amp; Obstfeld, D. (2005). Organizing and the process of sensemaking. <em>Organization Science, 16</em>(4), 409–421. https://doi.org/10.1287/orsc.1050.0133</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-14">
+    <div class="idx-row">
+      <span class="idx-num">14</span>
+      <span class="idx-author">Maitlis & Christianson<em>2014</em></span>
+      <span class="idx-section">Sensemaking</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Maitlis, S., &amp; Christianson, M. (2014). Sensemaking in organizations: Taking stock and moving forward. <em>The Academy of Management Annals, 8</em>(1), 57–125. https://doi.org/10.1080/19416520.2014.873177</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-15">
+    <div class="idx-row">
+      <span class="idx-num">15</span>
+      <span class="idx-author">Gioia & Chittipeddi<em>1991</em></span>
+      <span class="idx-section">Sensemaking</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Gioia, D. A., &amp; Chittipeddi, K. (1991). Sensemaking and sensegiving in strategic change initiation. <em>Strategic Management Journal, 12</em>(6), 433–448. https://doi.org/10.1002/smj.4250120604</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="sec-divider" id="sec-4">
+    <span class="sec-num-prefix">04:</span><span class="sec-title-label">Practice Theory, Sociomateriality, and Process Ontology</span>
+  </div>
+  <div class="idx-entry" id="source-16">
+    <div class="idx-row">
+      <span class="idx-num">16</span>
+      <span class="idx-author">Orlikowski<em>2007</em></span>
+      <span class="idx-section">Practice Theory</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Orlikowski, W. J. (2007). Sociomaterial practices: Exploring technology at work. <em>Organization Studies, 28</em>(9), 1435–1448. https://doi.org/10.1177/0170840607081138</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-17">
+    <div class="idx-row">
+      <span class="idx-num">17</span>
+      <span class="idx-author">Orlikowski & Scott<em>2008</em></span>
+      <span class="idx-section">Practice Theory</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Orlikowski, W. J., &amp; Scott, S. V. (2008). Sociomateriality: Challenging the separation of technology, work, and organization. <em>The Academy of Management Annals, 2</em>(1), 433–474. https://doi.org/10.1080/19416520802211644</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-18">
+    <div class="idx-row">
+      <span class="idx-num">18</span>
+      <span class="idx-author">Gherardi<em>2016</em></span>
+      <span class="idx-section">Practice Theory</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Gherardi, S. (2016). To start practice theorizing anew: The contribution of the concepts of agencement and formativeness. <em>Organization, 23</em>(5), 680–698. https://doi.org/10.1177/1350508415605174</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-19">
+    <div class="idx-row">
+      <span class="idx-num">19</span>
+      <span class="idx-author">Champenois & Thompson<em>2025</em></span>
+      <span class="idx-section">Practice Theory</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Champenois, C., Dimov, D., Gherardi, S., Hjorth, D., &amp; Thompson, N. A. (2025). Theorizing the processes and practices of entrepreneuring at work. <em>Human Relations, 78</em>(6), 651–662. https://doi.org/10.1177/00187267251328865</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-20">
+    <div class="idx-row">
+      <span class="idx-num">20</span>
+      <span class="idx-author">Nicolini<em>2012</em></span>
+      <span class="idx-section">Practice Theory</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Nicolini, D. (2012). <em>Practice theory, work, and organization: An introduction</em>. Oxford University Press.</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-21">
+    <div class="idx-row">
+      <span class="idx-num">21</span>
+      <span class="idx-author">Feldman & Orlikowski<em>2011</em></span>
+      <span class="idx-section">Practice Theory</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Feldman, M. S., &amp; Orlikowski, W. J. (2011). Theorizing practice and practicing theory. <em>Organization Science, 22</em>(5), 1240–1253. https://doi.org/10.1287/orsc.1100.0582</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-51">
+    <div class="idx-row">
+      <span class="idx-num">51</span>
+      <span class="idx-author">Schatzki<em>1996</em></span>
+      <span class="idx-section">Practice Theory</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Schatzki, T. R. (1996). <em>Social practices: A Wittgensteinian approach to human activity and the social</em>. Cambridge University Press.</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-52">
+    <div class="idx-row">
+      <span class="idx-num">52</span>
+      <span class="idx-author">Latour<em>2005</em></span>
+      <span class="idx-section">Practice Theory</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Latour, B. (2005). <em>Reassembling the social: An introduction to Actor-Network Theory</em>. Oxford University Press.</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="sec-divider" id="sec-5">
+    <span class="sec-num-prefix">05:</span><span class="sec-title-label">Posthumanist and More-than-Human Organization Studies</span>
+  </div>
+  <div class="idx-entry" id="source-22">
+    <div class="idx-row">
+      <span class="idx-num">22</span>
+      <span class="idx-author">de Vaujany & Silva<em>2024</em></span>
+      <span class="idx-section">Posthumanism</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">de Vaujany, F.-X., Gherardi, S., &amp; Silva, P. (Eds.). (2024). <em>Organization studies and posthumanism: Towards a more-than-human world</em>. Routledge. https://doi.org/10.4324/9781032617169</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-23">
+    <div class="idx-row">
+      <span class="idx-num">23</span>
+      <span class="idx-author">Gherardi & Silva<em>2024</em></span>
+      <span class="idx-section">Posthumanism</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Gherardi, S., de Vaujany, F.-X., &amp; Silva, P. (2024). General introduction: Too-human? Inquiring in-between different disciplinary areas in managing and organizing. In F.-X. de Vaujany, S. Gherardi, &amp; P. Silva (Eds.), <em>Organization studies and posthumanism</em> (pp. 1–20). Routledge.</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-24">
+    <div class="idx-row">
+      <span class="idx-num">24</span>
+      <span class="idx-author">Ehrnström-Fuentes & Annala Tesfaye<em>2025</em></span>
+      <span class="idx-section">Posthumanism</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Ehrnström-Fuentes, M., Böhm, S., Hagolani-Albov, S., &amp; Annala Tesfaye, L. (2025). Multispecies organizing in the web of life: Ethico-political dynamics of matters of care in ecologies-in-place. <em>Business Ethics Quarterly</em>. Advance online publication. https://doi.org/10.1017/beq.2025.8</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-25">
+    <div class="idx-row">
+      <span class="idx-num">25</span>
+      <span class="idx-author">Wenzel<em>2025</em></span>
+      <span class="idx-section">Posthumanism</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Wenzel, M. (2025). Organized carelessness: De-ethicizing the organization of death. <em>Business Ethics Quarterly, 35</em>(4), 675–705. https://doi.org/10.1017/beq.2025.10083</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-26">
+    <div class="idx-row">
+      <span class="idx-num">26</span>
+      <span class="idx-author">Huopalainen & Tallberg<em>2026</em></span>
+      <span class="idx-section">Posthumanism</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Huopalainen, A., Satama, S., &amp; Tallberg, L. (2026). Aesthetic encounters, canines, and care: New multispecies methodological avenues in organizational and business ethics. <em>Journal of Business Ethics, 203</em>, 241–257. https://doi.org/10.1007/s10551-025-06035-4</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-27">
+    <div class="idx-row">
+      <span class="idx-num">27</span>
+      <span class="idx-author">Allen & Strauß<em>2026</em></span>
+      <span class="idx-section">Posthumanism</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Allen, S., &amp; Strauß, A. (2026). Thinking-being with a garden: Developing ecocentric ethics for sustainable organising. <em>Journal of Business Ethics</em>. Advance online publication. https://doi.org/10.1007/s10551-026-06255-2</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-28">
+    <div class="idx-row">
+      <span class="idx-num">28</span>
+      <span class="idx-author">Barad<em>2007</em></span>
+      <span class="idx-section">Posthumanism</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Barad, K. (2007). <em>Meeting the universe halfway: Quantum physics and the entanglement of matter and meaning</em>. Duke University Press.</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-29">
+    <div class="idx-row">
+      <span class="idx-num">29</span>
+      <span class="idx-author">Haraway<em>1988</em></span>
+      <span class="idx-section">Posthumanism</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Haraway, D. J. (1988). Situated knowledges: The science question in feminism and the privilege of partial perspective. <em>Feminist Studies, 14</em>(3), 575–599. https://doi.org/10.2307/3178066</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-53">
+    <div class="idx-row">
+      <span class="idx-num">53</span>
+      <span class="idx-author">Braidotti<em>2013</em></span>
+      <span class="idx-section">Posthumanism</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Braidotti, R. (2013). <em>The posthuman</em>. Polity Press.</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-54">
+    <div class="idx-row">
+      <span class="idx-num">54</span>
+      <span class="idx-author">Deleuze & Guattari<em>1987</em></span>
+      <span class="idx-section">Posthumanism</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Deleuze, G., &amp; Guattari, F. (1987). <em>A thousand plateaus: Capitalism and schizophrenia</em> (B. Massumi, Trans.). University of Minnesota Press.</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="sec-divider" id="sec-6">
+    <span class="sec-num-prefix">06:</span><span class="sec-title-label">Indigenous Worldviews, Decolonial Knowledge, and Relational Accountability</span>
+  </div>
+  <div class="idx-entry" id="source-30">
+    <div class="idx-row">
+      <span class="idx-num">30</span>
+      <span class="idx-author">Oberholzer<em>2026</em></span>
+      <span class="idx-section">Indigenous / Decolonial</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Oberholzer, S. (2026). Weaving regenerative value through nature-inclusive stakeholder engagement: Insights from Indigenous businesses in the Sierra Nevada. <em>Business &amp; Society</em>. Advance online publication. https://doi.org/10.1177/00076503251407454</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-31">
+    <div class="idx-row">
+      <span class="idx-num">31</span>
+      <span class="idx-author">Banerjee<em>2022</em></span>
+      <span class="idx-section">Indigenous / Decolonial</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Banerjee, S. B. (2022). Decolonizing management theory: A critical perspective. <em>Journal of Management Studies, 59</em>(4), 1074–1087. https://doi.org/10.1111/joms.12756</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-32">
+    <div class="idx-row">
+      <span class="idx-num">32</span>
+      <span class="idx-author">Banerjee<em>2003</em></span>
+      <span class="idx-section">Indigenous / Decolonial</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Banerjee, S. B. (2003). Who sustains whose development? Sustainable development and the reinvention of nature. <em>Organization Studies, 24</em>(2), 143–180. https://doi.org/10.1177/0170840603024002341</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-33">
+    <div class="idx-row">
+      <span class="idx-num">33</span>
+      <span class="idx-author">Todd<em>2016</em></span>
+      <span class="idx-section">Indigenous / Decolonial</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Todd, Z. (2016). An Indigenous feminist's take on the ontological turn: 'Ontology' is just another word for colonialism. <em>Journal of Historical Sociology, 29</em>(1), 4–22. https://doi.org/10.1111/johs.12124</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-34">
+    <div class="idx-row">
+      <span class="idx-num">34</span>
+      <span class="idx-author">Smith<em>2012</em></span>
+      <span class="idx-section">Indigenous / Decolonial</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Smith, L. T. (2012). <em>Decolonizing methodologies: Research and Indigenous peoples</em> (2nd ed.). Zed Books.</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-35">
+    <div class="idx-row">
+      <span class="idx-num">35</span>
+      <span class="idx-author">Tuck & Yang<em>2012</em></span>
+      <span class="idx-section">Indigenous / Decolonial</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Tuck, E., &amp; Yang, K. W. (2012). Decolonization is not a metaphor. <em>Decolonization: Indigeneity, Education &amp; Society, 1</em>(1), 1–40.</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-55">
+    <div class="idx-row">
+      <span class="idx-num">55</span>
+      <span class="idx-author">Mignolo<em>2011</em></span>
+      <span class="idx-section">Indigenous / Decolonial</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Mignolo, W. D. (2011). <em>The darker side of western modernity: Global futures, decolonial options</em>. Duke University Press. https://doi.org/10.1215/9780822394501</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="sec-divider" id="sec-7">
+    <span class="sec-num-prefix">07:</span><span class="sec-title-label">Ecological Embeddedness, Living Systems, and Regenerative Organizing</span>
+  </div>
+  <div class="idx-entry" id="source-36">
+    <div class="idx-row">
+      <span class="idx-num">36</span>
+      <span class="idx-author">Whiteman & Cooper<em>2000</em></span>
+      <span class="idx-section">Ecological</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Whiteman, G., &amp; Cooper, W. H. (2000). Ecological embeddedness. <em>Academy of Management Journal, 43</em>(6), 1265–1282. https://doi.org/10.2307/1556349</div>
+        <div class="drawer-annotation">This study examines how indigenous Cree tallymen in northern Canada manage land through what the authors call ecological embeddedness — a deep, experiential attunement to the natural environment built through direct presence, cultural belief, and intergenerational knowledge. Using an 18-month ethnographic approach, Whiteman and Cooper identify four dimensions of ecological embeddedness: walking the land, holding ecological beliefs rooted in reciprocity and respect, actively gathering environmental information, and learning through imperfection. These practices form the foundation of sustainable resource management, grounded in place based and traditional ecological knowledge. Indigenous knowledge systems incorporate management knowledge, beliefs, and practices passed down through generations. Decision-making was a social process — management by consensus, such as around land use or hunting. Social relations were stronger in these times compared to after the industrial revolution, where they became defined by arm's-length economic transactions. The central critique of conventional management is that it treats nature as either invisible or as an economic abstraction, producing an anthropocentric worldview that lacks empathy for the nonhuman world. In contrast, in indigenous management knowledge is relational. The land is something to be listened to and lived within as an active participant, not extracted from. Social relations in this framework precede exchange, rather than being defined by it, as became common after the industrial revolution. Whiteman et al. (2000) argue that modern management practices can benefit from natural resource management practiced by indigenous communities. This is an area that remains largely unstudied in management research and a large research gap. Culturally hunter-gatherer peoples have needed greater sensitivity to their environment and more social reciprocity than modern communities, in contrast to today's society which is based on scientific knowledge and more transactional economic practices.
+   <br><br>
+   This text is important because it brings forth the principle of ecological embeddedness and its contribution to sustainability in management contexts. Research is needed on how corporate executives can best implement these indigenous approaches. For example, how much exposure to nature needed, and what kind of practices?</div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-37">
+    <div class="idx-row">
+      <span class="idx-num">37</span>
+      <span class="idx-author">Capra<em>1996</em></span>
+      <span class="idx-section">Ecological</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Capra, F. (1996). <em>The web of life: A new scientific understanding of living systems</em>. Anchor Books.</div>
+        <div class="drawer-annotation">Capra offers a new systemic understanding of living systems which can be very useful for business leaders, decision makers, sustainability professionals, and educators, providing a contrast to paradigms of mechanism and offering a different viewpoint. His work discusses social systems, ecosystems, and organisms. The problems that are harming the biosphere — such as biodiversity loss and social inequity — are systemic and interdependent, and therefore require systemic solutions. This has direct implications for business leaders and their failure to think beyond linear, reductionist frameworks.
+   <br><br>
+   Capra suggests that solutions require a radical shift in our perception, worldview, values, and thinking. He speaks of deep ecological awareness, social ecology, and ecofeminism as related and important schools of thought that support regenerative organizations. He offers deep ecology and systems thinking as practical tools for managers and business leaders, arguing that culture shifts are necessary.
+   <br><br>
+   He outlines a progression from rational, linear, and reductionist thinking toward synthesis, holistic, and nonlinear thinking, and from mechanistic to relational. Values must shift from competition to quality, and from domination to partnership and co-creation. Worldview must move from anthropocentric to ecocentric. The old view treated animals as machines, reducing biology to physics and chemistry.
+   <br><br>
+   Systems thinking which emerges from organismic biologists who rejected mechanism, holds that relationships rather than parts help you understand a system. A system cannot be understood through analysis alone. Thinking about organizations must be contextual, not analytical, placing things into the larger whole.</div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-38">
+    <div class="idx-row">
+      <span class="idx-num">38</span>
+      <span class="idx-author">Ingold<em>2000</em></span>
+      <span class="idx-section">Ecological</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Ingold, T. (2000). <em>The perception of the environment: Essays on livelihood, dwelling and skill</em>. Routledge.</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-39">
+    <div class="idx-row">
+      <span class="idx-num">39</span>
+      <span class="idx-author">Meadows<em>2008</em></span>
+      <span class="idx-section">Ecological</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Meadows, D. H. (2008). <em>Thinking in systems: A primer</em> (D. Wright, Ed.). Chelsea Green Publishing.</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-40">
+    <div class="idx-row">
+      <span class="idx-num">40</span>
+      <span class="idx-author">Reed<em>2007</em></span>
+      <span class="idx-section">Ecological</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Reed, B. (2007). Shifting from 'sustainability' to regeneration. <em>Building Research &amp; Information, 35</em>(6), 674–680. https://doi.org/10.1080/09613210701475753</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-56">
+    <div class="idx-row">
+      <span class="idx-num">56</span>
+      <span class="idx-author">Bateson<em>1972</em></span>
+      <span class="idx-section">Ecological</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Bateson, G. (1972). <em>Steps to an ecology of mind: Collected essays in anthropology, psychiatry, evolution, and epistemology</em>. University of Chicago Press.</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="sec-divider" id="sec-8">
+    <span class="sec-num-prefix">08:</span><span class="sec-title-label">Care Ethics, Eco-Feminism, and Creative Practice</span>
+  </div>
+  <div class="idx-entry" id="source-41">
+    <div class="idx-row">
+      <span class="idx-num">41</span>
+      <span class="idx-author">Plumwood<em>1993</em></span>
+      <span class="idx-section">Care Ethics</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Plumwood, V. (1993). <em>Feminism and the mastery of nature</em>. Routledge.</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-42">
+    <div class="idx-row">
+      <span class="idx-num">42</span>
+      <span class="idx-author">Tronto<em>1993</em></span>
+      <span class="idx-section">Care Ethics</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Tronto, J. C. (1993). <em>Moral boundaries: A political argument for an ethic of care</em>. Routledge.</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-43">
+    <div class="idx-row">
+      <span class="idx-num">43</span>
+      <span class="idx-author">Held<em>2006</em></span>
+      <span class="idx-section">Care Ethics</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Held, V. (2006). <em>The ethics of care: Personal, political, and global</em>. Oxford University Press.</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-44">
+    <div class="idx-row">
+      <span class="idx-num">44</span>
+      <span class="idx-author">Karakilic & Painter<em>2022</em></span>
+      <span class="idx-section">Care Ethics</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Karakilic, E., &amp; Painter, M. (2022). The (un)surprising nature of creativity: A Deleuzian perspective on the temporality of the creative process. <em>Ephemera: Theory and Politics in Organization, 22</em>(2), 281–308.</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-45">
+    <div class="idx-row">
+      <span class="idx-num">45</span>
+      <span class="idx-author">Carollo & Shymko<em>2025</em></span>
+      <span class="idx-section">Care Ethics</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Carollo, L., Sferrazzo, R., &amp; Shymko, Y. (2025). Is it the end of the world as we know it? Apocalyptic reflexivity in and around organizations. <em>Ephemera: Theory and Politics in Organization, 25</em>(1).</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="sec-divider" id="sec-9">
+    <span class="sec-num-prefix">09:</span><span class="sec-title-label">Grey Literature and Practitioner Knowledge</span>
+  </div>
+  <div class="idx-entry" id="source-46">
+    <div class="idx-row">
+      <span class="idx-num">46</span>
+      <span class="idx-author">Laloux<em>2014</em></span>
+      <span class="idx-section">Grey Literature</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Laloux, F. (2014). <em>Reinventing organizations: A guide to creating organizations inspired by the next stage of human consciousness</em>. Nelson Parker.</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-47">
+    <div class="idx-row">
+      <span class="idx-num">47</span>
+      <span class="idx-author">Wheatley<em>1992</em></span>
+      <span class="idx-section">Grey Literature</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Wheatley, M. J. (1992). <em>Leadership and the new science: Learning about organization from an orderly universe</em>. Berrett-Koehler Publishers.</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-48">
+    <div class="idx-row">
+      <span class="idx-num">48</span>
+      <span class="idx-author">Senge<em>1990</em></span>
+      <span class="idx-section">Grey Literature</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Senge, P. M. (1990). <em>The fifth discipline: The art and practice of the learning organization</em>. Currency Doubleday.</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-49">
+    <div class="idx-row">
+      <span class="idx-num">49</span>
+      <span class="idx-author">Greenleaf<em>1977</em></span>
+      <span class="idx-section">Grey Literature</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Greenleaf, R. K. (1977). <em>Servant leadership: A journey into the nature of legitimate power and greatness</em>. Paulist Press.</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  <div class="idx-entry" id="source-50">
+    <div class="idx-row">
+      <span class="idx-num">50</span>
+      <span class="idx-author">Wahl<em>2016</em></span>
+      <span class="idx-section">Grey Literature</span>
+      <span class="idx-arrow"></span>
+    </div>
+    <div class="idx-drawer">
+      <div class="drawer-inner">
+        <div class="drawer-citation">Wahl, D. C. (2016). <em>Designing regenerative cultures</em>. Triarchy Press.</div>
+        <div class="drawer-annotation pending-text"><em>Annotation in progress.</em></div>
+      </div>
+    </div>
+  </div>
+  </main>
+
+</div>
+
+<script>
+document.querySelectorAll('.idx-row').forEach(row => {
+  row.addEventListener('click', () => {
+    const entry = row.closest('.idx-entry');
+    entry.classList.toggle('open');
+  });
+});
+
+// Open entry if URL hash matches
+function openFromHash() {
+  const hash = window.location.hash;
+  if (hash) {
+    const el = document.querySelector(hash);
+    if (el && el.classList.contains('idx-entry')) {
+      el.classList.add('open');
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+}
+openFromHash();
+window.addEventListener('hashchange', openFromHash);
+</script>
+
+</body>
+</html>

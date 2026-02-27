@@ -29,8 +29,8 @@
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to   { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; }
+      to   { opacity: 1; }
     }
 
     /* ── Ambient canvas ── */
@@ -53,28 +53,17 @@
 
     /* ── Page header ── */
     .page-header {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      padding: 52px 0 60px;
-      border-bottom: 0.5px solid var(--border);
-      margin-bottom: 0;
+      display: grid;
+      grid-template-columns: 128px 1fr 80px;
+      column-gap: 36px;
+      padding: 60px 0 0;
     }
-
-    .back-link {
-      font-size: 10px;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--text-faint);
-      text-decoration: none;
-      transition: color 0.2s;
-      padding-bottom: 2px;
-    }
-    .back-link:hover { color: var(--text); }
-    .back-link::before { content: "← "; }
 
     .header-title {
-      text-align: right;
+      grid-column: 2;
+      text-align: left;
+      border-bottom: 0.5px solid var(--border);
+      padding-bottom: 56px;
     }
     .header-title h1 {
       font-size: 28px;
@@ -101,51 +90,72 @@
 
     /* ── Section headers ── */
     .section-header {
-      padding: 72px 0 0;
-    }
-    .sec-rule {
-      width: 100%;
-      height: 0.5px;
-      background: var(--border);
-      margin-bottom: 36px;
-    }
-    .sec-inner {
+      padding: 140px 0 56px;
       display: grid;
-      grid-template-columns: 68px 1fr;
+      grid-template-columns: 128px 1fr 80px;
       column-gap: 36px;
-      align-items: start;
     }
-    .sec-num {
-      font-size: 42px;
-      font-weight: 300;
-      color: rgba(255,255,255,0.12);
-      letter-spacing: -0.02em;
-      line-height: 1;
-      padding-top: 4px;
+    .sec-rule { display: none; }
+    .sec-inner {
+      grid-column: 2;
+      display: block;
     }
-    .sec-text h2 {
-      font-size: 16px;
-      font-weight: 400;
-      color: var(--text);
-      letter-spacing: 0;
-      line-height: 1.3;
-      margin-bottom: 10px;
-    }
-    .sec-text p {
-      font-size: 12px;
+
+    /* ── Expandable annotations ── */
+    .annotation {
+      font-size: 15px;
       font-weight: 300;
       color: var(--text-dim);
-      line-height: 1.7;
+      line-height: 1.80;
+      max-width: 620px;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                  opacity 0.25s ease;
+    }
+    .annotation.open {
+      max-height: 2000px;
+      opacity: 1;
+    }
+    .sec-num {
+      display: inline;
+      font-size: 32px;
+      font-weight: 400;
+      color: var(--text);
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+    .sec-num::after { content: ":"; margin-right: 0.2em; }
+    .sec-text h2 {
+      display: inline;
+      font-size: 32px;
+      font-weight: 400;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+    }
+    .sec-title-line {
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+    .sec-text { display: inline; }
+    .sec-text p {
+      display: block;
+      font-size: 16px;
+      font-weight: 300;
+      color: var(--text-dim);
+      line-height: 1.75;
       max-width: 580px;
+      margin-top: 14px;
     }
 
     /* ── Entry grid ── */
     .entry {
       display: grid;
-      grid-template-columns: 68px 1fr 80px;
+      grid-template-columns: 128px 1fr 80px;
       column-gap: 36px;
-      padding: 32px 0;
-      border-top: 0.5px solid var(--border);
+      padding: 48px 0;
       align-items: start;
       transition: background 0.15s;
       margin-top: 0;
@@ -159,13 +169,13 @@
 
     /* ── Image placeholder ── */
     .img-box {
-      width: 56px;
-      height: 72px;
+      width: 112px;
+      height: 144px;
       border: 0.5px solid rgba(255,255,255,0.10);
       display: flex;
       align-items: flex-end;
       justify-content: flex-start;
-      padding: 6px 7px;
+      padding: 10px 12px;
       position: relative;
       overflow: hidden;
       flex-shrink: 0;
@@ -176,10 +186,10 @@
       inset: 0;
     }
     .img-num {
-      font-size: 10px;
+      font-size: 13px;
       font-weight: 300;
-      letter-spacing: 0.05em;
-      color: rgba(255,255,255,0.20);
+      letter-spacing: 0.06em;
+      color: rgba(255,255,255,0.22);
       position: relative;
       z-index: 1;
     }
@@ -196,7 +206,10 @@
     .img-box.s9 { background: linear-gradient(150deg, rgba(210,210,210,0.06) 0%, rgba(0,0,0,0) 100%); }
 
     /* ── Entry body ── */
-    .entry-body { padding-top: 0; }
+    .entry-body {
+      padding-top: 20px;
+      border-top: 0.5px solid var(--border);
+    }
 
     .entry-meta {
       font-size: 9px;
@@ -208,22 +221,17 @@
     }
 
     .citation {
-      font-size: 13px;
+      font-size: 16px;
       font-weight: 400;
       color: var(--text);
-      line-height: 1.55;
-      margin-bottom: 12px;
+      line-height: 1.6;
+      margin-bottom: 14px;
+      cursor: pointer;
+      transition: color 0.15s;
     }
+    .citation:hover { color: rgba(255,255,255,1); }
     .citation em {
       font-style: italic;
-    }
-
-    .annotation {
-      font-size: 12px;
-      font-weight: 300;
-      color: var(--text-dim);
-      line-height: 1.78;
-      max-width: 620px;
     }
 
     .pending {
@@ -244,46 +252,97 @@
       white-space: nowrap;
     }
 
-    /* ── Section nav (sticky) ── */
+    /* ── Section nav — fixed top left ── */
     .section-nav {
       position: fixed;
-      bottom: 40px;
-      left: 40px;
-      z-index: 10;
+      top: 28px;
+      left: 36px;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
     }
     .section-nav a {
-      display: block;
       font-size: 9px;
       letter-spacing: 0.10em;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.18);
       text-decoration: none;
-      margin-bottom: 5px;
+      transition: color 0.2s;
+      white-space: nowrap;
+    }
+    .section-nav a:hover { color: rgba(255,255,255,0.70); }
+
+    /* ── Back link — fixed top right ── */
+    .back-link-fixed {
+      position: fixed;
+      top: 32px;
+      right: 36px;
+      font-size: 10px;
+      font-weight: 300;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.32);
+      text-decoration: none;
+      z-index: 100;
       transition: color 0.2s;
     }
-    .section-nav a:hover { color: rgba(255,255,255,0.65); }
+    .back-link-fixed::before { content: "← "; }
+    .back-link-fixed:hover { color: rgba(255,255,255,0.85); }
 
     /* ── Mobile ── */
     @media (max-width: 768px) {
-      .page-wrap { padding: 0 20px 80px; }
-      .page-header { flex-direction: column; align-items: flex-start; gap: 20px; padding: 32px 0 40px; }
-      .header-title { text-align: left; }
-      .header-title h1 { font-size: 22px; }
-      .entry { grid-template-columns: 48px 1fr; }
+      .page-wrap { padding: 0 24px 80px; }
+      .page-header {
+        display: block;
+        padding: 72px 0 0;
+      }
+      .header-title {
+        grid-column: unset;
+        padding-bottom: 40px;
+      }
+      .header-title h1 { font-size: 24px; }
+      .header-title .subtitle { font-size: 9px; }
+
+      .section-header {
+        display: block;
+        padding: 64px 0 32px;
+      }
+      .sec-inner { grid-column: unset; }
+      .sec-num { font-size: 22px; }
+      .sec-text h2 { font-size: 22px; }
+      .sec-text p { font-size: 14px; }
+
+      .entry {
+        grid-template-columns: 60px 1fr;
+        column-gap: 20px;
+      }
+      .img-box { width: 60px; height: 80px; }
       .entry-tag { display: none; }
-      .sec-num { font-size: 28px; }
+      .citation { font-size: 14px; }
+      .annotation { font-size: 13px; }
+
       .section-nav { display: none; }
+      .back-link-fixed {
+        font-size: 9px;
+        top: 16px;
+        right: 16px;
+      }
     }
 
     @media (max-width: 480px) {
+      .page-wrap { padding: 0 16px 60px; }
       .entry { grid-template-columns: 1fr; }
       .entry-img { display: none; }
+      .sec-num { font-size: 18px; }
+      .sec-text h2 { font-size: 18px; }
     }
   </style>
 </head>
 <body>
 
 <canvas id="ambient"></canvas>
+<a href="index_v2.html" class="back-link-fixed">Concept Map</a>
 
 <nav class="section-nav">
   <a href="#section-1">01 Foundations</a>
@@ -300,7 +359,6 @@
 <div class="page-wrap">
 
   <header class="page-header">
-    <a href="index_v2.html" class="back-link">Concept Map</a>
     <div class="header-title">
       <h1>Annotations</h1>
       <div class="subtitle">Organizational Worldviews · Leadership, Culture, and More-than-Human Practice</div>
@@ -1012,9 +1070,9 @@
     <div class="entry-body">
       <div class="entry-meta">36 &nbsp;·&nbsp; Ecological</div>
       <div class="citation">Whiteman, G., &amp; Cooper, W. H. (2000). Ecological embeddedness. <em>Academy of Management Journal, 43</em>(6), 1265–1282. https://doi.org/10.2307/1556349</div>
-      <div class="annotation">This study examines how indigenous Cree tallymen in northern Canada manage land through what the authors call ecological embeddedness — a deep, experiential attunement to the natural environment built through direct presence, cultural belief, and intergenerational knowledge. Using an 18-month ethnographic study, Whiteman and Cooper argue that ecological embeddedness is not a metaphor but a materially enacted relationship: the tallymen do not just observe the environment, they are constituted by it and through it. The study traces four dimensions of ecological embeddedness: physical exposure to land, ecological knowledge grounded in place, ecological actions oriented toward sustainability, and cultural beliefs about human–land interdependence. These dimensions operate together to produce a mode of environmental management that is fundamentally incompatible with the extractive rationality of conventional corporate management.
+      <div class="annotation">This study examines how indigenous Cree tallymen in northern Canada manage land through what the authors call ecological embeddedness — a deep, experiential attunement to the natural environment built through direct presence, cultural belief, and intergenerational knowledge. Using an 18-month ethnographic approach, Whiteman and Cooper identify four dimensions of ecological embeddedness: walking the land, holding ecological beliefs rooted in reciprocity and respect, actively gathering environmental information, and learning through imperfection. These practices form the foundation of sustainable resource management, grounded in place based and traditional ecological knowledge. Indigenous knowledge systems incorporate management knowledge, beliefs, and practices passed down through generations. Decision-making was a social process — management by consensus, such as around land use or hunting. Social relations were stronger in these times compared to after the industrial revolution, where they became defined by arm's-length economic transactions. The central critique of conventional management is that it treats nature as either invisible or as an economic abstraction, producing an anthropocentric worldview that lacks empathy for the nonhuman world. In contrast, in indigenous management knowledge is relational. The land is something to be listened to and lived within as an active participant, not extracted from. Social relations in this framework precede exchange, rather than being defined by it, as became common after the industrial revolution. Whiteman et al. (2000) argue that modern management practices can benefit from natural resource management practiced by indigenous communities. This is an area that remains largely unstudied in management research and a large research gap. Culturally hunter-gatherer peoples have needed greater sensitivity to their environment and more social reciprocity than modern communities, in contrast to today's society which is based on scientific knowledge and more transactional economic practices.
    <br><br>
-   This text is important because it brings forth the principle of ecological embeddedness and its contribution to sustainability in management contexts. Research is needed on how corporate executives can best implement indigenous approaches. For example, how much exposure to nature is needed — and what kinds — to shift worldview and decision-making toward ecological awareness? The study challenges the prevailing extractive logic of corporate management by showing what leadership looks like when it is genuinely embedded in and accountable to living systems. For this literature review, Whiteman and Cooper provide an empirical anchor for Section 7's ecological and living-systems orientation: they show that ecological worldview is not abstract philosophy but enacted, embodied practice.</div>
+   This text is important because it brings forth the principle of ecological embeddedness and its contribution to sustainability in management contexts. Research is needed on how corporate executives can best implement these indigenous approaches. For example, how much exposure to nature needed, and what kind of practices?</div>
     </div>
     <div class="entry-tag">§7</div>
   </div>
@@ -1028,11 +1086,13 @@
     <div class="entry-body">
       <div class="entry-meta">37 &nbsp;·&nbsp; Ecological</div>
       <div class="citation">Capra, F. (1996). <em>The web of life: A new scientific understanding of living systems</em>. Anchor Books.</div>
-      <div class="annotation">Capra offers a systemic understanding of living systems which can be very useful for business leaders, decision makers, sustainability professionals, and educators — providing a contrast to paradigms of mechanism and offering a different viewpoint. His work discusses social systems, ecosystems, and the deep patterns of life across scales, drawing on systems biology, quantum physics, and complexity theory to argue that life is a network phenomenon that cannot be understood through reductionist analysis alone.
+      <div class="annotation">Capra offers a new systemic understanding of living systems which can be very useful for business leaders, decision makers, sustainability professionals, and educators, providing a contrast to paradigms of mechanism and offering a different viewpoint. His work discusses social systems, ecosystems, and organisms. The problems that are harming the biosphere — such as biodiversity loss and social inequity — are systemic and interdependent, and therefore require systemic solutions. This has direct implications for business leaders and their failure to think beyond linear, reductionist frameworks.
    <br><br>
-   Capra suggests that solutions to our current ecological and social crises require a radical shift in our perception, worldview, values, and thinking. He speaks of deep ecological awareness, social ecology, and ecofeminism as related and important schools of thought that support regenerative organizations. He outlines a progression from rational, linear, and reductionist thinking toward synthesis, holistic, and nonlinear thinking, and from mechanistic to relational. Values must shift from competition to cooperation, from expansion to conservation, from quantity to quality, and from domination to partnership and co-creation. Systems thinking, which emerges from organismic biologists who rejected mechanism, holds that relationships rather than parts help you understand a system. A system cannot be understood through analysis alone.
+   Capra suggests that solutions require a radical shift in our perception, worldview, values, and thinking. He speaks of deep ecological awareness, social ecology, and ecofeminism as related and important schools of thought that support regenerative organizations. He offers deep ecology and systems thinking as practical tools for managers and business leaders, arguing that culture shifts are necessary.
    <br><br>
-   For this literature review, Capra provides foundational grounding for the ecological worldview that Section 7 develops. His synthesis of living systems thinking offers a robust philosophical and scientific basis for regenerative organizing — showing that the shift in organizational worldview required by this review's research question is not arbitrary but reflects deep patterns in how life itself is organized.</div>
+   He outlines a progression from rational, linear, and reductionist thinking toward synthesis, holistic, and nonlinear thinking, and from mechanistic to relational. Values must shift from competition to quality, and from domination to partnership and co-creation. Worldview must move from anthropocentric to ecocentric. The old view treated animals as machines, reducing biology to physics and chemistry.
+   <br><br>
+   Systems thinking which emerges from organismic biologists who rejected mechanism, holds that relationships rather than parts help you understand a system. A system cannot be understood through analysis alone. Thinking about organizations must be contextual, not analytical, placing things into the larger whole.</div>
     </div>
     <div class="entry-tag">§7</div>
   </div>
@@ -1328,6 +1388,15 @@
   }
   draw();
 })();
+
+// ── Expandable annotation text ────────────────────────────────────────────────
+document.querySelectorAll('.citation').forEach(citation => {
+  const annotation = citation.nextElementSibling;
+  if (!annotation || !annotation.classList.contains('annotation')) return;
+  citation.addEventListener('click', () => {
+    annotation.classList.toggle('open');
+  });
+});
 </script>
 
 </body>
