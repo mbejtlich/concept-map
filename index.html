@@ -234,7 +234,7 @@
   <div id="title-sub">Posthumanism · Relational OB · Indigenous Worldviews · Practice Theory · Sensemaking · Regeneration</div>
 </div>
 
-<div id="meta">mbejtlich &nbsp;·&nbsp; doctoral directed study &nbsp;·&nbsp; 60 sources &nbsp;·&nbsp; 2025–2026</div>
+<div id="meta">mbejtlich &nbsp;·&nbsp; doctoral directed study &nbsp;·&nbsp; <span id="source-count">60</span> sources &nbsp;·&nbsp; 2025–2026</div>
 <div id="hint">scroll to zoom &nbsp;·&nbsp; drag to pan &nbsp;·&nbsp; click theme to open info</div>
 <a id="annotations-link" href="annotations.html">Annotations</a>
 
@@ -886,6 +886,18 @@ window.addEventListener("resize", () => {
     .alpha(0.25).restart();
 });
 
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(async () => {
+  const sb = supabase.createClient(
+    'https://dnqtrzsiqkosrxoitzol.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRucXRyenNpcWtvc3J4b2l0em9sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0OTY4MDIsImV4cCI6MjA4ODA3MjgwMn0.DRKZA1h9mWBZcp7wWgf-s5ZYpuYUYd1-Z_96GIONjZU'
+  );
+  const { count } = await sb.from('sources').select('*', { count: 'exact', head: true });
+  if (count !== null) document.getElementById('source-count').textContent = count;
+})();
 </script>
 </body>
 </html>
