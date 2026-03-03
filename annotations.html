@@ -888,8 +888,8 @@ function setupAnnotationEditing() {
       ann.focus();
     });
 
-    // Shared save function — called by both blur (immediate) and debounced input
-    async function persistAnnotation() {
+    // Auto-save every 60 s of activity — shows toast so you know it happened
+    const debouncedSave = debounce(async () => {
       const text = ann.innerText.trim();
       const sourceId = ann.dataset.sourceId;
       if (!sourceId) return;
@@ -902,24 +902,20 @@ function setupAnnotationEditing() {
         if (s) s.annotation = text;
         showToast('Saved');
       }
-    }
-
-    // Auto-save 1.5 s after last keystroke
-    const debouncedSave = debounce(persistAnnotation, 1500);
+    }, 60000);
     ann.addEventListener('input', debouncedSave);
 
     ann.addEventListener('blur', async () => {
-      // Read text BEFORE setting contentEditable=false to avoid browser stripping
+      // Read text BEFORE setting contentEditable=false
       const text = ann.innerText.trim();
       ann.contentEditable = 'false';
       if (!text) {
         ann.classList.add('pending');
         ann.textContent = 'Annotation in progress.';
       }
-      // Immediate save on close
+      // Silent immediate save on close — no toast
       const sourceId = ann.dataset.sourceId;
       if (!sourceId) return;
-      showToast('Saving…');
       const { error } = await sb.from('sources')
         .update({ annotation: text })
         .eq('id', sourceId);
@@ -927,7 +923,6 @@ function setupAnnotationEditing() {
       else {
         const s = _sources.find(x => x.id === sourceId);
         if (s) s.annotation = text;
-        showToast('Saved');
       }
     });
 
@@ -964,8 +959,8 @@ function setupCitationEditing() {
       cit.focus();
     });
 
-    // Shared save + title refresh
-    async function persistCitation() {
+    // Auto-save every 60 s of activity — shows toast so you know it happened
+    const debouncedSave = debounce(async () => {
       const html = cit.innerHTML.trim();
       const sourceId = cit.dataset.sourceId;
       if (!sourceId) return;
@@ -976,20 +971,9 @@ function setupCitationEditing() {
       else {
         const s = _sources.find(x => x.id === sourceId);
         if (s) s.citation = html;
-        const row = document.getElementById(sourceId);
-        if (row) {
-          const titleCell = row.querySelector('.col-section');
-          if (titleCell) {
-            const em = cit.querySelector('em');
-            if (em) titleCell.textContent = em.textContent.trim();
-          }
-        }
         showToast('Saved');
       }
-    }
-
-    // Auto-save 1.5 s after last keystroke
-    const debouncedSave = debounce(persistCitation, 1500);
+    }, 60000);
     cit.addEventListener('input', debouncedSave);
 
     cit.addEventListener('blur', async () => {
@@ -998,7 +982,7 @@ function setupCitationEditing() {
       cit.contentEditable = 'false';
       const sourceId = cit.dataset.sourceId;
       if (!sourceId) return;
-      showToast('Saving…');
+      // Silent immediate save on close — no toast
       const { error } = await sb.from('sources')
         .update({ citation: html })
         .eq('id', sourceId);
@@ -1016,7 +1000,6 @@ function setupCitationEditing() {
             if (em) titleCell.textContent = em.textContent.trim();
           }
         }
-        showToast('Saved');
       }
     });
     cit.addEventListener('keydown', e => {
