@@ -352,6 +352,26 @@
     }
     .save-toast.show { opacity: 1; }
 
+    /* ── Export button ── */
+    .export-btn {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 500;
+      cursor: pointer;
+      font-family: var(--ff);
+      font-size: 11px;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--ink);
+      background: #ffffff;
+      border: 1px solid var(--ink);
+      padding: 8px 16px;
+      opacity: 0.35;
+      transition: opacity 0.15s;
+    }
+    .export-btn:hover { opacity: 1; }
+
     /* ── Mobile ── */
     @media (max-width: 768px) {
       :root { --start-num: 0%; --start-author: 10%; --start-section: 48%; --start-year: 82%; }
@@ -480,6 +500,9 @@
 
 <!-- Save toast -->
 <div class="save-toast" id="save-toast">Saved</div>
+
+<!-- Export button -->
+<button class="export-btn" id="export-btn" title="Export to PDF">↓ PDF</button>
 
 <!-- Supabase CDN -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1080,6 +1103,151 @@ function showToast(msg) {
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
 }
+
+// ── Export to PDF ─────────────────────────────────────────────────────────────
+document.getElementById('export-btn').addEventListener('click', () => {
+  if (!_sources.length) { alert('Sources not loaded yet.'); return; }
+
+  let currentSection = null;
+  let bodyHtml = '';
+
+  _sources.forEach(s => {
+    // Section break
+    if (s.section !== currentSection) {
+      currentSection = s.section;
+      const longName = SECTION_NAMES[s.section] || s.section;
+      bodyHtml += `<div class="section-header">${longName}</div>`;
+    }
+
+    const hasAnn = s.annotation && s.annotation.trim();
+    const annHtml = hasAnn
+      ? `<div class="annotation">${s.annotation.replace(/\n/g, '<br>')}</div>`
+      : `<div class="annotation pending">Annotation in progress.</div>`;
+
+    const kws = (_kwMap[s.id] || []).map(k =>
+      `<span class="pill">${k.keyword}</span>`).join('');
+    const kwHtml = kws ? `<div class="pills">${kws}</div>` : '';
+
+    bodyHtml += `
+      <div class="source">
+        <div class="source-meta">
+          <span class="num">${s.display_num}</span>
+          <span class="author">${s.author}</span>
+          <span class="year">${s.year}</span>
+        </div>
+        <div class="citation">${s.citation || ''}</div>
+        ${annHtml}
+        ${kwHtml}
+      </div>`;
+  });
+
+  const printHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Annotated Bibliography — Organizational Worldviews</title>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Suisse Intl', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 11px;
+      line-height: 1.5;
+      color: #111;
+      background: #fff;
+      padding: 60px 72px;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 22px;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      margin-bottom: 6px;
+    }
+    .subtitle {
+      font-size: 11px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      opacity: 0.4;
+      margin-bottom: 48px;
+    }
+    .section-header {
+      font-size: 28px;
+      letter-spacing: -0.01em;
+      font-weight: 400;
+      margin: 48px 0 20px;
+      padding-top: 24px;
+      border-top: 1px solid #111;
+      page-break-after: avoid;
+    }
+    .source {
+      margin-bottom: 36px;
+      page-break-inside: avoid;
+    }
+    .source-meta {
+      display: flex;
+      gap: 16px;
+      align-items: baseline;
+      margin-bottom: 4px;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .num  { opacity: 0.35; min-width: 24px; }
+    .author { font-weight: 500; }
+    .year { opacity: 0.5; }
+    .citation {
+      font-size: 11px;
+      line-height: 1.6;
+      color: #333;
+      margin-bottom: 10px;
+      max-width: 580px;
+    }
+    .citation em { font-style: italic; }
+    .annotation {
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #1a3a99;
+      max-width: 580px;
+      margin-bottom: 8px;
+    }
+    .annotation.pending {
+      font-family: 'Suisse Intl', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #999;
+    }
+    .pills { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+    .pill {
+      font-size: 9px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      background: #f0f0f0;
+      border-radius: 100px;
+      padding: 3px 9px;
+      color: #444;
+    }
+    @media print {
+      body { padding: 0; }
+      .section-header { page-break-before: auto; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Annotated Bibliography</h1>
+  <div class="subtitle">Organizational Worldviews &nbsp;·&nbsp; ${_sources.length} sources &nbsp;·&nbsp; Matthew Bejtlich &nbsp;·&nbsp; ${new Date().getFullYear()}</div>
+  ${bodyHtml}
+  <script>window.onload = () => window.print();<\/script>
+</body>
+</html>`;
+
+  const win = window.open('', '_blank');
+  win.document.write(printHtml);
+  win.document.close();
+});
 
 // ── Start ─────────────────────────────────────────────────────────────────────
 init();
