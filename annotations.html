@@ -174,37 +174,28 @@
       background: none;
     }
 
-    /* ── Section selector (in detail row) ── */
-    .section-row {
-      margin-bottom: 14px;
+    /* ── Bottom action row (delete + terrain) ── */
+    .action-row {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 20px;
+      margin-top: 8px;
     }
-    .section-row-label {
-      font-size: 10px;
-      letter-spacing: 0.09em;
-      text-transform: uppercase;
-      opacity: 0.4;
-      white-space: nowrap;
-    }
-    .section-select {
+    .terrain-select {
       font-family: var(--ff);
-      font-size: 10px;
-      letter-spacing: 0.09em;
+      font-size: 11px;
+      letter-spacing: 0.07em;
       text-transform: uppercase;
       border: none;
-      border-bottom: 1px solid var(--ink);
       background: transparent;
       cursor: pointer;
       color: var(--ink);
-      padding: 1px 4px 1px 0;
-      opacity: 0.4;
+      opacity: 0.2;
       outline: none;
-      max-width: 340px;
+      padding: 0;
     }
-    .section-select:hover,
-    .section-select:focus { opacity: 1; }
+    .terrain-select:hover,
+    .terrain-select:focus { opacity: 1; }
 
     /* ── Delete button ── */
     .delete-btn {
@@ -215,7 +206,6 @@
       text-transform: uppercase;
       opacity: 0.2;
       color: var(--ink);
-      margin-top: 8px;
       user-select: none;
     }
     .delete-btn:hover { opacity: 1; color: #cc2222; }
@@ -731,25 +721,6 @@ function buildDetailRow(s, keywords) {
   innerTd.className = 'detail-inner';
   innerTd.setAttribute('colspan', '3');
 
-  // Section selector
-  const secRow = document.createElement('div');
-  secRow.className = 'section-row';
-  const secLabel = document.createElement('span');
-  secLabel.className = 'section-row-label';
-  secLabel.textContent = 'Theme';
-  const secSel = document.createElement('select');
-  secSel.className = 'section-select';
-  secSel.dataset.sourceId = s.id;
-  Object.entries(SECTION_NAMES).forEach(([key, val]) => {
-    const opt = document.createElement('option');
-    opt.value = key;
-    opt.textContent = val;
-    if (key === s.section) opt.selected = true;
-    secSel.appendChild(opt);
-  });
-  secRow.appendChild(secLabel);
-  secRow.appendChild(secSel);
-
   // Citation (HTML content — em tags preserved)
   const citDiv = document.createElement('div');
   citDiv.className = 'detail-citation';
@@ -773,17 +744,33 @@ function buildDetailRow(s, keywords) {
   addKwBtn.textContent = '+ keyword';
   kwRow.appendChild(addKwBtn);
 
-  // Delete button
+  // Bottom action row: Delete source + Terrain
+  const actionRow = document.createElement('div');
+  actionRow.className = 'action-row';
+
   const delBtn = document.createElement('span');
   delBtn.className = 'delete-btn';
   delBtn.dataset.sourceId = s.id;
   delBtn.textContent = 'Delete source';
 
-  innerTd.appendChild(secRow);
+  const terrainSel = document.createElement('select');
+  terrainSel.className = 'terrain-select';
+  terrainSel.dataset.sourceId = s.id;
+  Object.entries(SECTION_NAMES).forEach(([key, val]) => {
+    const opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = val;
+    if (key === s.section) opt.selected = true;
+    terrainSel.appendChild(opt);
+  });
+
+  actionRow.appendChild(delBtn);
+  actionRow.appendChild(terrainSel);
+
   innerTd.appendChild(citDiv);
   innerTd.appendChild(annDiv);
   innerTd.appendChild(kwRow);
-  innerTd.appendChild(delBtn);
+  innerTd.appendChild(actionRow);
   tr.appendChild(numTd);
   tr.appendChild(innerTd);
   return tr;
@@ -1034,9 +1021,9 @@ function setupCitationEditing() {
   });
 }
 
-// ── Section (theme) editing → saves to Supabase + re-renders ─────────────────
+// ── Terrain (theme) editing → saves to Supabase + re-renders ─────────────────
 function setupSectionEditing() {
-  document.querySelectorAll('.section-select').forEach(sel => {
+  document.querySelectorAll('.terrain-select').forEach(sel => {
     sel.addEventListener('change', async e => {
       e.stopPropagation();
       const sourceId = sel.dataset.sourceId;
@@ -1047,11 +1034,9 @@ function setupSectionEditing() {
         .update({ section: newSection })
         .eq('id', sourceId);
       if (error) { console.error(error); showToast('Error saving'); return; }
-      // Update local cache
       const s = _sources.find(x => x.id === sourceId);
       if (s) s.section = newSection;
       showToast('Saved');
-      // Re-render and re-open this source's detail
       renderTable();
       setTimeout(() => {
         const row    = document.getElementById(sourceId);
@@ -1062,7 +1047,6 @@ function setupSectionEditing() {
         }
       }, 80);
     });
-    // Prevent row accordion from toggling when clicking the dropdown
     sel.addEventListener('click', e => e.stopPropagation());
   });
 }
