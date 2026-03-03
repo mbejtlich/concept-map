@@ -629,12 +629,33 @@ function renderTable() {
   let secIndex = 0;
   _sectionIdMap = {};
 
-  // Sort by canonical section order, then by sort_order within each section
+  // Sort: existing sources by sort_order (preserves original 01–60 sequence);
+  // newly added sources (sort_order > 60) grouped by section then sort_order.
   const sorted = [..._sources].sort((a, b) => {
-    const ai = SECTION_ORDER.indexOf(a.section);
-    const bi = SECTION_ORDER.indexOf(b.section);
-    if (ai !== bi) return ai - bi;
-    return (a.sort_order || 0) - (b.sort_order || 0);
+    const ao = a.sort_order || 0;
+    const bo = b.sort_order || 0;
+    const isNewA = ao > 60;
+    const isNewB = bo > 60;
+    // Both original → strict sort_order
+    if (!isNewA && !isNewB) return ao - bo;
+    // Both new → section order, then sort_order
+    if (isNewA && isNewB) {
+      const ai = SECTION_ORDER.indexOf(a.section);
+      const bi = SECTION_ORDER.indexOf(b.section);
+      if (ai !== bi) return ai - bi;
+      return ao - bo;
+    }
+    // Mixed: insert new source after last original source in same section
+    if (isNewA) {
+      const secMaxB = _sources
+        .filter(s => s.section === a.section && (s.sort_order || 0) <= 60)
+        .reduce((m, s) => Math.max(m, s.sort_order || 0), -1);
+      return secMaxB >= bo ? 1 : -1;
+    }
+    const secMaxA = _sources
+      .filter(s => s.section === b.section && (s.sort_order || 0) <= 60)
+      .reduce((m, s) => Math.max(m, s.sort_order || 0), -1);
+    return secMaxA >= ao ? -1 : 1;
   });
 
   sorted.forEach(s => {
