@@ -1121,7 +1121,7 @@ document.getElementById('export-btn').addEventListener('click', () => {
 
     const hasAnn = s.annotation && s.annotation.trim();
     const annHtml = hasAnn
-      ? `<div class="annotation">${s.annotation.replace(/\n/g, '<br>')}</div>`
+      ? `<div class="annotation">${s.annotation.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`
       : `<div class="annotation pending">Annotation in progress.</div>`;
 
     const kws = (_kwMap[s.id] || []).map(k =>
@@ -1212,6 +1212,7 @@ document.getElementById('export-btn').addEventListener('click', () => {
       color: #1a3a99;
       max-width: 580px;
       margin-bottom: 8px;
+      white-space: pre-wrap;
     }
     .annotation.pending {
       font-family: 'Suisse Intl', 'Helvetica Neue', Helvetica, Arial, sans-serif;
