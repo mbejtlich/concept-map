@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Organizational Worldviews — Concept Map</title>
+  <title>Organizational Worldviews — Concept Map v2</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
-      background: #000;
+      background: #2a0a5e;
       overflow: hidden;
       width: 100vw;
       height: 100vh;
@@ -41,7 +41,10 @@
       font-weight: 300;
       fill: rgba(255,255,255,0.38);
       letter-spacing: 0.01em;
-      cursor: default;
+      cursor: pointer;
+    }
+    .label-ref:hover {
+      fill: rgba(255,255,255,0.68);
     }
 
     /* ── Rhizomatic curves ── */
@@ -161,40 +164,66 @@
     /* ── Mobile ── */
     @media (max-width: 768px) {
       #title-main {
-        font-size: 14px;
+        font-size: 13px;
         line-height: 1.4;
       }
       #title-sub {
-        font-size: 8px;
+        font-size: 7px;
         letter-spacing: 0.08em;
         margin-top: 4px;
       }
       #title-block {
-        top: 16px;
-        left: 16px;
-        max-width: 70vw;
+        top: 14px;
+        left: 14px;
+        max-width: 60vw;
       }
-      #meta {
-        font-size: 8px;
-        bottom: 14px;
-        left: 16px;
-      }
+      #meta { display: none; }
       #hint {
-        font-size: 8px;
-        bottom: 14px;
-        right: 16px;
+        font-size: 7px;
+        bottom: 12px;
+        right: 14px;
       }
       #info-panel {
-        right: 10px;
-        left: 10px;
-        width: auto;
-        bottom: 36px;
-        max-height: 45vh;
-        font-size: 10.5px;
+        right: 0;
+        left: 0;
+        width: 100%;
+        bottom: 0;
+        max-height: 50vh;
+        font-size: 11px;
+        padding: 12px 14px;
+        border-radius: 0;
       }
-      .label-concept { font-size: 12px; }
-      .label-ref      { font-size: 12px; }
+      #annotations-link {
+        top: 14px;
+        right: 14px;
+        font-size: 8px;
+      }
+      .label-concept { font-size: 11px; }
+      .label-ref      { font-size: 10px; }
     }
+    @media (max-width: 480px) {
+      #title-main { font-size: 11px; }
+      #title-sub  { display: none; }
+      .label-concept { font-size: 10px; }
+      .label-ref      { font-size: 9px; }
+    }
+    /* ── Annotations link ── */
+    #annotations-link {
+      position: fixed;
+      top: 32px;
+      right: 36px;
+      font-size: 10px;
+      font-weight: 300;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.38);
+      text-decoration: none;
+      z-index: 100;
+      transition: color 0.2s;
+      pointer-events: auto;
+    }
+    #annotations-link:hover { color: rgba(255,255,255,0.88); }
+    #annotations-link::after { content: " →"; }
   </style>
 </head>
 <body>
@@ -207,6 +236,7 @@
 
 <div id="meta">mbejtlich &nbsp;·&nbsp; doctoral directed study &nbsp;·&nbsp; 60 sources &nbsp;·&nbsp; 2025–2026</div>
 <div id="hint">scroll to zoom &nbsp;·&nbsp; drag to pan &nbsp;·&nbsp; click theme to open info</div>
+<a id="annotations-link" href="annotations.html">Annotations</a>
 
 <!-- Info panel -->
 <div id="info-panel">
@@ -246,26 +276,26 @@ const nodes = [
   {
     id: "Organizational Worldviews",
     refs: [
-      { label: "Burrell & Morgan, 1979", url: "https://scholar.google.com/scholar?q=Burrell+Morgan+Sociological+Paradigms+Organisational+Analysis" },
-      { label: "Morgan, 1997", url: "https://scholar.google.com/scholar?q=Morgan+1997+Images+of+Organization" },
+      { label: "Burrell & Morgan, 1979", url: "https://scholar.google.com/scholar?q=Burrell+Morgan+Sociological+Paradigms+Organisational+Analysis", num: 1 },
+      { label: "Morgan, 1997", url: "https://scholar.google.com/scholar?q=Morgan+1997+Images+of+Organization", num: 2 },
     ], group: 0
   },
   {
     id: "Institutional Isomorphism",
     refs: [
-      { label: "DiMaggio & Powell, 1983", url: "https://doi.org/10.2307/2095101" },
+      { label: "DiMaggio & Powell, 1983", url: "https://doi.org/10.2307/2095101", num: 3 },
     ], group: 0
   },
   {
     id: "Organizational Becoming",
     refs: [
-      { label: "Tsoukas & Chia, 2002", url: "https://doi.org/10.1287/orsc.13.5.567.7810" },
+      { label: "Tsoukas & Chia, 2002", url: "https://doi.org/10.1287/orsc.13.5.567.7810", num: 4 },
     ], group: 0
   },
   {
     id: "Organizations as Open Systems",
     refs: [
-      { label: "Scott & Davis, 2007", url: "https://scholar.google.com/scholar?q=Scott+Davis+2007+Organizations+Organizing" },
+      { label: "Scott & Davis, 2007", url: "https://scholar.google.com/scholar?q=Scott+Davis+2007+Organizations+Organizing", num: 5 },
     ], group: 0
   },
 
@@ -273,32 +303,32 @@ const nodes = [
   {
     id: "Transformational Leadership",
     refs: [
-      { label: "Burns, 1978", url: "https://scholar.google.com/scholar?q=Burns+1978+Leadership" },
+      { label: "Burns, 1978", url: "https://scholar.google.com/scholar?q=Burns+1978+Leadership", num: 6 },
     ], group: 1
   },
   {
     id: "Relational Leadership Theory",
     refs: [
-      { label: "Uhl-Bien, 2006", url: "https://doi.org/10.1016/j.leaqua.2006.10.007" },
+      { label: "Uhl-Bien, 2006", url: "https://doi.org/10.1016/j.leaqua.2006.10.007", num: 7 },
     ], group: 1
   },
   {
     id: "Organizational Culture & Leadership",
     refs: [
-      { label: "Schein, 2010", url: "https://scholar.google.com/scholar?q=Schein+2010+Organizational+Culture+Leadership" },
-      { label: "Avolio & Gardner, 2005", url: "https://doi.org/10.1016/j.leaqua.2005.03.001" },
+      { label: "Schein, 2010", url: "https://scholar.google.com/scholar?q=Schein+2010+Organizational+Culture+Leadership", num: 8 },
+      { label: "Avolio & Gardner, 2005", url: "https://doi.org/10.1016/j.leaqua.2005.03.001", num: 9 },
     ], group: 1
   },
   {
     id: "Cultural Leadership (GLOBE)",
     refs: [
-      { label: "House et al., 2004", url: "https://scholar.google.com/scholar?q=House+2004+Culture+Leadership+Organizations+GLOBE" },
+      { label: "House et al., 2004", url: "https://scholar.google.com/scholar?q=House+2004+Culture+Leadership+Organizations+GLOBE", num: 10 },
     ], group: 1
   },
   {
     id: "Feminist Organization Studies",
     refs: [
-      { label: "Grosser & Moon, 2019", url: "https://doi.org/10.1007/s10551-017-3669-9" },
+      { label: "Grosser & Moon, 2019", url: "https://doi.org/10.1007/s10551-017-3669-9", num: 11 },
     ], group: 1
   },
 
@@ -306,20 +336,20 @@ const nodes = [
   {
     id: "Sensemaking",
     refs: [
-      { label: "Weick, 1995", url: "https://scholar.google.com/scholar?q=Weick+1995+Sensemaking+in+Organizations" },
-      { label: "Weick, Sutcliffe & Obstfeld, 2005", url: "https://doi.org/10.1287/orsc.1050.0133" },
+      { label: "Weick, 1995", url: "https://scholar.google.com/scholar?q=Weick+1995+Sensemaking+in+Organizations", num: 12 },
+      { label: "Weick, Sutcliffe & Obstfeld, 2005", url: "https://doi.org/10.1287/orsc.1050.0133", num: 13 },
     ], group: 2
   },
   {
     id: "Sensemaking: Taking Stock",
     refs: [
-      { label: "Maitlis & Christianson, 2014", url: "https://doi.org/10.5465/19416520.2014.873177" },
+      { label: "Maitlis & Christianson, 2014", url: "https://doi.org/10.5465/19416520.2014.873177", num: 14 },
     ], group: 2
   },
   {
     id: "Sensegiving in Strategy",
     refs: [
-      { label: "Gioia & Chittipeddi, 1991", url: "https://doi.org/10.1002/smj.4250120604" },
+      { label: "Gioia & Chittipeddi, 1991", url: "https://doi.org/10.1002/smj.4250120604", num: 15 },
     ], group: 2
   },
 
@@ -327,34 +357,34 @@ const nodes = [
   {
     id: "Sociomateriality",
     refs: [
-      { label: "Orlikowski, 2007", url: "https://doi.org/10.1177/0170840607081138" },
-      { label: "Orlikowski & Scott, 2008", url: "https://doi.org/10.5465/19416520.2008.10252175" },
+      { label: "Orlikowski, 2007", url: "https://doi.org/10.1177/0170840607081138", num: 16 },
+      { label: "Orlikowski & Scott, 2008", url: "https://doi.org/10.5465/19416520.2008.10252175", num: 17 },
     ], group: 3
   },
   {
     id: "Practice Theory",
     refs: [
-      { label: "Nicolini, 2012", url: "https://scholar.google.com/scholar?q=Nicolini+2012+Practice+Theory+Work+Organization" },
-      { label: "Gherardi, 2016", url: "https://doi.org/10.1177/1350508416629441" },
-      { label: "Schatzki, 1996", url: "https://scholar.google.com/scholar?q=Schatzki+1996+Social+Practices+Wittgensteinian" },
+      { label: "Nicolini, 2012", url: "https://scholar.google.com/scholar?q=Nicolini+2012+Practice+Theory+Work+Organization", num: 20 },
+      { label: "Gherardi, 2016", url: "https://doi.org/10.1177/1350508416629441", num: 18 },
+      { label: "Schatzki, 1996", url: "https://scholar.google.com/scholar?q=Schatzki+1996+Social+Practices+Wittgensteinian", num: 51 },
     ], group: 3
   },
   {
     id: "Theorizing Practice",
     refs: [
-      { label: "Feldman & Orlikowski, 2011", url: "https://doi.org/10.1287/orsc.1100.0582" },
+      { label: "Feldman & Orlikowski, 2011", url: "https://doi.org/10.1287/orsc.1100.0582", num: 21 },
     ], group: 3
   },
   {
     id: "Entrepreneuring at Work",
     refs: [
-      { label: "Champenois et al., 2025", url: "https://scholar.google.com/scholar?q=Champenois+Dimov+Gherardi+2025+Entrepreneuring+Practices" },
+      { label: "Champenois et al., 2025", url: "https://scholar.google.com/scholar?q=Champenois+Dimov+Gherardi+2025+Entrepreneuring+Practices", num: 19 },
     ], group: 3
   },
   {
     id: "Actor-Network Theory",
     refs: [
-      { label: "Latour, 2005", url: "https://scholar.google.com/scholar?q=Latour+2005+Reassembling+Social+Actor+Network" },
+      { label: "Latour, 2005", url: "https://scholar.google.com/scholar?q=Latour+2005+Reassembling+Social+Actor+Network", num: 52 },
     ], group: 3
   },
 
@@ -362,56 +392,56 @@ const nodes = [
   {
     id: "Posthumanist Organization Studies",
     refs: [
-      { label: "de Vaujany, Gherardi & Silva, 2024", url: "https://doi.org/10.4324/9781032617169" },
-      { label: "Gherardi, de Vaujany & Silva, 2024", url: "https://doi.org/10.4324/9781032617169" },
+      { label: "de Vaujany, Gherardi & Silva, 2024", url: "https://doi.org/10.4324/9781032617169", num: 22 },
+      { label: "Gherardi, de Vaujany & Silva, 2024", url: "https://doi.org/10.4324/9781032617169", num: 23 },
     ], group: 4
   },
   {
     id: "Multispecies Organizing",
     refs: [
-      { label: "Ehrnström-Fuentes et al., 2025", url: "https://doi.org/10.1017/beq.2025.8" },
+      { label: "Ehrnström-Fuentes et al., 2025", url: "https://doi.org/10.1017/beq.2025.8", num: 24 },
     ], group: 4
   },
   {
     id: "Organized Carelessness",
     refs: [
-      { label: "Wenzel, 2025", url: "https://doi.org/10.1017/beq.2025.10083" },
+      { label: "Wenzel, 2025", url: "https://doi.org/10.1017/beq.2025.10083", num: 25 },
     ], group: 4
   },
   {
     id: "Aesthetic Encounters & Animals",
     refs: [
-      { label: "Huopalainen, Satama & Tallberg, 2026", url: "https://scholar.google.com/scholar?q=Huopalainen+Satama+Tallberg+2026+Canines+Care+Multispecies" },
+      { label: "Huopalainen, Satama & Tallberg, 2026", url: "https://scholar.google.com/scholar?q=Huopalainen+Satama+Tallberg+2026+Canines+Care+Multispecies", num: 26 },
     ], group: 4
   },
   {
     id: "Ecocentric Ethics & Garden",
     refs: [
-      { label: "Allen & Strauß, 2026", url: "https://scholar.google.com/scholar?q=Allen+Strauss+2026+Garden+Ecocentric+Ethics+Organising" },
+      { label: "Allen & Strauß, 2026", url: "https://scholar.google.com/scholar?q=Allen+Strauss+2026+Garden+Ecocentric+Ethics+Organising", num: 27 },
     ], group: 4
   },
   {
     id: "Agential Realism",
     refs: [
-      { label: "Barad, 2007", url: "https://scholar.google.com/scholar?q=Barad+2007+Meeting+Universe+Halfway" },
+      { label: "Barad, 2007", url: "https://scholar.google.com/scholar?q=Barad+2007+Meeting+Universe+Halfway", num: 28 },
     ], group: 4
   },
   {
     id: "Situated Knowledges",
     refs: [
-      { label: "Haraway, 1988", url: "https://doi.org/10.2307/3178066" },
+      { label: "Haraway, 1988", url: "https://doi.org/10.2307/3178066", num: 29 },
     ], group: 4
   },
   {
     id: "The Posthuman",
     refs: [
-      { label: "Braidotti, 2013", url: "https://scholar.google.com/scholar?q=Braidotti+2013+The+Posthuman" },
+      { label: "Braidotti, 2013", url: "https://scholar.google.com/scholar?q=Braidotti+2013+The+Posthuman", num: 53 },
     ], group: 4
   },
   {
     id: "A Thousand Plateaus",
     refs: [
-      { label: "Deleuze & Guattari, 1987", url: "https://scholar.google.com/scholar?q=Deleuze+Guattari+1987+Thousand+Plateaus" },
+      { label: "Deleuze & Guattari, 1987", url: "https://scholar.google.com/scholar?q=Deleuze+Guattari+1987+Thousand+Plateaus", num: 54 },
     ], group: 4
   },
 
@@ -419,38 +449,38 @@ const nodes = [
   {
     id: "Regenerative Indigenous Business",
     refs: [
-      { label: "Oberholzer, 2026", url: "https://scholar.google.com/scholar?q=Oberholzer+2026+Regenerative+Value+Indigenous+Businesses" },
+      { label: "Oberholzer, 2026", url: "https://scholar.google.com/scholar?q=Oberholzer+2026+Regenerative+Value+Indigenous+Businesses", num: 30 },
     ], group: 5
   },
   {
     id: "Decolonizing Management",
     refs: [
-      { label: "Banerjee, 2022", url: "https://doi.org/10.1111/joms.12831" },
-      { label: "Banerjee, 2003", url: "https://doi.org/10.1177/0170840603024002003" },
+      { label: "Banerjee, 2022", url: "https://doi.org/10.1111/joms.12831", num: 31 },
+      { label: "Banerjee, 2003", url: "https://doi.org/10.1177/0170840603024002003", num: 32 },
     ], group: 5
   },
   {
     id: "Ontological Turn & Colonialism",
     refs: [
-      { label: "Todd, 2016", url: "https://scholar.google.com/scholar?q=Todd+2016+Indigenous+Feminist+Ontological+Turn" },
+      { label: "Todd, 2016", url: "https://scholar.google.com/scholar?q=Todd+2016+Indigenous+Feminist+Ontological+Turn", num: 33 },
     ], group: 5
   },
   {
     id: "Decolonizing Methodologies",
     refs: [
-      { label: "Tuhiwai Smith, 2012", url: "https://scholar.google.com/scholar?q=Linda+Tuhiwai+Smith+2012+Decolonizing+Methodologies" },
+      { label: "Tuhiwai Smith, 2012", url: "https://scholar.google.com/scholar?q=Linda+Tuhiwai+Smith+2012+Decolonizing+Methodologies", num: 34 },
     ], group: 5
   },
   {
     id: "Decolonization as Practice",
     refs: [
-      { label: "Tuck & Yang, 2012", url: "https://jps.library.utoronto.ca/index.php/des/article/view/18630" },
+      { label: "Tuck & Yang, 2012", url: "https://jps.library.utoronto.ca/index.php/des/article/view/18630", num: 35 },
     ], group: 5
   },
   {
     id: "Decolonial Options",
     refs: [
-      { label: "Mignolo, 2011", url: "https://doi.org/10.1215/9780822394501" },
+      { label: "Mignolo, 2011", url: "https://doi.org/10.1215/9780822394501", num: 55 },
     ], group: 5
   },
 
@@ -458,37 +488,37 @@ const nodes = [
   {
     id: "Ecological Embeddedness",
     refs: [
-      { label: "Whiteman & Cooper, 2000", url: "https://doi.org/10.2307/1556349" },
+      { label: "Whiteman & Cooper, 2000", url: "https://doi.org/10.2307/1556349", num: 36 },
     ], group: 6
   },
   {
     id: "Web of Life",
     refs: [
-      { label: "Capra, 1996", url: "https://scholar.google.com/scholar?q=Capra+1996+Web+of+Life" },
+      { label: "Capra, 1996", url: "https://scholar.google.com/scholar?q=Capra+1996+Web+of+Life", num: 37 },
     ], group: 6
   },
   {
     id: "Dwelling, Skill & Perception",
     refs: [
-      { label: "Ingold, 2000", url: "https://scholar.google.com/scholar?q=Ingold+2000+Perception+of+Environment" },
+      { label: "Ingold, 2000", url: "https://scholar.google.com/scholar?q=Ingold+2000+Perception+of+Environment", num: 38 },
     ], group: 6
   },
   {
     id: "Systems Thinking",
     refs: [
-      { label: "Meadows, 2008", url: "https://scholar.google.com/scholar?q=Meadows+2008+Thinking+in+Systems" },
+      { label: "Meadows, 2008", url: "https://scholar.google.com/scholar?q=Meadows+2008+Thinking+in+Systems", num: 39 },
     ], group: 6
   },
   {
     id: "Shifting to Regeneration",
     refs: [
-      { label: "Reed, 2007", url: "https://doi.org/10.1080/09613210701475753" },
+      { label: "Reed, 2007", url: "https://doi.org/10.1080/09613210701475753", num: 40 },
     ], group: 6
   },
   {
     id: "Ecology of Mind",
     refs: [
-      { label: "Bateson, 1972", url: "https://scholar.google.com/scholar?q=Bateson+1972+Steps+Ecology+Mind" },
+      { label: "Bateson, 1972", url: "https://scholar.google.com/scholar?q=Bateson+1972+Steps+Ecology+Mind", num: 56 },
     ], group: 6
   },
 
@@ -496,26 +526,26 @@ const nodes = [
   {
     id: "Eco-feminist Critique",
     refs: [
-      { label: "Plumwood, 1993", url: "https://scholar.google.com/scholar?q=Plumwood+1993+Feminism+Mastery+Nature" },
+      { label: "Plumwood, 1993", url: "https://scholar.google.com/scholar?q=Plumwood+1993+Feminism+Mastery+Nature", num: 41 },
     ], group: 7
   },
   {
     id: "Ethics of Care",
     refs: [
-      { label: "Tronto, 1993", url: "https://scholar.google.com/scholar?q=Tronto+1993+Moral+Boundaries+Ethics+Care" },
-      { label: "Held, 2006", url: "https://scholar.google.com/scholar?q=Held+2006+Ethics+of+Care" },
+      { label: "Tronto, 1993", url: "https://scholar.google.com/scholar?q=Tronto+1993+Moral+Boundaries+Ethics+Care", num: 42 },
+      { label: "Held, 2006", url: "https://scholar.google.com/scholar?q=Held+2006+Ethics+of+Care", num: 43 },
     ], group: 7
   },
   {
     id: "Deleuzian Creativity",
     refs: [
-      { label: "Karakilic & Painter, 2022", url: "https://doi.org/10.1177/01708406221095654" },
+      { label: "Karakilic & Painter, 2022", url: "https://doi.org/10.1177/01708406221095654", num: 44 },
     ], group: 7
   },
   {
     id: "Apocalyptic Reflexivity",
     refs: [
-      { label: "Carollo, Sferrazzo & Shymko, 2025", url: "https://scholar.google.com/scholar?q=Carollo+Sferrazzo+Shymko+2025+Apocalyptic+Reflexivity" },
+      { label: "Carollo, Sferrazzo & Shymko, 2025", url: "https://scholar.google.com/scholar?q=Carollo+Sferrazzo+Shymko+2025+Apocalyptic+Reflexivity", num: 45 },
     ], group: 7
   },
 
@@ -523,25 +553,25 @@ const nodes = [
   {
     id: "Scientific Revolutions & Paradigms",
     refs: [
-      { label: "Kuhn, 1962", url: "" },
+      { label: "Kuhn, 1962", url: "", num: 57 },
     ], group: 0
   },
   {
     id: "Organizational Structure",
     refs: [
-      { label: "Mintzberg, 1979", url: "" },
+      { label: "Mintzberg, 1979", url: "", num: 58 },
     ], group: 0
   },
   {
     id: "Bounded Rationality & Decision-Making",
     refs: [
-      { label: "March & Simon, 1958", url: "" },
+      { label: "March & Simon, 1958", url: "", num: 59 },
     ], group: 0
   },
   {
     id: "Contingency Theory",
     refs: [
-      { label: "Lawrence & Lorsch, 1967", url: "" },
+      { label: "Lawrence & Lorsch, 1967", url: "", num: 60 },
     ], group: 0
   },
 
@@ -549,31 +579,31 @@ const nodes = [
   {
     id: "Reinventing Organizations",
     refs: [
-      { label: "Laloux, 2014", url: "https://scholar.google.com/scholar?q=Laloux+2014+Reinventing+Organizations" },
+      { label: "Laloux, 2014", url: "https://scholar.google.com/scholar?q=Laloux+2014+Reinventing+Organizations", num: 46 },
     ], group: 8
   },
   {
     id: "Leadership & the New Science",
     refs: [
-      { label: "Wheatley, 1992", url: "https://scholar.google.com/scholar?q=Wheatley+1992+Leadership+New+Science" },
+      { label: "Wheatley, 1992", url: "https://scholar.google.com/scholar?q=Wheatley+1992+Leadership+New+Science", num: 47 },
     ], group: 8
   },
   {
     id: "The Fifth Discipline",
     refs: [
-      { label: "Senge, 1990", url: "https://scholar.google.com/scholar?q=Senge+1990+Fifth+Discipline+Learning+Organization" },
+      { label: "Senge, 1990", url: "https://scholar.google.com/scholar?q=Senge+1990+Fifth+Discipline+Learning+Organization", num: 48 },
     ], group: 8
   },
   {
     id: "Servant Leadership",
     refs: [
-      { label: "Greenleaf, 1977", url: "https://scholar.google.com/scholar?q=Greenleaf+1977+Servant+Leadership" },
+      { label: "Greenleaf, 1977", url: "https://scholar.google.com/scholar?q=Greenleaf+1977+Servant+Leadership", num: 49 },
     ], group: 8
   },
   {
     id: "Designing Regenerative Cultures",
     refs: [
-      { label: "Wahl, 2016", url: "https://scholar.google.com/scholar?q=Wahl+2016+Designing+Regenerative+Cultures" },
+      { label: "Wahl, 2016", url: "https://scholar.google.com/scholar?q=Wahl+2016+Designing+Regenerative+Cultures", num: 50 },
     ], group: 8
   },
 
@@ -706,11 +736,13 @@ const svg = d3.select("#canvas")
 
 const g = svg.append("g");
 
-svg.call(
-  d3.zoom()
-    .scaleExtent([0.08, 6])
-    .on("zoom", e => g.attr("transform", e.transform))
-);
+const zoom = d3.zoom()
+  .scaleExtent([0.08, 6])
+  .on("zoom", e => g.attr("transform", e.transform));
+
+svg.call(zoom);
+// Start zoomed out so the whole graph is visible on load
+svg.call(zoom.transform, d3.zoomIdentity.translate(W * 0.25, H * 0.25).scale(0.5));
 
 // Clear panel on canvas click
 svg.on("click", () => closePanel());
@@ -772,13 +804,17 @@ nodeSel.each(function(d) {
     .attr("dy", 0)
     .text(d.id);
 
-  // Ref lines — plain text only, NOT links
+  // Ref lines — click navigates to annotations page
   d.refs.forEach((ref, i) => {
     grp.append("text")
       .attr("class", "label-ref")
       .attr("text-anchor", "middle")
       .attr("dy", REF_OFFSET + (i + 1) * LINE)
-      .text(ref.label);
+      .text(ref.label)
+      .on("click", function(event) {
+        event.stopPropagation();
+        if (ref.num) window.location.href = "annotations.html#source-" + ref.num;
+      });
   });
 });
 
@@ -811,9 +847,10 @@ let t = 0;
 // ── Info panel ────────────────────────────────────────────────────────────────
 function showPanel(d) {
   const sec = sectionDesc[d.group];
-  const refsHtml = d.refs.map(r =>
-    `<a href="${r.url}" target="_blank">${r.label}</a>`
-  ).join("");
+  const refsHtml = d.refs.map(r => {
+    const annotUrl = r.num ? `annotations.html#source-${r.num}` : (r.url || '#');
+    return `<a href="${annotUrl}" target="_blank">${r.label}</a>`;
+  }).join("");
 
   document.getElementById("info-content").innerHTML = `
     <h3>${d.id}</h3>

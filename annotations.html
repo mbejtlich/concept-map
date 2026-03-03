@@ -4,1400 +4,1085 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Annotations — Organizational Worldviews</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    a { text-decoration: none; }
 
     :root {
-      --bg:        #0c1b0c;
-      --text:      rgba(255,255,255,0.88);
-      --text-dim:  rgba(255,255,255,0.50);
-      --text-faint:rgba(255,255,255,0.22);
-      --border:    rgba(255,255,255,0.08);
-      --ff: 'Suisse Intl', 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      --ink:  #111111;
+      --mid:  #111111;
+      --faint:#111111;
+      --rule: #111111;
+      --ff:   'Suisse Intl', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      --ff-serif: 'EB Garamond', Georgia, serif;
     }
 
     html { scroll-behavior: smooth; }
 
     body {
-      background: var(--bg);
-      color: var(--text);
+      background: #ffffff;
+      color: var(--ink);
       font-family: var(--ff);
-      line-height: 1;
-      min-height: 100vh;
-      animation: fadeIn 0.8s ease both;
+      font-size: 14px;
+      line-height: 1.4;
+      -webkit-font-smoothing: antialiased;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to   { opacity: 1; }
+    :root {
+      --start-num:     0%;
+      --start-author:  15%;
+      --start-section: 30%;
+      --start-year:    75%;
     }
 
-    /* ── Ambient canvas ── */
-    #ambient {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 0;
-      opacity: 0.7;
-    }
-
-    /* ── Layout ── */
-    .page-wrap {
-      position: relative;
-      z-index: 1;
-      max-width: 1060px;
-      margin: 0 auto;
-      padding: 0 64px 160px;
-    }
-
-    /* ── Page header ── */
-    .page-header {
-      display: grid;
-      grid-template-columns: 128px 1fr 80px;
-      column-gap: 36px;
-      padding: 60px 0 0;
-    }
-
-    .header-title {
-      grid-column: 2;
-      text-align: left;
-      border-bottom: 0.5px solid var(--border);
-      padding-bottom: 56px;
-    }
-    .header-title h1 {
-      font-size: 28px;
-      font-weight: 400;
-      letter-spacing: -0.01em;
-      color: var(--text);
-      line-height: 1;
-      margin-bottom: 10px;
-    }
-    .header-title .subtitle {
-      font-size: 10px;
-      font-weight: 300;
-      letter-spacing: 0.12em;
+    thead th {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 10px 0;
+      background: #ffffff;
+      border-bottom: 1px solid var(--ink);
+      letter-spacing: 0.07em;
       text-transform: uppercase;
-      color: var(--text-faint);
+      font-weight: 400;
+      vertical-align: middle;
+      text-align: left;
     }
-    .header-title .source-count {
-      font-size: 10px;
-      font-weight: 300;
-      letter-spacing: 0.08em;
-      color: var(--text-faint);
-      margin-top: 6px;
+    .map-link {
+      color: var(--ink);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding-left: 24px;
     }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    td {
+      padding: 9px 0;
+      vertical-align: top;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .col-num     { width: calc(var(--start-author)  - var(--start-num));     padding-left: 24px; font-variant-numeric: tabular-nums; color: var(--ink); vertical-align: middle; }
+    .col-author  { width: calc(var(--start-section) - var(--start-author));  padding-right: 24px; }
+    .col-section { width: calc(var(--start-year)    - var(--start-section)); color: var(--ink); vertical-align: middle; }
+    .col-year    { width: calc(100%                 - var(--start-year));    color: var(--ink); vertical-align: middle; padding-right: 24px; }
+
+    .entry-row { cursor: pointer; }
+    .entry-row td { transition: color 0.15s ease; }
+    .entry-row:hover td { color: #6670d8; }
+
+    .entry-detail { display: none; }
+    .entry-detail.open { display: table-row; }
+    .entry-detail td { padding-top: 0; border-bottom: 1px solid var(--rule); }
+    .detail-inner { padding: 16px 24px 24px 0; }
+
+    .detail-citation {
+      line-height: 1.6;
+      color: var(--ink);
+      padding-top: 20px;
+      margin-bottom: 14px;
+      max-width: 680px;
+      cursor: text;
+      outline: none;
+    }
+    .detail-citation em { font-style: italic; }
+    .detail-citation[contenteditable="true"] {
+      border-bottom: 1px solid var(--ink);
+    }
+
+    .detail-annotation {
+      font-family: 'Sabon', 'Sabon LT Std', Georgia, serif;
+      font-size: 29px;
+      line-height: 1.55;
+      color: #2255cc;
+      max-width: 70%;
+      padding-top: 20px;
+      padding-bottom: 32px;
+      white-space: pre-wrap;
+      cursor: text;
+      outline: none;
+    }
+    .detail-annotation[contenteditable="true"] {
+      border-bottom: 1px solid #2255cc;
+    }
+    .detail-annotation.pending {
+      font-family: var(--ff);
+      font-size: 14px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--ink);
+    }
+
+    /* ── Keywords ── */
+    .keywords-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+      margin-bottom: 20px;
+      align-items: center;
+    }
+    .keyword-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #f0f0f0;
+      border-radius: 100px;
+      padding: 4px 10px 4px 12px;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .keyword-remove {
+      cursor: pointer;
+      opacity: 0.35;
+      font-size: 15px;
+      line-height: 1;
+      margin-left: 1px;
+    }
+    .keyword-remove:hover { opacity: 1; }
+    .keyword-add-btn {
+      display: inline-flex;
+      align-items: center;
+      cursor: pointer;
+      opacity: 0.3;
+      font-size: 11px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border: 1px solid var(--ink);
+      border-radius: 100px;
+      user-select: none;
+    }
+    .keyword-add-btn:hover { opacity: 0.8; }
+    .keyword-input {
+      font-family: var(--ff);
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border: 1px solid var(--ink);
+      border-radius: 100px;
+      padding: 4px 12px;
+      outline: none;
+      width: 130px;
+      background: none;
+    }
+
+    /* ── Delete button ── */
+    .delete-btn {
+      display: inline-block;
+      cursor: pointer;
+      font-size: 11px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      opacity: 0.2;
+      color: var(--ink);
+      margin-top: 8px;
+      user-select: none;
+    }
+    .delete-btn:hover { opacity: 1; color: #cc2222; }
 
     /* ── Section headers ── */
-    .section-header {
-      padding: 140px 0 56px;
-      display: grid;
-      grid-template-columns: 128px 1fr 80px;
-      column-gap: 36px;
-    }
-    .sec-rule { display: none; }
-    .sec-inner {
-      grid-column: 2;
-      display: block;
+    .sec-header { background: transparent; }
+    .sec-header td { padding: 48px 0 12px; border-bottom: none; color: var(--ink); }
+    .sec-title {
+      font-size: 96px !important;
+      letter-spacing: -0.02em !important;
+      line-height: 1.05 !important;
+      padding-left: 24px !important;
+      visibility: visible !important;
     }
 
-    /* ── Expandable annotations ── */
-    .annotation {
-      font-size: 15px;
-      font-weight: 300;
-      color: var(--text-dim);
-      line-height: 1.80;
-      max-width: 620px;
-      overflow: hidden;
-      max-height: 0;
-      opacity: 0;
-      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
-                  opacity 0.25s ease;
-    }
-    .annotation.open {
-      max-height: 2000px;
-      opacity: 1;
-    }
-    .sec-num {
-      display: inline;
-      font-size: 32px;
-      font-weight: 400;
-      color: var(--text);
-      letter-spacing: -0.02em;
-      line-height: 1.2;
-    }
-    .sec-num::after { content: ":"; margin-right: 0.2em; }
-    .sec-text h2 {
-      display: inline;
-      font-size: 32px;
-      font-weight: 400;
-      color: var(--text);
-      letter-spacing: -0.01em;
-      line-height: 1.2;
-    }
-    .sec-title-line {
-      margin-bottom: 16px;
-      line-height: 1.2;
-    }
-    .sec-text { display: inline; }
-    .sec-text p {
-      display: block;
-      font-size: 16px;
-      font-weight: 300;
-      color: var(--text-dim);
-      line-height: 1.75;
-      max-width: 580px;
-      margin-top: 14px;
-    }
-
-    /* ── Entry grid ── */
-    .entry {
-      display: grid;
-      grid-template-columns: 128px 1fr 80px;
-      column-gap: 36px;
-      padding: 48px 0;
-      align-items: start;
-      transition: background 0.15s;
-      margin-top: 0;
-    }
-    .entry:first-of-type { margin-top: 0; }
-
-    .entry:target {
-      background: rgba(255,255,255,0.03);
-      border-radius: 2px;
-    }
-
-    /* ── Image placeholder ── */
-    .img-box {
-      width: 112px;
-      height: 144px;
-      border: 0.5px solid rgba(255,255,255,0.10);
-      display: flex;
-      align-items: flex-end;
-      justify-content: flex-start;
-      padding: 10px 12px;
-      position: relative;
-      overflow: hidden;
-      flex-shrink: 0;
-    }
-    .img-box::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-    }
-    .img-num {
-      font-size: 13px;
-      font-weight: 300;
-      letter-spacing: 0.06em;
-      color: rgba(255,255,255,0.22);
-      position: relative;
-      z-index: 1;
-    }
-
-    /* Section color coding — very subtle */
-    .img-box.s1 { background: linear-gradient(150deg, rgba(200,215,255,0.07) 0%, rgba(0,0,0,0) 100%); }
-    .img-box.s2 { background: linear-gradient(150deg, rgba(255,210,170,0.07) 0%, rgba(0,0,0,0) 100%); }
-    .img-box.s3 { background: linear-gradient(150deg, rgba(170,215,255,0.07) 0%, rgba(0,0,0,0) 100%); }
-    .img-box.s4 { background: linear-gradient(150deg, rgba(210,170,255,0.07) 0%, rgba(0,0,0,0) 100%); }
-    .img-box.s5 { background: linear-gradient(150deg, rgba(160,255,240,0.07) 0%, rgba(0,0,0,0) 100%); }
-    .img-box.s6 { background: linear-gradient(150deg, rgba(255,225,140,0.07) 0%, rgba(0,0,0,0) 100%); }
-    .img-box.s7 { background: linear-gradient(150deg, rgba(160,255,160,0.09) 0%, rgba(0,0,0,0) 100%); }
-    .img-box.s8 { background: linear-gradient(150deg, rgba(255,170,195,0.07) 0%, rgba(0,0,0,0) 100%); }
-    .img-box.s9 { background: linear-gradient(150deg, rgba(210,210,210,0.06) 0%, rgba(0,0,0,0) 100%); }
-
-    /* ── Entry body ── */
-    .entry-body {
-      padding-top: 20px;
-      border-top: 0.5px solid var(--border);
-    }
-
-    .entry-meta {
-      font-size: 9px;
-      font-weight: 300;
-      letter-spacing: 0.12em;
+    /* ── Search input ── */
+    .search-input {
+      background: none;
+      border: none;
+      outline: none;
+      font-family: var(--ff);
+      font-size: 14px;
+      letter-spacing: 0.07em;
       text-transform: uppercase;
-      color: var(--text-faint);
-      margin-bottom: 9px;
+      color: var(--ink);
+      width: 100%;
+      padding: 0;
+      cursor: text;
     }
+    .search-input::placeholder { color: var(--ink); opacity: 0.35; }
 
-    .citation {
-      font-size: 16px;
-      font-weight: 400;
-      color: var(--text);
-      line-height: 1.6;
-      margin-bottom: 14px;
+    /* ── Filter button ── */
+    .filter-btn {
+      float: right;
+      margin-right: 12px;
       cursor: pointer;
-      transition: color 0.15s;
-    }
-    .citation:hover { color: rgba(255,255,255,1); }
-    .citation em {
-      font-style: italic;
+      user-select: none;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: #6670d8;
     }
 
-    .pending {
-      font-style: italic;
-      color: rgba(255,255,255,0.18);
+    /* ── Add button ── */
+    .add-btn {
+      float: right;
+      margin-right: 20px;
+      cursor: pointer;
+      user-select: none;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: #6670d8;
+      opacity: 0.55;
+    }
+    .add-btn:hover { opacity: 1; }
+
+    /* ── Filter panel ── */
+    .filter-pane-wrap {
+      position: fixed;
+      top: 44px;
+      left: var(--start-author);
+      right: calc(100% - var(--start-year));
+      z-index: 199;
+      background: #ffffff;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .filter-pane-wrap.open { max-height: 500px; }
+
+    .filter-groups { display: flex; padding: 20px 16px 24px 16px; }
+    .filter-group { flex: 1; padding-right: 20px; }
+    .filter-group:last-child { padding-right: 0; }
+    .fg-section { flex: 2; }
+    .fg-title { font-size: 14px; letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 10px; }
+    .fg-opts { display: flex; flex-direction: column; gap: 6px; }
+    .fg-opts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; }
+    .filter-opt { display: flex; align-items: center; gap: 8px; cursor: pointer; line-height: 1; }
+    .filter-opt input[type="radio"] {
+      -webkit-appearance: none; appearance: none;
+      width: 9px; height: 9px;
+      border: 1px solid var(--ink); border-radius: 50%;
+      cursor: pointer; flex-shrink: 0;
+      transition: background 0.15s ease;
+    }
+    .filter-opt input[type="radio"]:checked { background: var(--ink); }
+
+    /* ── Add Source Modal ── */
+    .add-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(255,255,255,0.92);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .add-modal-overlay.open { display: flex; }
+    .add-modal {
+      background: #fff;
+      border: 1px solid var(--ink);
+      padding: 40px;
+      max-width: 600px;
+      width: 90%;
+    }
+    .add-modal-title {
+      font-size: 14px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      font-weight: 400;
+      margin-bottom: 28px;
+    }
+    .add-field { margin-bottom: 18px; }
+    .add-field label {
+      display: block;
       font-size: 11px;
-      letter-spacing: 0.04em;
-    }
-
-    /* ── Entry tag (right col) ── */
-    .entry-tag {
-      font-size: 9px;
-      font-weight: 300;
-      letter-spacing: 0.12em;
-      color: var(--text-faint);
-      text-align: right;
-      padding-top: 2px;
-      white-space: nowrap;
-    }
-
-    /* ── Section nav — fixed top left ── */
-    .section-nav {
-      position: fixed;
-      top: 28px;
-      left: 36px;
-      z-index: 100;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
-    .section-nav a {
-      font-size: 9px;
-      letter-spacing: 0.10em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.18);
-      text-decoration: none;
-      transition: color 0.2s;
-      white-space: nowrap;
+      opacity: 0.45;
+      margin-bottom: 5px;
     }
-    .section-nav a:hover { color: rgba(255,255,255,0.70); }
+    .add-field input,
+    .add-field select,
+    .add-field textarea {
+      width: 100%;
+      font-family: var(--ff);
+      font-size: 14px;
+      border: none;
+      border-bottom: 1px solid var(--ink);
+      outline: none;
+      padding: 4px 0;
+      background: none;
+      color: var(--ink);
+    }
+    .add-field textarea { resize: vertical; min-height: 70px; }
+    .add-field select { cursor: pointer; }
+    .add-actions { display: flex; gap: 12px; margin-top: 28px; }
+    .btn-primary {
+      cursor: pointer; font-family: var(--ff); font-size: 13px;
+      letter-spacing: 0.07em; text-transform: uppercase;
+      background: var(--ink); color: #fff;
+      border: none; padding: 9px 22px;
+    }
+    .btn-cancel {
+      cursor: pointer; font-family: var(--ff); font-size: 13px;
+      letter-spacing: 0.07em; text-transform: uppercase;
+      background: none; color: var(--ink);
+      border: 1px solid var(--ink); padding: 9px 22px;
+    }
+    .btn-primary:disabled { opacity: 0.4; cursor: default; }
 
-    /* ── Back link — fixed top right ── */
-    .back-link-fixed {
+    /* ── Saving indicator ── */
+    .save-toast {
       position: fixed;
-      top: 32px;
-      right: 36px;
-      font-size: 10px;
-      font-weight: 300;
-      letter-spacing: 0.13em;
+      bottom: 24px;
+      right: 24px;
+      background: var(--ink);
+      color: #fff;
+      font-size: 11px;
+      letter-spacing: 0.07em;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.32);
-      text-decoration: none;
-      z-index: 100;
-      transition: color 0.2s;
+      padding: 8px 16px;
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+      z-index: 2000;
     }
-    .back-link-fixed::before { content: "← "; }
-    .back-link-fixed:hover { color: rgba(255,255,255,0.85); }
+    .save-toast.show { opacity: 1; }
 
     /* ── Mobile ── */
     @media (max-width: 768px) {
-      .page-wrap { padding: 0 24px 80px; }
-      .page-header {
-        display: block;
-        padding: 72px 0 0;
-      }
-      .header-title {
-        grid-column: unset;
-        padding-bottom: 40px;
-      }
-      .header-title h1 { font-size: 24px; }
-      .header-title .subtitle { font-size: 9px; }
-
-      .section-header {
-        display: block;
-        padding: 64px 0 32px;
-      }
-      .sec-inner { grid-column: unset; }
-      .sec-num { font-size: 22px; }
-      .sec-text h2 { font-size: 22px; }
-      .sec-text p { font-size: 14px; }
-
-      .entry {
-        grid-template-columns: 60px 1fr;
-        column-gap: 20px;
-      }
-      .img-box { width: 60px; height: 80px; }
-      .entry-tag { display: none; }
-      .citation { font-size: 14px; }
-      .annotation { font-size: 13px; }
-
-      .section-nav { display: none; }
-      .back-link-fixed {
-        font-size: 9px;
-        top: 16px;
-        right: 16px;
-      }
+      :root { --start-num: 0%; --start-author: 10%; --start-section: 48%; --start-year: 82%; }
+      .sec-title { font-size: 32px !important; letter-spacing: -0.01em !important; padding-top: 28px !important; }
+      .sec-header td { padding: 28px 0 8px; }
+      thead th { padding: 8px 0; font-size: 11px; }
+      .detail-annotation { font-size: 20px; max-width: 95%; }
+      .detail-inner { padding: 12px 12px 16px 0; }
+      .filter-pane-wrap { left: 0 !important; right: 0 !important; }
+      .filter-groups { flex-wrap: wrap; gap: 16px; padding: 16px 12px 16px 12px; }
+      .filter-group { flex: 0 0 45%; padding-right: 0; }
+      .fg-section { flex: 0 0 100%; }
+      .map-link { display: none; }
     }
-
     @media (max-width: 480px) {
-      .page-wrap { padding: 0 16px 60px; }
-      .entry { grid-template-columns: 1fr; }
-      .entry-img { display: none; }
-      .sec-num { font-size: 18px; }
-      .sec-text h2 { font-size: 18px; }
+      :root { --start-num: 0%; --start-author: 0%; --start-section: 0%; --start-year: 75%; }
+      .col-num { display: none; } .col-section { display: none; }
+      .col-author { width: 75%; padding-right: 8px; }
+      .col-year { width: 25%; }
+      thead th.col-num, thead th.col-section { display: none; }
+      .sec-title { font-size: 22px !important; }
+      .detail-annotation { font-size: 17px; }
+      .map-link { display: none; }
+      .filter-group { flex: 0 0 100%; }
     }
   </style>
 </head>
 <body>
 
-<canvas id="ambient"></canvas>
-<a href="index_v2.html" class="back-link-fixed">Concept Map</a>
-
-<nav class="section-nav">
-  <a href="#section-1">01 Foundations</a>
-  <a href="#section-2">02 Leadership</a>
-  <a href="#section-3">03 Sensemaking</a>
-  <a href="#section-4">04 Practice Theory</a>
-  <a href="#section-5">05 Posthumanism</a>
-  <a href="#section-6">06 Indigenous</a>
-  <a href="#section-7">07 Ecological</a>
-  <a href="#section-8">08 Care Ethics</a>
-  <a href="#section-9">09 Grey Literature</a>
-</nav>
-
-<div class="page-wrap">
-
-  <header class="page-header">
-    <div class="header-title">
-      <h1>Annotations</h1>
-      <div class="subtitle">Organizational Worldviews · Leadership, Culture, and More-than-Human Practice</div>
-      <div class="source-count">60 sources &nbsp;·&nbsp; 9 sections &nbsp;·&nbsp; Doctoral Directed Studies 2025–2026</div>
-    </div>
-  </header>
-
-  <main>
-
-  <div class="section-header" id="section-1">
-    <div class="sec-rule"></div>
-    <div class="sec-inner">
-      <span class="sec-num">01</span>
-      <div class="sec-text">
-        <h2>Foundations of Organizational Theory and Worldviews</h2>
-        <p>These texts establish the foundational paradigms, metaphors, and institutional logics through which organizations have been theorized and contested. They show how worldview assumptions shape what we see — and miss — in organizational life.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="entry" id="source-1">
-    <div class="entry-img">
-      <div class="img-box s1">
-        <span class="img-num">01</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">01 &nbsp;·&nbsp; Foundations</div>
-      <div class="citation">Burrell, G., &amp; Morgan, G. (1979). <em>Sociological paradigms and organisational analysis: Elements of the sociology of corporate life</em>. Heinemann Educational Books.</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§1</div>
-  </div>
-
-  <div class="entry" id="source-2">
-    <div class="entry-img">
-      <div class="img-box s1">
-        <span class="img-num">02</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">02 &nbsp;·&nbsp; Foundations</div>
-      <div class="citation">Morgan, G. (1997). <em>Images of organization</em> (2nd ed.). Sage Publications.</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§1</div>
-  </div>
-
-  <div class="entry" id="source-3">
-    <div class="entry-img">
-      <div class="img-box s1">
-        <span class="img-num">03</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">03 &nbsp;·&nbsp; Foundations</div>
-      <div class="citation">DiMaggio, P. J., &amp; Powell, W. W. (1983). The iron cage revisited: Institutional isomorphism and collective rationality in organizational fields. <em>American Sociological Review, 48</em>(2), 147–160. https://doi.org/10.2307/2095101</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§1</div>
-  </div>
-
-  <div class="entry" id="source-4">
-    <div class="entry-img">
-      <div class="img-box s1">
-        <span class="img-num">04</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">04 &nbsp;·&nbsp; Foundations</div>
-      <div class="citation">Tsoukas, H., &amp; Chia, R. (2002). On organizational becoming: Rethinking organizational change. <em>Organization Science, 13</em>(5), 567–582. https://doi.org/10.1287/orsc.13.5.567.7810</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§1</div>
-  </div>
-
-  <div class="entry" id="source-5">
-    <div class="entry-img">
-      <div class="img-box s1">
-        <span class="img-num">05</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">05 &nbsp;·&nbsp; Foundations</div>
-      <div class="citation">Scott, W. R., &amp; Davis, G. F. (2007). <em>Organizations and organizing: Rational, natural, and open system perspectives</em>. Pearson Prentice Hall.</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§1</div>
-  </div>
-
-  <div class="entry" id="source-57">
-    <div class="entry-img">
-      <div class="img-box s1">
-        <span class="img-num">57</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">57 &nbsp;·&nbsp; Foundations</div>
-      <div class="citation">Kuhn, T. S. (1962). <em>The structure of scientific revolutions</em>. University of Chicago Press.</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§1</div>
-  </div>
-
-  <div class="entry" id="source-58">
-    <div class="entry-img">
-      <div class="img-box s1">
-        <span class="img-num">58</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">58 &nbsp;·&nbsp; Foundations</div>
-      <div class="citation">Mintzberg, H. (1979). <em>The structuring of organizations: A synthesis of the research</em>. Prentice Hall.</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§1</div>
-  </div>
-
-  <div class="entry" id="source-59">
-    <div class="entry-img">
-      <div class="img-box s1">
-        <span class="img-num">59</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">59 &nbsp;·&nbsp; Foundations</div>
-      <div class="citation">March, J. G., &amp; Simon, H. A. (1958). <em>Organizations</em>. Wiley.</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§1</div>
-  </div>
-
-  <div class="entry" id="source-60">
-    <div class="entry-img">
-      <div class="img-box s1">
-        <span class="img-num">60</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">60 &nbsp;·&nbsp; Foundations</div>
-      <div class="citation">Lawrence, P. R., &amp; Lorsch, J. W. (1967). <em>Organization and environment: Managing differentiation and integration</em>. Harvard Business School Press.</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§1</div>
-  </div>
-
-  <div class="section-header" id="section-2">
-    <div class="sec-rule"></div>
-    <div class="sec-inner">
-      <span class="sec-num">02</span>
-      <div class="sec-text">
-        <h2>Leadership, Values, and Organizational Culture</h2>
-        <p>This section interrogates how leadership is conceptualized, enacted, and institutionalized across organizational worldviews — from transformational and authentic approaches rooted in humanist assumptions to relational and feminist framings that challenge individualist and value-neutral frameworks.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="entry" id="source-6">
-    <div class="entry-img">
-      <div class="img-box s2">
-        <span class="img-num">06</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">06 &nbsp;·&nbsp; Leadership</div>
-      <div class="citation">Burns, J. M. (1978). <em>Leadership</em>. Harper &amp; Row.</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§2</div>
-  </div>
-
-  <div class="entry" id="source-7">
-    <div class="entry-img">
-      <div class="img-box s2">
-        <span class="img-num">07</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">07 &nbsp;·&nbsp; Leadership</div>
-      <div class="citation">Uhl-Bien, M. (2006). Relational leadership theory: Exploring the social processes of leadership and organizing. <em>The Leadership Quarterly, 17</em>(6), 654–676. https://doi.org/10.1016/j.leaqua.2006.10.007</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§2</div>
-  </div>
-
-  <div class="entry" id="source-8">
-    <div class="entry-img">
-      <div class="img-box s2">
-        <span class="img-num">08</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">08 &nbsp;·&nbsp; Leadership</div>
-      <div class="citation">Schein, E. H. (2010). <em>Organizational culture and leadership</em> (4th ed.). Jossey-Bass.</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§2</div>
-  </div>
-
-  <div class="entry" id="source-9">
-    <div class="entry-img">
-      <div class="img-box s2">
-        <span class="img-num">09</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">09 &nbsp;·&nbsp; Leadership</div>
-      <div class="citation">Avolio, B. J., &amp; Gardner, W. L. (2005). Authentic leadership development: Getting to the root of positive forms of leadership. <em>The Leadership Quarterly, 16</em>(3), 315–338. https://doi.org/10.1016/j.leaqua.2005.03.001</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§2</div>
-  </div>
-
-  <div class="entry" id="source-10">
-    <div class="entry-img">
-      <div class="img-box s2">
-        <span class="img-num">10</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">10 &nbsp;·&nbsp; Leadership</div>
-      <div class="citation">House, R. J., Hanges, P. J., Javidan, M., Dorfman, P. W., &amp; Gupta, V. (Eds.). (2004). <em>Culture, leadership, and organizations: The GLOBE study of 62 societies</em>. Sage Publications.</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§2</div>
-  </div>
-
-  <div class="entry" id="source-11">
-    <div class="entry-img">
-      <div class="img-box s2">
-        <span class="img-num">11</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">11 &nbsp;·&nbsp; Leadership</div>
-      <div class="citation">Grosser, K., &amp; Moon, J. (2019). CSR and feminist organization studies: Towards an integrated theorization for the analysis of gender issues. <em>Journal of Business Ethics, 155</em>(2), 321–342. https://doi.org/10.1007/s10551-017-3510-x</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§2</div>
-  </div>
-
-  <div class="section-header" id="section-3">
-    <div class="sec-rule"></div>
-    <div class="sec-inner">
-      <span class="sec-num">03</span>
-      <div class="sec-text">
-        <h2>Sensemaking, Enactment, and Meaning-Making</h2>
-        <p>Drawing primarily on Weick's tradition, these texts foreground how meaning is constructed through ongoing social interaction rather than discovered as pre-given fact. Sensemaking theory provides a critical bridge between organizational worldviews and the enacted realities of leadership, culture, and decision-making.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="entry" id="source-12">
-    <div class="entry-img">
-      <div class="img-box s3">
-        <span class="img-num">12</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">12 &nbsp;·&nbsp; Sensemaking</div>
-      <div class="citation">Weick, K. E. (1995). <em>Sensemaking in organizations</em>. Sage Publications.</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§3</div>
-  </div>
-
-  <div class="entry" id="source-13">
-    <div class="entry-img">
-      <div class="img-box s3">
-        <span class="img-num">13</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">13 &nbsp;·&nbsp; Sensemaking</div>
-      <div class="citation">Weick, K. E., Sutcliffe, K. M., &amp; Obstfeld, D. (2005). Organizing and the process of sensemaking. <em>Organization Science, 16</em>(4), 409–421. https://doi.org/10.1287/orsc.1050.0133</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§3</div>
-  </div>
-
-  <div class="entry" id="source-14">
-    <div class="entry-img">
-      <div class="img-box s3">
-        <span class="img-num">14</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">14 &nbsp;·&nbsp; Sensemaking</div>
-      <div class="citation">Maitlis, S., &amp; Christianson, M. (2014). Sensemaking in organizations: Taking stock and moving forward. <em>The Academy of Management Annals, 8</em>(1), 57–125. https://doi.org/10.1080/19416520.2014.873177</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§3</div>
-  </div>
-
-  <div class="entry" id="source-15">
-    <div class="entry-img">
-      <div class="img-box s3">
-        <span class="img-num">15</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">15 &nbsp;·&nbsp; Sensemaking</div>
-      <div class="citation">Gioia, D. A., &amp; Chittipeddi, K. (1991). Sensemaking and sensegiving in strategic change initiation. <em>Strategic Management Journal, 12</em>(6), 433–448. https://doi.org/10.1002/smj.4250120604</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§3</div>
-  </div>
-
-  <div class="section-header" id="section-4">
-    <div class="sec-rule"></div>
-    <div class="sec-inner">
-      <span class="sec-num">04</span>
-      <div class="sec-text">
-        <h2>Practice Theory, Sociomateriality, and Process Ontology</h2>
-        <p>These texts challenge the primacy of the individual actor and the subject–object separation in organizational life. Practice theory, process ontology, and sociomateriality reframe organizing as distributed, emergent, and constitutively entangled with material worlds — offering a process-relational alternative to structural and cognitive frameworks.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="entry" id="source-16">
-    <div class="entry-img">
-      <div class="img-box s4">
-        <span class="img-num">16</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">16 &nbsp;·&nbsp; Practice Theory</div>
-      <div class="citation">Orlikowski, W. J. (2007). Sociomaterial practices: Exploring technology at work. <em>Organization Studies, 28</em>(9), 1435–1448. https://doi.org/10.1177/0170840607081138</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§4</div>
-  </div>
-
-  <div class="entry" id="source-17">
-    <div class="entry-img">
-      <div class="img-box s4">
-        <span class="img-num">17</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">17 &nbsp;·&nbsp; Practice Theory</div>
-      <div class="citation">Orlikowski, W. J., &amp; Scott, S. V. (2008). Sociomateriality: Challenging the separation of technology, work, and organization. <em>The Academy of Management Annals, 2</em>(1), 433–474. https://doi.org/10.1080/19416520802211644</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§4</div>
-  </div>
-
-  <div class="entry" id="source-18">
-    <div class="entry-img">
-      <div class="img-box s4">
-        <span class="img-num">18</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">18 &nbsp;·&nbsp; Practice Theory</div>
-      <div class="citation">Gherardi, S. (2016). To start practice theorizing anew: The contribution of the concepts of agencement and formativeness. <em>Organization, 23</em>(5), 680–698. https://doi.org/10.1177/1350508415605174</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§4</div>
-  </div>
-
-  <div class="entry" id="source-19">
-    <div class="entry-img">
-      <div class="img-box s4">
-        <span class="img-num">19</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">19 &nbsp;·&nbsp; Practice Theory</div>
-      <div class="citation">Champenois, C., Dimov, D., Gherardi, S., Hjorth, D., &amp; Thompson, N. A. (2025). Theorizing the processes and practices of entrepreneuring at work. <em>Human Relations, 78</em>(6), 651–662. https://doi.org/10.1177/00187267251328865</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§4</div>
-  </div>
-
-  <div class="entry" id="source-20">
-    <div class="entry-img">
-      <div class="img-box s4">
-        <span class="img-num">20</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">20 &nbsp;·&nbsp; Practice Theory</div>
-      <div class="citation">Nicolini, D. (2012). <em>Practice theory, work, and organization: An introduction</em>. Oxford University Press.</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§4</div>
-  </div>
-
-  <div class="entry" id="source-21">
-    <div class="entry-img">
-      <div class="img-box s4">
-        <span class="img-num">21</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">21 &nbsp;·&nbsp; Practice Theory</div>
-      <div class="citation">Feldman, M. S., &amp; Orlikowski, W. J. (2011). Theorizing practice and practicing theory. <em>Organization Science, 22</em>(5), 1240–1253. https://doi.org/10.1287/orsc.1100.0582</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§4</div>
-  </div>
-
-  <div class="entry" id="source-51">
-    <div class="entry-img">
-      <div class="img-box s4">
-        <span class="img-num">51</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">51 &nbsp;·&nbsp; Practice Theory</div>
-      <div class="citation">Schatzki, T. R. (1996). <em>Social practices: A Wittgensteinian approach to human activity and the social</em>. Cambridge University Press.</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§4</div>
-  </div>
-
-  <div class="entry" id="source-52">
-    <div class="entry-img">
-      <div class="img-box s4">
-        <span class="img-num">52</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">52 &nbsp;·&nbsp; Practice Theory</div>
-      <div class="citation">Latour, B. (2005). <em>Reassembling the social: An introduction to Actor-Network Theory</em>. Oxford University Press.</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§4</div>
-  </div>
-
-  <div class="section-header" id="section-5">
-    <div class="sec-rule"></div>
-    <div class="sec-inner">
-      <span class="sec-num">05</span>
-      <div class="sec-text">
-        <h2>Posthumanist and More-than-Human Organization Studies</h2>
-        <p>Departing from humanist assumptions about the sovereign organizational subject, these texts draw on new materialism, feminist posthumanism, and multispecies thinking. They question who and what counts as an organizational actor, and what ethical obligations follow from that recognition.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="entry" id="source-22">
-    <div class="entry-img">
-      <div class="img-box s5">
-        <span class="img-num">22</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">22 &nbsp;·&nbsp; Posthumanism</div>
-      <div class="citation">de Vaujany, F.-X., Gherardi, S., &amp; Silva, P. (Eds.). (2024). <em>Organization studies and posthumanism: Towards a more-than-human world</em>. Routledge. https://doi.org/10.4324/9781032617169</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§5</div>
-  </div>
-
-  <div class="entry" id="source-23">
-    <div class="entry-img">
-      <div class="img-box s5">
-        <span class="img-num">23</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">23 &nbsp;·&nbsp; Posthumanism</div>
-      <div class="citation">Gherardi, S., de Vaujany, F.-X., &amp; Silva, P. (2024). General introduction: Too-human? Inquiring in-between different disciplinary areas in managing and organizing. In F.-X. de Vaujany, S. Gherardi, &amp; P. Silva (Eds.), <em>Organization studies and posthumanism</em> (pp. 1–20). Routledge.</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§5</div>
-  </div>
-
-  <div class="entry" id="source-24">
-    <div class="entry-img">
-      <div class="img-box s5">
-        <span class="img-num">24</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">24 &nbsp;·&nbsp; Posthumanism</div>
-      <div class="citation">Ehrnström-Fuentes, M., Böhm, S., Hagolani-Albov, S., &amp; Annala Tesfaye, L. (2025). Multispecies organizing in the web of life: Ethico-political dynamics of matters of care in ecologies-in-place. <em>Business Ethics Quarterly</em>. Advance online publication. https://doi.org/10.1017/beq.2025.8</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§5</div>
-  </div>
-
-  <div class="entry" id="source-25">
-    <div class="entry-img">
-      <div class="img-box s5">
-        <span class="img-num">25</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">25 &nbsp;·&nbsp; Posthumanism</div>
-      <div class="citation">Wenzel, M. (2025). Organized carelessness: De-ethicizing the organization of death. <em>Business Ethics Quarterly, 35</em>(4), 675–705. https://doi.org/10.1017/beq.2025.10083</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§5</div>
-  </div>
-
-  <div class="entry" id="source-26">
-    <div class="entry-img">
-      <div class="img-box s5">
-        <span class="img-num">26</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">26 &nbsp;·&nbsp; Posthumanism</div>
-      <div class="citation">Huopalainen, A., Satama, S., &amp; Tallberg, L. (2026). Aesthetic encounters, canines, and care: New multispecies methodological avenues in organizational and business ethics. <em>Journal of Business Ethics, 203</em>, 241–257. https://doi.org/10.1007/s10551-025-06035-4</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§5</div>
-  </div>
-
-  <div class="entry" id="source-27">
-    <div class="entry-img">
-      <div class="img-box s5">
-        <span class="img-num">27</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">27 &nbsp;·&nbsp; Posthumanism</div>
-      <div class="citation">Allen, S., &amp; Strauß, A. (2026). Thinking-being with a garden: Developing ecocentric ethics for sustainable organising. <em>Journal of Business Ethics</em>. Advance online publication. https://doi.org/10.1007/s10551-026-06255-2</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§5</div>
-  </div>
-
-  <div class="entry" id="source-28">
-    <div class="entry-img">
-      <div class="img-box s5">
-        <span class="img-num">28</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">28 &nbsp;·&nbsp; Posthumanism</div>
-      <div class="citation">Barad, K. (2007). <em>Meeting the universe halfway: Quantum physics and the entanglement of matter and meaning</em>. Duke University Press.</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§5</div>
-  </div>
-
-  <div class="entry" id="source-29">
-    <div class="entry-img">
-      <div class="img-box s5">
-        <span class="img-num">29</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">29 &nbsp;·&nbsp; Posthumanism</div>
-      <div class="citation">Haraway, D. J. (1988). Situated knowledges: The science question in feminism and the privilege of partial perspective. <em>Feminist Studies, 14</em>(3), 575–599. https://doi.org/10.2307/3178066</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§5</div>
-  </div>
-
-  <div class="entry" id="source-53">
-    <div class="entry-img">
-      <div class="img-box s5">
-        <span class="img-num">53</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">53 &nbsp;·&nbsp; Posthumanism</div>
-      <div class="citation">Braidotti, R. (2013). <em>The posthuman</em>. Polity Press.</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§5</div>
-  </div>
-
-  <div class="entry" id="source-54">
-    <div class="entry-img">
-      <div class="img-box s5">
-        <span class="img-num">54</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">54 &nbsp;·&nbsp; Posthumanism</div>
-      <div class="citation">Deleuze, G., &amp; Guattari, F. (1987). <em>A thousand plateaus: Capitalism and schizophrenia</em> (B. Massumi, Trans.). University of Minnesota Press.</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§5</div>
-  </div>
-
-  <div class="section-header" id="section-6">
-    <div class="sec-rule"></div>
-    <div class="sec-inner">
-      <span class="sec-num">06</span>
-      <div class="sec-text">
-        <h2>Indigenous Worldviews, Decolonial Knowledge, and Relational Accountability</h2>
-        <p>These sources introduce Indigenous, decolonial, and relational epistemologies that fundamentally challenge Western organizational worldviews. They problematize dominant assumptions about leadership, knowledge production, and organizational purpose — offering alternative ontologies grounded in land, kinship, and relational accountability.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="entry" id="source-30">
-    <div class="entry-img">
-      <div class="img-box s6">
-        <span class="img-num">30</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">30 &nbsp;·&nbsp; Indigenous / Decolonial</div>
-      <div class="citation">Oberholzer, S. (2026). Weaving regenerative value through nature-inclusive stakeholder engagement: Insights from Indigenous businesses in the Sierra Nevada. <em>Business &amp; Society</em>. Advance online publication. https://doi.org/10.1177/00076503251407454</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§6</div>
-  </div>
-
-  <div class="entry" id="source-31">
-    <div class="entry-img">
-      <div class="img-box s6">
-        <span class="img-num">31</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">31 &nbsp;·&nbsp; Indigenous / Decolonial</div>
-      <div class="citation">Banerjee, S. B. (2022). Decolonizing management theory: A critical perspective. <em>Journal of Management Studies, 59</em>(4), 1074–1087. https://doi.org/10.1111/joms.12756</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§6</div>
-  </div>
-
-  <div class="entry" id="source-32">
-    <div class="entry-img">
-      <div class="img-box s6">
-        <span class="img-num">32</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">32 &nbsp;·&nbsp; Indigenous / Decolonial</div>
-      <div class="citation">Banerjee, S. B. (2003). Who sustains whose development? Sustainable development and the reinvention of nature. <em>Organization Studies, 24</em>(2), 143–180. https://doi.org/10.1177/0170840603024002341</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§6</div>
-  </div>
-
-  <div class="entry" id="source-33">
-    <div class="entry-img">
-      <div class="img-box s6">
-        <span class="img-num">33</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">33 &nbsp;·&nbsp; Indigenous / Decolonial</div>
-      <div class="citation">Todd, Z. (2016). An Indigenous feminist's take on the ontological turn: 'Ontology' is just another word for colonialism. <em>Journal of Historical Sociology, 29</em>(1), 4–22. https://doi.org/10.1111/johs.12124</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§6</div>
-  </div>
-
-  <div class="entry" id="source-34">
-    <div class="entry-img">
-      <div class="img-box s6">
-        <span class="img-num">34</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">34 &nbsp;·&nbsp; Indigenous / Decolonial</div>
-      <div class="citation">Smith, L. T. (2012). <em>Decolonizing methodologies: Research and Indigenous peoples</em> (2nd ed.). Zed Books.</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§6</div>
-  </div>
-
-  <div class="entry" id="source-35">
-    <div class="entry-img">
-      <div class="img-box s6">
-        <span class="img-num">35</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">35 &nbsp;·&nbsp; Indigenous / Decolonial</div>
-      <div class="citation">Tuck, E., &amp; Yang, K. W. (2012). Decolonization is not a metaphor. <em>Decolonization: Indigeneity, Education &amp; Society, 1</em>(1), 1–40.</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§6</div>
-  </div>
-
-  <div class="entry" id="source-55">
-    <div class="entry-img">
-      <div class="img-box s6">
-        <span class="img-num">55</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">55 &nbsp;·&nbsp; Indigenous / Decolonial</div>
-      <div class="citation">Mignolo, W. D. (2011). <em>The darker side of western modernity: Global futures, decolonial options</em>. Duke University Press. https://doi.org/10.1215/9780822394501</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§6</div>
-  </div>
-
-  <div class="section-header" id="section-7">
-    <div class="sec-rule"></div>
-    <div class="sec-inner">
-      <span class="sec-num">07</span>
-      <div class="sec-text">
-        <h2>Ecological Embeddedness, Living Systems, and Regenerative Organizing</h2>
-        <p>This section situates organizations within living systems rather than apart from them. Drawing on systems thinking, ecological science, and regenerative theory, these texts challenge the extractive logic embedded in conventional organizational worldviews and offer frameworks for understanding organizational purpose as participation in rather than extraction from living worlds.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="entry" id="source-36">
-    <div class="entry-img">
-      <div class="img-box s7">
-        <span class="img-num">36</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">36 &nbsp;·&nbsp; Ecological</div>
-      <div class="citation">Whiteman, G., &amp; Cooper, W. H. (2000). Ecological embeddedness. <em>Academy of Management Journal, 43</em>(6), 1265–1282. https://doi.org/10.2307/1556349</div>
-      <div class="annotation">This study examines how indigenous Cree tallymen in northern Canada manage land through what the authors call ecological embeddedness — a deep, experiential attunement to the natural environment built through direct presence, cultural belief, and intergenerational knowledge. Using an 18-month ethnographic approach, Whiteman and Cooper identify four dimensions of ecological embeddedness: walking the land, holding ecological beliefs rooted in reciprocity and respect, actively gathering environmental information, and learning through imperfection. These practices form the foundation of sustainable resource management, grounded in place based and traditional ecological knowledge. Indigenous knowledge systems incorporate management knowledge, beliefs, and practices passed down through generations. Decision-making was a social process — management by consensus, such as around land use or hunting. Social relations were stronger in these times compared to after the industrial revolution, where they became defined by arm's-length economic transactions. The central critique of conventional management is that it treats nature as either invisible or as an economic abstraction, producing an anthropocentric worldview that lacks empathy for the nonhuman world. In contrast, in indigenous management knowledge is relational. The land is something to be listened to and lived within as an active participant, not extracted from. Social relations in this framework precede exchange, rather than being defined by it, as became common after the industrial revolution. Whiteman et al. (2000) argue that modern management practices can benefit from natural resource management practiced by indigenous communities. This is an area that remains largely unstudied in management research and a large research gap. Culturally hunter-gatherer peoples have needed greater sensitivity to their environment and more social reciprocity than modern communities, in contrast to today's society which is based on scientific knowledge and more transactional economic practices.
-   <br><br>
-   This text is important because it brings forth the principle of ecological embeddedness and its contribution to sustainability in management contexts. Research is needed on how corporate executives can best implement these indigenous approaches. For example, how much exposure to nature needed, and what kind of practices?</div>
-    </div>
-    <div class="entry-tag">§7</div>
-  </div>
-
-  <div class="entry" id="source-37">
-    <div class="entry-img">
-      <div class="img-box s7">
-        <span class="img-num">37</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">37 &nbsp;·&nbsp; Ecological</div>
-      <div class="citation">Capra, F. (1996). <em>The web of life: A new scientific understanding of living systems</em>. Anchor Books.</div>
-      <div class="annotation">Capra offers a new systemic understanding of living systems which can be very useful for business leaders, decision makers, sustainability professionals, and educators, providing a contrast to paradigms of mechanism and offering a different viewpoint. His work discusses social systems, ecosystems, and organisms. The problems that are harming the biosphere — such as biodiversity loss and social inequity — are systemic and interdependent, and therefore require systemic solutions. This has direct implications for business leaders and their failure to think beyond linear, reductionist frameworks.
-   <br><br>
-   Capra suggests that solutions require a radical shift in our perception, worldview, values, and thinking. He speaks of deep ecological awareness, social ecology, and ecofeminism as related and important schools of thought that support regenerative organizations. He offers deep ecology and systems thinking as practical tools for managers and business leaders, arguing that culture shifts are necessary.
-   <br><br>
-   He outlines a progression from rational, linear, and reductionist thinking toward synthesis, holistic, and nonlinear thinking, and from mechanistic to relational. Values must shift from competition to quality, and from domination to partnership and co-creation. Worldview must move from anthropocentric to ecocentric. The old view treated animals as machines, reducing biology to physics and chemistry.
-   <br><br>
-   Systems thinking which emerges from organismic biologists who rejected mechanism, holds that relationships rather than parts help you understand a system. A system cannot be understood through analysis alone. Thinking about organizations must be contextual, not analytical, placing things into the larger whole.</div>
-    </div>
-    <div class="entry-tag">§7</div>
-  </div>
-
-  <div class="entry" id="source-38">
-    <div class="entry-img">
-      <div class="img-box s7">
-        <span class="img-num">38</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">38 &nbsp;·&nbsp; Ecological</div>
-      <div class="citation">Ingold, T. (2000). <em>The perception of the environment: Essays on livelihood, dwelling and skill</em>. Routledge.</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§7</div>
-  </div>
-
-  <div class="entry" id="source-39">
-    <div class="entry-img">
-      <div class="img-box s7">
-        <span class="img-num">39</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">39 &nbsp;·&nbsp; Ecological</div>
-      <div class="citation">Meadows, D. H. (2008). <em>Thinking in systems: A primer</em> (D. Wright, Ed.). Chelsea Green Publishing.</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§7</div>
-  </div>
-
-  <div class="entry" id="source-40">
-    <div class="entry-img">
-      <div class="img-box s7">
-        <span class="img-num">40</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">40 &nbsp;·&nbsp; Ecological</div>
-      <div class="citation">Reed, B. (2007). Shifting from 'sustainability' to regeneration. <em>Building Research &amp; Information, 35</em>(6), 674–680. https://doi.org/10.1080/09613210701475753</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§7</div>
-  </div>
-
-  <div class="entry" id="source-56">
-    <div class="entry-img">
-      <div class="img-box s7">
-        <span class="img-num">56</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">56 &nbsp;·&nbsp; Ecological</div>
-      <div class="citation">Bateson, G. (1972). <em>Steps to an ecology of mind: Collected essays in anthropology, psychiatry, evolution, and epistemology</em>. University of Chicago Press.</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§7</div>
-  </div>
-
-  <div class="section-header" id="section-8">
-    <div class="sec-rule"></div>
-    <div class="sec-inner">
-      <span class="sec-num">08</span>
-      <div class="sec-text">
-        <h2>Care Ethics, Eco-Feminism, and Creative Practice</h2>
-        <p>These texts bring together ethics of care, eco-feminist critique, and creative approaches to organizational life. They challenge the disembodied rationality assumed by mainstream organizational theory, offering instead frameworks rooted in relationality, embodied knowing, and the political dimensions of care.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="entry" id="source-41">
-    <div class="entry-img">
-      <div class="img-box s8">
-        <span class="img-num">41</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">41 &nbsp;·&nbsp; Care Ethics</div>
-      <div class="citation">Plumwood, V. (1993). <em>Feminism and the mastery of nature</em>. Routledge.</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§8</div>
-  </div>
-
-  <div class="entry" id="source-42">
-    <div class="entry-img">
-      <div class="img-box s8">
-        <span class="img-num">42</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">42 &nbsp;·&nbsp; Care Ethics</div>
-      <div class="citation">Tronto, J. C. (1993). <em>Moral boundaries: A political argument for an ethic of care</em>. Routledge.</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§8</div>
-  </div>
-
-  <div class="entry" id="source-43">
-    <div class="entry-img">
-      <div class="img-box s8">
-        <span class="img-num">43</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">43 &nbsp;·&nbsp; Care Ethics</div>
-      <div class="citation">Held, V. (2006). <em>The ethics of care: Personal, political, and global</em>. Oxford University Press.</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§8</div>
-  </div>
-
-  <div class="entry" id="source-44">
-    <div class="entry-img">
-      <div class="img-box s8">
-        <span class="img-num">44</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">44 &nbsp;·&nbsp; Care Ethics</div>
-      <div class="citation">Karakilic, E., &amp; Painter, M. (2022). The (un)surprising nature of creativity: A Deleuzian perspective on the temporality of the creative process. <em>Ephemera: Theory and Politics in Organization, 22</em>(2), 281–308.</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§8</div>
-  </div>
-
-  <div class="entry" id="source-45">
-    <div class="entry-img">
-      <div class="img-box s8">
-        <span class="img-num">45</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">45 &nbsp;·&nbsp; Care Ethics</div>
-      <div class="citation">Carollo, L., Sferrazzo, R., &amp; Shymko, Y. (2025). Is it the end of the world as we know it? Apocalyptic reflexivity in and around organizations. <em>Ephemera: Theory and Politics in Organization, 25</em>(1).</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§8</div>
-  </div>
-
-  <div class="section-header" id="section-9">
-    <div class="sec-rule"></div>
-    <div class="sec-inner">
-      <span class="sec-num">09</span>
-      <div class="sec-text">
-        <h2>Grey Literature and Practitioner Knowledge</h2>
-        <p>These practitioner-oriented texts offer influential framings of organizational life that have shaped regenerative, systems-based, and relational approaches to leadership and organizational change. While not peer-reviewed in the traditional sense, they circulate widely and engage the limits of mechanistic organization.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="entry" id="source-46">
-    <div class="entry-img">
-      <div class="img-box s9">
-        <span class="img-num">46</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">46 &nbsp;·&nbsp; Grey Literature</div>
-      <div class="citation">Laloux, F. (2014). <em>Reinventing organizations: A guide to creating organizations inspired by the next stage of human consciousness</em>. Nelson Parker.</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§9</div>
-  </div>
-
-  <div class="entry" id="source-47">
-    <div class="entry-img">
-      <div class="img-box s9">
-        <span class="img-num">47</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">47 &nbsp;·&nbsp; Grey Literature</div>
-      <div class="citation">Wheatley, M. J. (1992). <em>Leadership and the new science: Learning about organization from an orderly universe</em>. Berrett-Koehler Publishers.</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§9</div>
-  </div>
-
-  <div class="entry" id="source-48">
-    <div class="entry-img">
-      <div class="img-box s9">
-        <span class="img-num">48</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">48 &nbsp;·&nbsp; Grey Literature</div>
-      <div class="citation">Senge, P. M. (1990). <em>The fifth discipline: The art and practice of the learning organization</em>. Currency Doubleday.</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§9</div>
-  </div>
-
-  <div class="entry" id="source-49">
-    <div class="entry-img">
-      <div class="img-box s9">
-        <span class="img-num">49</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">49 &nbsp;·&nbsp; Grey Literature</div>
-      <div class="citation">Greenleaf, R. K. (1977). <em>Servant leadership: A journey into the nature of legitimate power and greatness</em>. Paulist Press.</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§9</div>
-  </div>
-
-  <div class="entry" id="source-50">
-    <div class="entry-img">
-      <div class="img-box s9">
-        <span class="img-num">50</span>
-      </div>
-    </div>
-    <div class="entry-body">
-      <div class="entry-meta">50 &nbsp;·&nbsp; Grey Literature</div>
-      <div class="citation">Wahl, D. C. (2016). <em>Designing regenerative cultures</em>. Triarchy Press.</div>
-      <div class="annotation"><span class="pending">Annotation in progress.</span></div>
-    </div>
-    <div class="entry-tag">§9</div>
-  </div>
-  </main>
-
-</div><!-- /page-wrap -->
-
+<table>
+  <thead>
+    <tr>
+      <th class="col-num"><a href="index.html" class="map-link">← Map</a></th>
+      <th class="col-author"><input type="text" id="search-input" class="search-input" placeholder="Search…" autocomplete="off" spellcheck="false"></th>
+      <th class="col-section">Title</th>
+      <th class="col-year">
+        <span class="add-btn" id="add-btn">+ Add</span>
+        <span class="filter-btn" id="filter-btn">Filter</span>
+        Year
+      </th>
+    </tr>
+  </thead>
+  <tbody id="sources-tbody">
+    <tr id="loading-row">
+      <td class="col-num"></td>
+      <td colspan="3" style="padding:48px 0 48px 0; letter-spacing:0.07em; text-transform:uppercase; font-size:12px; opacity:0.35; border-bottom:none;">Loading…</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Filter panel -->
+<div class="filter-pane-wrap" id="filter-pane-wrap">
+  <div class="filter-groups">
+    <div class="filter-group fg-section">
+      <div class="fg-title">Section</div>
+      <div class="fg-opts fg-opts-grid">
+        <label class="filter-opt"><input type="radio" name="sec" value="all" checked> All</label>
+        <label class="filter-opt"><input type="radio" name="sec" value="sec-1"> Foundations</label>
+        <label class="filter-opt"><input type="radio" name="sec" value="sec-2"> Leadership</label>
+        <label class="filter-opt"><input type="radio" name="sec" value="sec-3"> Sensemaking</label>
+        <label class="filter-opt"><input type="radio" name="sec" value="sec-4"> Practice Theory</label>
+        <label class="filter-opt"><input type="radio" name="sec" value="sec-5"> Posthumanist</label>
+        <label class="filter-opt"><input type="radio" name="sec" value="sec-6"> Indigenous</label>
+        <label class="filter-opt"><input type="radio" name="sec" value="sec-7"> Ecological</label>
+        <label class="filter-opt"><input type="radio" name="sec" value="sec-8"> Care Ethics</label>
+        <label class="filter-opt"><input type="radio" name="sec" value="sec-9"> Grey Literature</label>
+      </div>
+    </div>
+    <div class="filter-group fg-year">
+      <div class="fg-title">Year</div>
+      <div class="fg-opts">
+        <label class="filter-opt"><input type="radio" name="year" value="all" checked> All</label>
+        <label class="filter-opt"><input type="radio" name="year" value="pre-2000"> Pre-2000</label>
+        <label class="filter-opt"><input type="radio" name="year" value="2000s"> 2000s</label>
+        <label class="filter-opt"><input type="radio" name="year" value="2010s"> 2010s</label>
+        <label class="filter-opt"><input type="radio" name="year" value="2020s"> 2020s</label>
+      </div>
+    </div>
+    <div class="filter-group fg-type">
+      <div class="fg-title">Type</div>
+      <div class="fg-opts">
+        <label class="filter-opt"><input type="radio" name="type" value="all" checked> All</label>
+        <label class="filter-opt"><input type="radio" name="type" value="book"> Book</label>
+        <label class="filter-opt"><input type="radio" name="type" value="article"> Article</label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Source Modal -->
+<div class="add-modal-overlay" id="add-modal-overlay">
+  <div class="add-modal">
+    <div class="add-modal-title">Add Source</div>
+    <div class="add-field">
+      <label>Author(s)</label>
+      <input type="text" id="add-author" placeholder="Last, F., & Last, F." autocomplete="off">
+    </div>
+    <div class="add-field">
+      <label>Year</label>
+      <input type="text" id="add-year" placeholder="2024" maxlength="4" autocomplete="off">
+    </div>
+    <div class="add-field">
+      <label>Section</label>
+      <select id="add-section">
+        <option value="Foundations">Foundations</option>
+        <option value="Leadership">Leadership</option>
+        <option value="Sensemaking">Sensemaking</option>
+        <option value="Practice Theory">Practice Theory</option>
+        <option value="Posthumanism">Posthumanism</option>
+        <option value="Indigenous / Decolon">Indigenous / Decolonial</option>
+        <option value="Ecological">Ecological</option>
+        <option value="Care Ethics">Care Ethics</option>
+        <option value="Grey Literature">Grey Literature</option>
+      </select>
+    </div>
+    <div class="add-field">
+      <label>Citation (APA — use *asterisks* around italicised title)</label>
+      <textarea id="add-citation" placeholder="Last, F. (Year). *Title of work*. Publisher."></textarea>
+    </div>
+    <div class="add-actions">
+      <button class="btn-primary" id="add-submit">Add Source</button>
+      <button class="btn-cancel" id="add-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Save toast -->
+<div class="save-toast" id="save-toast">Saved</div>
+
+<!-- Supabase CDN -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// ── Ambient canvas animation ──────────────────────────────────────────────────
-(function() {
-  const canvas = document.getElementById('ambient');
-  const ctx = canvas.getContext('2d');
-  let W, H;
+// ════════════════════════════════════════════════════════════════════════════
+//  CONFIG — paste your Supabase project URL and anon key here
+// ════════════════════════════════════════════════════════════════════════════
+const SUPABASE_URL = 'https://dnqtrzsiqkosrxoitzol.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRucXRyenNpcWtvc3J4b2l0em9sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0OTY4MDIsImV4cCI6MjA4ODA3MjgwMn0.DRKZA1h9mWBZcp7wWgf-s5ZYpuYUYd1-Z_96GIONjZU';
+// ════════════════════════════════════════════════════════════════════════════
 
-  function resize() {
-    W = canvas.width  = window.innerWidth;
-    H = canvas.height = window.innerHeight;
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const SECTION_NAMES = {
+  'Foundations':         'Foundations of Organizational Theory and Worldviews',
+  'Leadership':          'Leadership, Values, and Organizational Culture',
+  'Sensemaking':         'Sensemaking, Enactment, and Meaning-Making',
+  'Practice Theory':     'Practice Theory, Sociomateriality, and Process Ontology',
+  'Posthumanism':        'Posthumanist and More-than-Human Organization Studies',
+  'Indigenous / Decolon':'Indigenous Worldviews, Decolonial Knowledge, and Relational Accountability',
+  'Ecological':          'Ecological Embeddedness, Living Systems, and Regenerative Organizing',
+  'Care Ethics':         'Care Ethics, Eco-Feminism, and Creative Practice',
+  'Grey Literature':     'Grey Literature and Practitioner Knowledge',
+};
+
+// Section ID map — built after render so filters reference correct sec-N ids
+let _sectionIdMap = {}; // short section name → 'sec-N'
+
+// In-memory state
+let _sources = [];
+let _kwMap   = {}; // source_id → [{id, source_id, keyword}]
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+async function init() {
+  if (SUPABASE_URL.includes('YOUR_PROJECT')) {
+    showConfigError();
+    return;
   }
-  resize();
-  window.addEventListener('resize', resize);
-
-  const N = 45;
-  const pts = Array.from({length: N}, (_, i) => ({
-    x:  Math.random() * (typeof W !== 'undefined' ? W : 1200),
-    y:  Math.random() * (typeof H !== 'undefined' ? H : 800),
-    vx: (Math.random() - 0.5) * 0.18,
-    vy: (Math.random() - 0.5) * 0.18,
-    r:  Math.random() * 1.6 + 0.3,
-    a:  Math.random() * 0.09 + 0.02,
-    ph: Math.random() * Math.PI * 2
-  }));
-
-  let t = 0;
-  function draw() {
-    ctx.clearRect(0, 0, W, H);
-    t += 0.00025;
-
-    // connections
-    for (let i = 0; i < N; i++) {
-      for (let j = i + 1; j < N; j++) {
-        const dx = pts[i].x - pts[j].x;
-        const dy = pts[i].y - pts[j].y;
-        const d  = Math.sqrt(dx*dx + dy*dy);
-        if (d < 200) {
-          ctx.beginPath();
-          ctx.moveTo(pts[i].x, pts[i].y);
-          ctx.lineTo(pts[j].x, pts[j].y);
-          ctx.strokeStyle = `rgba(130,220,130,${(1 - d/200) * 0.035})`;
-          ctx.lineWidth = 0.5;
-          ctx.stroke();
-        }
-      }
-    }
-
-    // nodes
-    pts.forEach((p, i) => {
-      p.vx += Math.sin(t + i * 1.4)       * 0.004;
-      p.vy += Math.cos(t + i * 1.4 * 0.7) * 0.004;
-      p.vx *= 0.995;
-      p.vy *= 0.995;
-      p.x  += p.vx;
-      p.y  += p.vy;
-      if (p.x < 0) p.x = W;
-      if (p.x > W) p.x = 0;
-      if (p.y < 0) p.y = H;
-      if (p.y > H) p.y = 0;
-
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(160,230,160,${p.a})`;
-      ctx.fill();
+  try {
+    const [srcRes, kwRes] = await Promise.all([
+      sb.from('sources').select('*').order('sort_order'),
+      sb.from('keywords').select('*'),
+    ]);
+    if (srcRes.error) throw srcRes.error;
+    _sources = srcRes.data || [];
+    _kwMap = {};
+    (kwRes.data || []).forEach(kw => {
+      if (!_kwMap[kw.source_id]) _kwMap[kw.source_id] = [];
+      _kwMap[kw.source_id].push(kw);
     });
-
-    requestAnimationFrame(draw);
+  } catch (e) {
+    console.error('Supabase error:', e);
+    showError('Could not load data. Check console for details.');
+    return;
   }
-  draw();
-})();
+  renderTable();
+}
 
-// ── Expandable annotation text ────────────────────────────────────────────────
-document.querySelectorAll('.citation').forEach(citation => {
-  const annotation = citation.nextElementSibling;
-  if (!annotation || !annotation.classList.contains('annotation')) return;
-  citation.addEventListener('click', () => {
-    annotation.classList.toggle('open');
+function showConfigError() {
+  const tbody = document.getElementById('sources-tbody');
+  tbody.innerHTML = '';
+  const tr = document.createElement('tr');
+  tr.innerHTML = `<td class="col-num"></td><td colspan="3" style="padding:48px 0; line-height:1.8; border-bottom:none; opacity:0.6; font-size:13px;">
+    <strong style="letter-spacing:0.07em;text-transform:uppercase;font-size:11px;">Setup required</strong><br><br>
+    Open <code>annotations.html</code> and replace the two placeholder values near the top of the &lt;script&gt; tag:<br><br>
+    <code>SUPABASE_URL = 'https://YOUR_PROJECT.supabase.co'</code><br>
+    <code>SUPABASE_KEY = 'YOUR_ANON_PUBLIC_KEY'</code><br><br>
+    See <code>SETUP.md</code> for full instructions.
+  </td>`;
+  tbody.appendChild(tr);
+}
+
+function showError(msg) {
+  const tbody = document.getElementById('sources-tbody');
+  tbody.innerHTML = `<tr><td></td><td colspan="3" style="padding:48px 0;border-bottom:none;opacity:0.5;letter-spacing:0.06em;text-transform:uppercase;font-size:12px;">${msg}</td></tr>`;
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function renderTable() {
+  const tbody = document.getElementById('sources-tbody');
+  tbody.innerHTML = '';
+
+  let currentSection = null;
+  let secIndex = 0;
+  _sectionIdMap = {};
+
+  _sources.forEach(s => {
+    if (s.section !== currentSection) {
+      currentSection = s.section;
+      secIndex++;
+      const secId = 'sec-' + secIndex;
+      _sectionIdMap[s.section] = secId;
+      tbody.appendChild(buildSectionHeader(s.section, secId));
+    }
+    tbody.appendChild(buildEntryRow(s));
+    tbody.appendChild(buildDetailRow(s, _kwMap[s.id] || []));
   });
-});
-</script>
 
+  setupAll();
+}
+
+// ── Row builders ──────────────────────────────────────────────────────────────
+function buildSectionHeader(section, secId) {
+  const tr = document.createElement('tr');
+  tr.className = 'sec-header';
+  tr.id = secId;
+  const numTd = document.createElement('td');
+  numTd.className = 'col-num';
+  numTd.textContent = secId.replace('sec-', '').padStart(2, '0');
+  const authTd = document.createElement('td');
+  authTd.className = 'col-author';
+  authTd.setAttribute('colspan', '3');
+  authTd.textContent = SECTION_NAMES[section] || section;
+  tr.appendChild(numTd);
+  tr.appendChild(authTd);
+  return tr;
+}
+
+function buildEntryRow(s) {
+  const tr = document.createElement('tr');
+  tr.className = 'entry-row';
+  tr.id = s.id;
+  tr.dataset.open = 'false';
+
+  const numTd = document.createElement('td');
+  numTd.className = 'col-num';
+  numTd.textContent = s.display_num;
+
+  const authTd = document.createElement('td');
+  authTd.className = 'col-author';
+  authTd.textContent = s.author;
+
+  const secTd = document.createElement('td');
+  secTd.className = 'col-section';
+  secTd.textContent = s.section; // replaced with title by populateTitles()
+
+  const yearTd = document.createElement('td');
+  yearTd.className = 'col-year';
+  yearTd.textContent = s.year;
+
+  tr.appendChild(numTd);
+  tr.appendChild(authTd);
+  tr.appendChild(secTd);
+  tr.appendChild(yearTd);
+  return tr;
+}
+
+function buildDetailRow(s, keywords) {
+  const tr = document.createElement('tr');
+  tr.className = 'entry-detail';
+  tr.id = s.id + '-detail';
+
+  const numTd = document.createElement('td');
+  numTd.className = 'col-num';
+
+  const innerTd = document.createElement('td');
+  innerTd.className = 'detail-inner';
+  innerTd.setAttribute('colspan', '3');
+
+  // Citation (HTML content — em tags preserved)
+  const citDiv = document.createElement('div');
+  citDiv.className = 'detail-citation';
+  citDiv.dataset.sourceId = s.id;
+  citDiv.innerHTML = s.citation || '';
+
+  // Annotation (plain text)
+  const hasAnn = s.annotation && s.annotation.trim();
+  const annDiv = document.createElement('div');
+  annDiv.className = hasAnn ? 'detail-annotation' : 'detail-annotation pending';
+  annDiv.dataset.sourceId = s.id;
+  annDiv.textContent = hasAnn ? s.annotation : 'Annotation in progress.';
+
+  // Keywords row
+  const kwRow = document.createElement('div');
+  kwRow.className = 'keywords-row';
+  kwRow.dataset.sourceId = s.id;
+  keywords.forEach(kw => kwRow.appendChild(buildPill(kw)));
+  const addKwBtn = document.createElement('span');
+  addKwBtn.className = 'keyword-add-btn';
+  addKwBtn.textContent = '+ keyword';
+  kwRow.appendChild(addKwBtn);
+
+  // Delete button
+  const delBtn = document.createElement('span');
+  delBtn.className = 'delete-btn';
+  delBtn.dataset.sourceId = s.id;
+  delBtn.textContent = 'Delete source';
+
+  innerTd.appendChild(citDiv);
+  innerTd.appendChild(annDiv);
+  innerTd.appendChild(kwRow);
+  innerTd.appendChild(delBtn);
+  tr.appendChild(numTd);
+  tr.appendChild(innerTd);
+  return tr;
+}
+
+function buildPill(kw) {
+  const span = document.createElement('span');
+  span.className = 'keyword-pill';
+  span.dataset.kwId = kw.id;
+  span.textContent = kw.keyword;
+  const x = document.createElement('span');
+  x.className = 'keyword-remove';
+  x.textContent = '×';
+  x.title = 'Remove';
+  span.appendChild(x);
+  return span;
+}
+
+// ── Setup all listeners ───────────────────────────────────────────────────────
+function setupAll() {
+  tagRows();
+  populateTitles();
+  setupSectionTitles();
+  setupAccordion();
+  setupAnnotationEditing();
+  setupCitationEditing();
+  setupKeywords();
+  setupDeleteButtons();
+  setupFilterListeners();
+  positionPane();
+}
+
+// ── Tag rows for filtering ────────────────────────────────────────────────────
+function tagRows() {
+  let currentSec = null;
+  document.querySelectorAll('#sources-tbody tr').forEach(row => {
+    if (row.classList.contains('sec-header')) {
+      currentSec = row.id;
+      return;
+    }
+    if (!row.classList.contains('entry-row')) return;
+    row.dataset.section = currentSec;
+    const yr = parseInt(row.querySelector('.col-year')?.textContent) || 0;
+    row.dataset.yearBucket = yr < 2000 ? 'pre-2000' : yr < 2010 ? '2000s' : yr < 2020 ? '2010s' : '2020s';
+    const detail = document.getElementById(row.id + '-detail');
+    if (detail) {
+      const cit = detail.querySelector('.detail-citation');
+      const hasDoi = cit && (cit.textContent.includes('doi.org') || cit.textContent.includes('DOI'));
+      row.dataset.type = hasDoi ? 'article' : 'book';
+    }
+  });
+}
+
+// ── Populate title column from citation ───────────────────────────────────────
+function populateTitles() {
+  document.querySelectorAll('.entry-row').forEach(row => {
+    const titleCell = row.querySelector('.col-section');
+    const detail = document.getElementById(row.id + '-detail');
+    if (!titleCell || !detail) return;
+    const cit = detail.querySelector('.detail-citation');
+    if (!cit) return;
+    const html = cit.innerHTML;
+    const artMatch = html.match(/\)\.\s+([^<]+?)\s*\.\s*<em>/i);
+    if (artMatch && artMatch[1].trim().length > 4) {
+      titleCell.textContent = artMatch[1].trim();
+      return;
+    }
+    const em = cit.querySelector('em');
+    if (em) titleCell.textContent = em.textContent.trim();
+  });
+}
+
+// ── Section titles → big display ─────────────────────────────────────────────
+function setupSectionTitles() {
+  document.querySelectorAll('.sec-header').forEach(hdr => {
+    const numCell    = hdr.querySelector('.col-num');
+    const authorCell = hdr.querySelector('.col-author');
+    if (!numCell || !authorCell) return;
+    numCell.textContent = authorCell.textContent;
+    numCell.setAttribute('colspan', '4');
+    numCell.classList.add('sec-title');
+    authorCell.remove();
+  });
+}
+
+// ── Accordion ────────────────────────────────────────────────────────────────
+function setupAccordion() {
+  document.querySelectorAll('.entry-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const detail = document.getElementById(row.id + '-detail');
+      if (!detail) return;
+      const isOpen = detail.classList.contains('open');
+      document.querySelectorAll('.entry-detail.open').forEach(d => d.classList.remove('open'));
+      if (!isOpen) detail.classList.add('open');
+    });
+  });
+}
+
+// ── Annotation editing → saves to Supabase ────────────────────────────────────
+function setupAnnotationEditing() {
+  document.querySelectorAll('.detail-annotation').forEach(ann => {
+    ann.addEventListener('click', e => {
+      e.stopPropagation();
+      if (ann.classList.contains('pending')) {
+        ann.classList.remove('pending');
+        ann.textContent = '';
+      }
+      ann.contentEditable = 'true';
+      ann.focus();
+    });
+    ann.addEventListener('blur', async () => {
+      ann.contentEditable = 'false';
+      const text = ann.innerText.trim();
+      if (!text) {
+        ann.classList.add('pending');
+        ann.textContent = 'Annotation in progress.';
+      }
+      const sourceId = ann.dataset.sourceId;
+      if (!sourceId) return;
+      showToast('Saving…');
+      const { error } = await sb.from('sources')
+        .update({ annotation: text })
+        .eq('id', sourceId);
+      if (error) { console.error(error); showToast('Error saving'); }
+      else {
+        // Update local cache
+        const s = _sources.find(x => x.id === sourceId);
+        if (s) s.annotation = text;
+        showToast('Saved');
+      }
+    });
+    ann.addEventListener('keydown', e => { if (e.key === 'Escape') ann.blur(); });
+  });
+}
+
+// ── Citation editing → saves to Supabase ──────────────────────────────────────
+function setupCitationEditing() {
+  document.querySelectorAll('.detail-citation').forEach(cit => {
+    cit.addEventListener('click', e => {
+      e.stopPropagation();
+      cit.contentEditable = 'true';
+      cit.focus();
+    });
+    cit.addEventListener('blur', async () => {
+      cit.contentEditable = 'false';
+      const html = cit.innerHTML.trim();
+      const sourceId = cit.dataset.sourceId;
+      if (!sourceId) return;
+      showToast('Saving…');
+      const { error } = await sb.from('sources')
+        .update({ citation: html })
+        .eq('id', sourceId);
+      if (error) { console.error(error); showToast('Error saving'); }
+      else {
+        const s = _sources.find(x => x.id === sourceId);
+        if (s) s.citation = html;
+        // Re-run title extraction for this row
+        const row = document.getElementById(sourceId);
+        if (row) {
+          const detail = document.getElementById(sourceId + '-detail');
+          const titleCell = row.querySelector('.col-section');
+          if (detail && titleCell) {
+            const em = cit.querySelector('em');
+            if (em) titleCell.textContent = em.textContent.trim();
+          }
+        }
+        showToast('Saved');
+      }
+    });
+    cit.addEventListener('keydown', e => {
+      if (e.key === 'Escape') cit.blur();
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); cit.blur(); }
+    });
+  });
+}
+
+// ── Keywords ──────────────────────────────────────────────────────────────────
+function setupKeywords() {
+  // Remove keyword
+  document.querySelectorAll('.keyword-remove').forEach(btn => {
+    btn.addEventListener('click', async e => {
+      e.stopPropagation();
+      const pill = btn.closest('.keyword-pill');
+      const kwId = pill?.dataset.kwId;
+      if (!kwId) return;
+      const { error } = await sb.from('keywords').delete().eq('id', kwId);
+      if (error) { console.error(error); return; }
+      // Update local cache
+      const sourceId = pill.closest('.keywords-row')?.dataset.sourceId;
+      if (sourceId && _kwMap[sourceId]) {
+        _kwMap[sourceId] = _kwMap[sourceId].filter(k => k.id !== kwId);
+      }
+      pill.remove();
+      showToast('Removed');
+    });
+  });
+
+  // Add keyword
+  document.querySelectorAll('.keyword-add-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      if (btn.nextSibling?.classList?.contains('keyword-input')) return; // already open
+      const input = document.createElement('input');
+      input.className = 'keyword-input';
+      input.type = 'text';
+      input.placeholder = 'keyword…';
+      input.spellcheck = false;
+      btn.parentNode.insertBefore(input, btn);
+      input.focus();
+
+      const save = async () => {
+        const val = input.value.trim().toLowerCase();
+        input.remove();
+        if (!val) return;
+        const kwRow = btn.closest('.keywords-row');
+        const sourceId = kwRow?.dataset.sourceId;
+        if (!sourceId) return;
+        showToast('Saving…');
+        const { data, error } = await sb.from('keywords')
+          .insert({ source_id: sourceId, keyword: val })
+          .select().single();
+        if (error) { console.error(error); showToast('Error'); return; }
+        if (!_kwMap[sourceId]) _kwMap[sourceId] = [];
+        _kwMap[sourceId].push(data);
+        // Insert pill before the add button
+        const pill = buildPill(data);
+        kwRow.insertBefore(pill, btn);
+        // Wire remove on new pill
+        pill.querySelector('.keyword-remove').addEventListener('click', async ev => {
+          ev.stopPropagation();
+          const { error: delErr } = await sb.from('keywords').delete().eq('id', data.id);
+          if (!delErr) {
+            _kwMap[sourceId] = _kwMap[sourceId].filter(k => k.id !== data.id);
+            pill.remove();
+            showToast('Removed');
+          }
+        });
+        showToast('Saved');
+      };
+
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); save(); }
+        if (e.key === 'Escape') { input.remove(); }
+      });
+      input.addEventListener('blur', save);
+    });
+  });
+}
+
+// ── Delete source ─────────────────────────────────────────────────────────────
+function setupDeleteButtons() {
+  document.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener('click', async e => {
+      e.stopPropagation();
+      const sourceId = btn.dataset.sourceId;
+      if (!sourceId) return;
+      const src = _sources.find(s => s.id === sourceId);
+      const label = src ? `${src.author} (${src.year})` : sourceId;
+      if (!confirm(`Delete "${label}"? This cannot be undone.`)) return;
+      showToast('Deleting…');
+      const { error } = await sb.from('sources').delete().eq('id', sourceId);
+      if (error) { console.error(error); showToast('Error deleting'); return; }
+      // Remove from local state
+      _sources = _sources.filter(s => s.id !== sourceId);
+      delete _kwMap[sourceId];
+      // Remove from DOM
+      const row    = document.getElementById(sourceId);
+      const detail = document.getElementById(sourceId + '-detail');
+      row?.remove();
+      detail?.remove();
+      showToast('Deleted');
+    });
+  });
+}
+
+// ── Filter ────────────────────────────────────────────────────────────────────
+function setupFilterListeners() {
+  document.querySelectorAll('input[name="sec"], input[name="year"], input[name="type"]')
+    .forEach(r => r.addEventListener('change', applyFilters));
+  document.getElementById('search-input')?.addEventListener('input', applyFilters);
+  document.getElementById('search-input')?.addEventListener('click', e => e.stopPropagation());
+}
+
+function applyFilters() {
+  const secVal    = document.querySelector('input[name="sec"]:checked').value;
+  const yearVal   = document.querySelector('input[name="year"]:checked').value;
+  const typeVal   = document.querySelector('input[name="type"]:checked').value;
+  const searchVal = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
+  const isFiltered = secVal !== 'all' || yearVal !== 'all' || typeVal !== 'all' || searchVal !== '';
+
+  document.querySelectorAll('.entry-row').forEach(row => {
+    let ok = (secVal  === 'all' || row.dataset.section    === secVal)
+          && (yearVal === 'all' || row.dataset.yearBucket  === yearVal)
+          && (typeVal === 'all' || row.dataset.type        === typeVal);
+    if (ok && searchVal) ok = row.textContent.toLowerCase().includes(searchVal);
+    row.style.display = ok ? '' : 'none';
+    const detail = document.getElementById(row.id + '-detail');
+    if (detail) detail.style.display = ok ? '' : 'none';
+  });
+  document.querySelectorAll('.sec-header').forEach(hdr => {
+    hdr.style.display = isFiltered ? 'none' : '';
+  });
+}
+
+// ── Filter button toggle ──────────────────────────────────────────────────────
+const filterBtn      = document.getElementById('filter-btn');
+const filterPaneWrap = document.getElementById('filter-pane-wrap');
+
+function positionPane() {
+  filterPaneWrap.style.top = document.querySelector('thead').offsetHeight + 'px';
+}
+
+filterBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  filterBtn.classList.toggle('open');
+  filterPaneWrap.classList.toggle('open');
+});
+document.addEventListener('click', e => {
+  if (!filterPaneWrap.contains(e.target) && !filterBtn.contains(e.target)) {
+    filterBtn.classList.remove('open');
+    filterPaneWrap.classList.remove('open');
+  }
+});
+window.addEventListener('resize', positionPane);
+
+// ── Add Source Modal ──────────────────────────────────────────────────────────
+const addBtn     = document.getElementById('add-btn');
+const addOverlay = document.getElementById('add-modal-overlay');
+const addCancel  = document.getElementById('add-cancel');
+const addSubmit  = document.getElementById('add-submit');
+
+addBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  addOverlay.classList.add('open');
+  document.getElementById('add-author').focus();
+});
+addCancel.addEventListener('click', () => closeModal());
+addOverlay.addEventListener('click', e => { if (e.target === addOverlay) closeModal(); });
+
+function closeModal() {
+  addOverlay.classList.remove('open');
+  ['add-author','add-year','add-citation'].forEach(id => document.getElementById(id).value = '');
+}
+
+addSubmit.addEventListener('click', async () => {
+  const author   = document.getElementById('add-author').value.trim();
+  const year     = document.getElementById('add-year').value.trim();
+  const section  = document.getElementById('add-section').value;
+  const rawCit   = document.getElementById('add-citation').value.trim();
+
+  if (!author || !year) { alert('Author and year are required.'); return; }
+
+  // Convert *asterisks* to <em> for italic titles
+  const citation = rawCit.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+
+  addSubmit.disabled = true;
+  addSubmit.textContent = 'Adding…';
+
+  const maxOrder = _sources.length > 0 ? Math.max(..._sources.map(s => s.sort_order)) : 0;
+  const maxNum   = _sources.length > 0 ? Math.max(..._sources.map(s => parseInt(s.display_num) || 0)) : 0;
+  const newId    = 'source-' + Date.now();
+
+  const { data, error } = await sb.from('sources').insert({
+    id:           newId,
+    display_num:  String(maxNum + 1).padStart(2, '0'),
+    author:       author,
+    section:      section,
+    year:         year,
+    data_section: _sectionIdMap[section] || '',
+    data_year:    parseInt(year) < 2000 ? 'pre-2000' : parseInt(year) < 2010 ? '2000s' : parseInt(year) < 2020 ? '2010s' : '2020s',
+    data_type:    citation.includes('doi.org') || citation.includes('DOI') ? 'article' : 'book',
+    citation:     citation,
+    annotation:   '',
+    sort_order:   maxOrder + 1,
+  }).select().single();
+
+  addSubmit.disabled = false;
+  addSubmit.textContent = 'Add Source';
+
+  if (error) { console.error(error); alert('Error: ' + error.message); return; }
+
+  _sources.push(data);
+  closeModal();
+  showToast('Source added');
+
+  // Re-render table
+  renderTable();
+
+  // Open the new detail row
+  setTimeout(() => {
+    const newRow    = document.getElementById(newId);
+    const newDetail = document.getElementById(newId + '-detail');
+    if (newRow && newDetail) {
+      newDetail.classList.add('open');
+      newRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, 100);
+});
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('save-toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+// ── Start ─────────────────────────────────────────────────────────────────────
+init();
+</script>
 </body>
 </html>
