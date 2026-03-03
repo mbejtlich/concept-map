@@ -174,6 +174,38 @@
       background: none;
     }
 
+    /* ── Section selector (in detail row) ── */
+    .section-row {
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .section-row-label {
+      font-size: 10px;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      opacity: 0.4;
+      white-space: nowrap;
+    }
+    .section-select {
+      font-family: var(--ff);
+      font-size: 10px;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      border: none;
+      border-bottom: 1px solid var(--ink);
+      background: transparent;
+      cursor: pointer;
+      color: var(--ink);
+      padding: 1px 4px 1px 0;
+      opacity: 0.4;
+      outline: none;
+      max-width: 340px;
+    }
+    .section-select:hover,
+    .section-select:focus { opacity: 1; }
+
     /* ── Delete button ── */
     .delete-btn {
       display: inline-block;
@@ -672,6 +704,25 @@ function buildDetailRow(s, keywords) {
   innerTd.className = 'detail-inner';
   innerTd.setAttribute('colspan', '3');
 
+  // Section selector
+  const secRow = document.createElement('div');
+  secRow.className = 'section-row';
+  const secLabel = document.createElement('span');
+  secLabel.className = 'section-row-label';
+  secLabel.textContent = 'Theme';
+  const secSel = document.createElement('select');
+  secSel.className = 'section-select';
+  secSel.dataset.sourceId = s.id;
+  Object.entries(SECTION_NAMES).forEach(([key, val]) => {
+    const opt = document.createElement('option');
+    opt.value = key;
+    opt.textContent = val;
+    if (key === s.section) opt.selected = true;
+    secSel.appendChild(opt);
+  });
+  secRow.appendChild(secLabel);
+  secRow.appendChild(secSel);
+
   // Citation (HTML content — em tags preserved)
   const citDiv = document.createElement('div');
   citDiv.className = 'detail-citation';
@@ -701,6 +752,7 @@ function buildDetailRow(s, keywords) {
   delBtn.dataset.sourceId = s.id;
   delBtn.textContent = 'Delete source';
 
+  innerTd.appendChild(secRow);
   innerTd.appendChild(citDiv);
   innerTd.appendChild(annDiv);
   innerTd.appendChild(kwRow);
@@ -731,6 +783,7 @@ function setupAll() {
   setupAccordion();
   setupAnnotationEditing();
   setupCitationEditing();
+  setupSectionEditing();
   setupKeywords();
   setupDeleteButtons();
   setupFilterListeners();
@@ -836,7 +889,23 @@ function setupAnnotationEditing() {
         showToast('Saved');
       }
     });
-    ann.addEventListener('keydown', e => { if (e.key === 'Escape') ann.blur(); });
+    ann.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { ann.blur(); return; }
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        // Insert a real tab character at cursor position
+        const sel = window.getSelection();
+        if (!sel.rangeCount) return;
+        const range = sel.getRangeAt(0);
+        range.deleteContents();
+        const tab = document.createTextNode('\t');
+        range.insertNode(tab);
+        range.setStartAfter(tab);
+        range.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+    });
     ann.addEventListener('paste', e => {
       e.preventDefault();
       const text = (e.clipboardData || window.clipboardData).getData('text/plain');
@@ -883,6 +952,39 @@ function setupCitationEditing() {
       if (e.key === 'Escape') cit.blur();
       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); cit.blur(); }
     });
+  });
+}
+
+// ── Section (theme) editing → saves to Supabase + re-renders ─────────────────
+function setupSectionEditing() {
+  document.querySelectorAll('.section-select').forEach(sel => {
+    sel.addEventListener('change', async e => {
+      e.stopPropagation();
+      const sourceId = sel.dataset.sourceId;
+      const newSection = sel.value;
+      if (!sourceId) return;
+      showToast('Saving…');
+      const { error } = await sb.from('sources')
+        .update({ section: newSection })
+        .eq('id', sourceId);
+      if (error) { console.error(error); showToast('Error saving'); return; }
+      // Update local cache
+      const s = _sources.find(x => x.id === sourceId);
+      if (s) s.section = newSection;
+      showToast('Saved');
+      // Re-render and re-open this source's detail
+      renderTable();
+      setTimeout(() => {
+        const row    = document.getElementById(sourceId);
+        const detail = document.getElementById(sourceId + '-detail');
+        if (row && detail) {
+          detail.classList.add('open');
+          row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 80);
+    });
+    // Prevent row accordion from toggling when clicking the dropdown
+    sel.addEventListener('click', e => e.stopPropagation());
   });
 }
 
