@@ -562,6 +562,12 @@ const SECTION_NAMES = {
 // Fixed section order — used to sort sources so new additions never create duplicate headers
 const SECTION_ORDER = Object.keys(SECTION_NAMES);
 
+// ── Debounce utility ─────────────────────────────────────────────────────────
+function debounce(fn, ms) {
+  let t;
+  return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+}
+
 // Section ID map — built after render so filters reference correct sec-N ids
 let _sectionIdMap = {}; // short section name → 'sec-N'
 
@@ -868,13 +874,36 @@ function setupAnnotationEditing() {
       ann.contentEditable = 'plaintext-only';
       ann.focus();
     });
-    ann.addEventListener('blur', async () => {
-      ann.contentEditable = 'false';
+
+    // Shared save function — called by both blur (immediate) and debounced input
+    async function persistAnnotation() {
       const text = ann.innerText.trim();
+      const sourceId = ann.dataset.sourceId;
+      if (!sourceId) return;
+      const { error } = await sb.from('sources')
+        .update({ annotation: text })
+        .eq('id', sourceId);
+      if (error) { console.error(error); showToast('Error saving'); }
+      else {
+        const s = _sources.find(x => x.id === sourceId);
+        if (s) s.annotation = text;
+        showToast('Saved');
+      }
+    }
+
+    // Auto-save 1.5 s after last keystroke
+    const debouncedSave = debounce(persistAnnotation, 1500);
+    ann.addEventListener('input', debouncedSave);
+
+    ann.addEventListener('blur', async () => {
+      // Read text BEFORE setting contentEditable=false to avoid browser stripping
+      const text = ann.innerText.trim();
+      ann.contentEditable = 'false';
       if (!text) {
         ann.classList.add('pending');
         ann.textContent = 'Annotation in progress.';
       }
+      // Immediate save on close
       const sourceId = ann.dataset.sourceId;
       if (!sourceId) return;
       showToast('Saving…');
@@ -883,17 +912,16 @@ function setupAnnotationEditing() {
         .eq('id', sourceId);
       if (error) { console.error(error); showToast('Error saving'); }
       else {
-        // Update local cache
         const s = _sources.find(x => x.id === sourceId);
         if (s) s.annotation = text;
         showToast('Saved');
       }
     });
+
     ann.addEventListener('keydown', e => {
       if (e.key === 'Escape') { ann.blur(); return; }
       if (e.key === 'Tab') {
         e.preventDefault();
-        // Insert a real tab character at cursor position
         const sel = window.getSelection();
         if (!sel.rangeCount) return;
         const range = sel.getRangeAt(0);
@@ -922,9 +950,39 @@ function setupCitationEditing() {
       cit.contentEditable = 'true';
       cit.focus();
     });
-    cit.addEventListener('blur', async () => {
-      cit.contentEditable = 'false';
+
+    // Shared save + title refresh
+    async function persistCitation() {
       const html = cit.innerHTML.trim();
+      const sourceId = cit.dataset.sourceId;
+      if (!sourceId) return;
+      const { error } = await sb.from('sources')
+        .update({ citation: html })
+        .eq('id', sourceId);
+      if (error) { console.error(error); showToast('Error saving'); }
+      else {
+        const s = _sources.find(x => x.id === sourceId);
+        if (s) s.citation = html;
+        const row = document.getElementById(sourceId);
+        if (row) {
+          const titleCell = row.querySelector('.col-section');
+          if (titleCell) {
+            const em = cit.querySelector('em');
+            if (em) titleCell.textContent = em.textContent.trim();
+          }
+        }
+        showToast('Saved');
+      }
+    }
+
+    // Auto-save 1.5 s after last keystroke
+    const debouncedSave = debounce(persistCitation, 1500);
+    cit.addEventListener('input', debouncedSave);
+
+    cit.addEventListener('blur', async () => {
+      // Read HTML BEFORE setting contentEditable=false
+      const html = cit.innerHTML.trim();
+      cit.contentEditable = 'false';
       const sourceId = cit.dataset.sourceId;
       if (!sourceId) return;
       showToast('Saving…');
