@@ -827,6 +827,11 @@ function setupAnnotationEditing() {
       }
     });
     ann.addEventListener('keydown', e => { if (e.key === 'Escape') ann.blur(); });
+    ann.addEventListener('paste', e => {
+      e.preventDefault();
+      const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+      document.execCommand('insertText', false, text);
+    });
   });
 }
 
