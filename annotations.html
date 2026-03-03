@@ -909,7 +909,6 @@ function setupAnnotationEditing() {
         ann.classList.add('pending');
         ann.textContent = 'Annotation in progress.';
       }
-      // Silent immediate save on close — no toast
       const sourceId = ann.dataset.sourceId;
       if (!sourceId) return;
       const { error } = await sb.from('sources')
@@ -919,6 +918,7 @@ function setupAnnotationEditing() {
       else {
         const s = _sources.find(x => x.id === sourceId);
         if (s) s.annotation = text;
+        showToast('Saved');
       }
     });
 
@@ -978,7 +978,6 @@ function setupCitationEditing() {
       cit.contentEditable = 'false';
       const sourceId = cit.dataset.sourceId;
       if (!sourceId) return;
-      // Silent immediate save on close — no toast
       const { error } = await sb.from('sources')
         .update({ citation: html })
         .eq('id', sourceId);
@@ -996,6 +995,7 @@ function setupCitationEditing() {
             if (em) titleCell.textContent = em.textContent.trim();
           }
         }
+        showToast('Saved');
       }
     });
     cit.addEventListener('keydown', e => {
