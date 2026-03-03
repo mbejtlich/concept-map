@@ -183,20 +183,17 @@
       gap: 20px;
       margin-top: 8px;
     }
-    .terrain-select {
-      font-family: var(--ff);
+    .edit-btn {
+      display: inline-block;
+      cursor: pointer;
       font-size: 11px;
       letter-spacing: 0.07em;
-      border: none;
-      background: transparent;
-      cursor: pointer;
-      color: var(--ink);
+      text-transform: uppercase;
       opacity: 0.2;
-      outline: none;
-      padding: 0;
+      color: var(--ink);
+      user-select: none;
     }
-    .terrain-select:hover,
-    .terrain-select:focus { opacity: 1; }
+    .edit-btn:hover { opacity: 1; }
 
     /* ── Delete button ── */
     .delete-btn {
@@ -759,25 +756,13 @@ function buildDetailRow(s, keywords) {
   delBtn.dataset.sourceId = s.id;
   delBtn.textContent = 'Delete source';
 
-  const terrainSel = document.createElement('select');
-  terrainSel.className = 'terrain-select';
-  terrainSel.dataset.sourceId = s.id;
-  // Placeholder — always shown as the label; literal caps so only it is uppercase
-  const placeholder = document.createElement('option');
-  placeholder.value = '';
-  placeholder.textContent = 'TERRAIN';
-  placeholder.disabled = true;
-  placeholder.selected = true;
-  terrainSel.appendChild(placeholder);
-  Object.entries(SECTION_NAMES).forEach(([key, val]) => {
-    const opt = document.createElement('option');
-    opt.value = key;
-    opt.textContent = val;
-    terrainSel.appendChild(opt);
-  });
+  const editBtn = document.createElement('span');
+  editBtn.className = 'edit-btn';
+  editBtn.dataset.sourceId = s.id;
+  editBtn.textContent = 'Edit';
 
   actionRow.appendChild(delBtn);
-  actionRow.appendChild(terrainSel);
+  actionRow.appendChild(editBtn);
 
   innerTd.appendChild(citDiv);
   innerTd.appendChild(annDiv);
@@ -809,7 +794,7 @@ function setupAll() {
   setupAccordion();
   setupAnnotationEditing();
   setupCitationEditing();
-  setupSectionEditing();
+  setupEditButtons();
   setupKeywords();
   setupDeleteButtons();
   setupFilterListeners();
@@ -1020,34 +1005,28 @@ function setupCitationEditing() {
   });
 }
 
-// ── Terrain (theme) editing → saves to Supabase + re-renders ─────────────────
-function setupSectionEditing() {
-  document.querySelectorAll('.terrain-select').forEach(sel => {
-    sel.addEventListener('change', async e => {
+// ── Edit button → opens modal pre-filled for updating a source ────────────────
+function setupEditButtons() {
+  document.querySelectorAll('.edit-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
       e.stopPropagation();
-      const sourceId = sel.dataset.sourceId;
-      const newSection = sel.value;
-      if (!sourceId) return;
-      showToast('Saving…');
-      const { error } = await sb.from('sources')
-        .update({ section: newSection })
-        .eq('id', sourceId);
-      if (error) { console.error(error); showToast('Error saving'); return; }
+      const sourceId = btn.dataset.sourceId;
       const s = _sources.find(x => x.id === sourceId);
-      if (s) s.section = newSection;
-      showToast('Saved');
-      sel.selectedIndex = 0; // reset label back to TERRAIN
-      renderTable();
-      setTimeout(() => {
-        const row    = document.getElementById(sourceId);
-        const detail = document.getElementById(sourceId + '-detail');
-        if (row && detail) {
-          detail.classList.add('open');
-          row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }, 80);
+      if (!s) return;
+      // Pre-fill modal fields
+      document.getElementById('add-author').value  = s.author  || '';
+      document.getElementById('add-title').value   = s.title   || '';
+      document.getElementById('add-year').value    = s.year    || '';
+      document.getElementById('add-section').value = s.section || 'Foundations';
+      // Convert <em> back to *asterisks* for editing
+      const rawCit = (s.citation || '').replace(/<em>(.*?)<\/em>/gi, '*$1*').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>');
+      document.getElementById('add-citation').value = rawCit;
+      // Switch modal to edit mode
+      _editingSourceId = sourceId;
+      document.querySelector('.add-modal-title').textContent = 'Edit Source';
+      addSubmit.textContent = 'Save Changes';
+      addOverlay.classList.add('open');
     });
-    sel.addEventListener('click', e => e.stopPropagation());
   });
 }
 
@@ -1200,14 +1179,18 @@ document.addEventListener('click', e => {
 });
 window.addEventListener('resize', positionPane);
 
-// ── Add Source Modal ──────────────────────────────────────────────────────────
+// ── Add / Edit Source Modal ───────────────────────────────────────────────────
 const addBtn     = document.getElementById('add-btn');
 const addOverlay = document.getElementById('add-modal-overlay');
 const addCancel  = document.getElementById('add-cancel');
 const addSubmit  = document.getElementById('add-submit');
+let _editingSourceId = null; // null = add mode; set to source id = edit mode
 
 addBtn.addEventListener('click', e => {
   e.stopPropagation();
+  _editingSourceId = null;
+  document.querySelector('.add-modal-title').textContent = 'Add Source';
+  addSubmit.textContent = 'Add Source';
   addOverlay.classList.add('open');
   document.getElementById('add-author').focus();
 });
@@ -1216,6 +1199,9 @@ addOverlay.addEventListener('click', e => { if (e.target === addOverlay) closeMo
 
 function closeModal() {
   addOverlay.classList.remove('open');
+  _editingSourceId = null;
+  document.querySelector('.add-modal-title').textContent = 'Add Source';
+  addSubmit.textContent = 'Add Source';
   ['add-author','add-title','add-year','add-citation'].forEach(id => document.getElementById(id).value = '');
 }
 
@@ -1232,48 +1218,77 @@ addSubmit.addEventListener('click', async () => {
   const citation = rawCit.replace(/\*([^*]+)\*/g, '<em>$1</em>');
 
   addSubmit.disabled = true;
-  addSubmit.textContent = 'Adding…';
+  addSubmit.textContent = _editingSourceId ? 'Saving…' : 'Adding…';
 
-  const maxOrder = _sources.length > 0 ? Math.max(..._sources.map(s => s.sort_order)) : 0;
-  const maxNum   = _sources.length > 0 ? Math.max(..._sources.map(s => parseInt(s.display_num) || 0)) : 0;
-  const newId    = 'source-' + Date.now();
+  if (_editingSourceId) {
+    // ── EDIT MODE: update existing source ──────────────────────────────────
+    const { error } = await sb.from('sources').update({
+      author:       author,
+      title:        title,
+      year:         year,
+      section:      section,
+      data_year:    parseInt(year) < 2000 ? 'pre-2000' : parseInt(year) < 2010 ? '2000s' : parseInt(year) < 2020 ? '2010s' : '2020s',
+      data_type:    citation.includes('doi.org') || citation.includes('DOI') ? 'article' : 'book',
+      citation:     citation,
+    }).eq('id', _editingSourceId);
 
-  const { data, error } = await sb.from('sources').insert({
-    id:           newId,
-    display_num:  String(maxNum + 1).padStart(2, '0'),
-    author:       author,
-    section:      section,
-    year:         year,
-    data_section: _sectionIdMap[section] || '',
-    data_year:    parseInt(year) < 2000 ? 'pre-2000' : parseInt(year) < 2010 ? '2000s' : parseInt(year) < 2020 ? '2010s' : '2020s',
-    data_type:    citation.includes('doi.org') || citation.includes('DOI') ? 'article' : 'book',
-    title:        title,
-    citation:     citation,
-    annotation:   '',
-    sort_order:   maxOrder + 1,
-  }).select().single();
+    addSubmit.disabled = false;
+    if (error) { console.error(error); alert('Error: ' + error.message); return; }
 
-  addSubmit.disabled = false;
-  addSubmit.textContent = 'Add Source';
+    // Update local cache
+    const s = _sources.find(x => x.id === _editingSourceId);
+    if (s) { s.author = author; s.title = title; s.year = year; s.section = section; s.citation = citation; }
 
-  if (error) { console.error(error); alert('Error: ' + error.message); return; }
+    const editedId = _editingSourceId;
+    closeModal();
+    showToast('Saved');
+    renderTable();
+    setTimeout(() => {
+      const row    = document.getElementById(editedId);
+      const detail = document.getElementById(editedId + '-detail');
+      if (row && detail) {
+        detail.classList.add('open');
+        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 100);
 
-  _sources.push(data);
-  closeModal();
-  showToast('Source added');
+  } else {
+    // ── ADD MODE: insert new source ────────────────────────────────────────
+    const maxOrder = _sources.length > 0 ? Math.max(..._sources.map(s => s.sort_order)) : 0;
+    const maxNum   = _sources.length > 0 ? Math.max(..._sources.map(s => parseInt(s.display_num) || 0)) : 0;
+    const newId    = 'source-' + Date.now();
 
-  // Re-render table
-  renderTable();
+    const { data, error } = await sb.from('sources').insert({
+      id:           newId,
+      display_num:  String(maxNum + 1).padStart(2, '0'),
+      author:       author,
+      title:        title,
+      section:      section,
+      year:         year,
+      data_section: _sectionIdMap[section] || '',
+      data_year:    parseInt(year) < 2000 ? 'pre-2000' : parseInt(year) < 2010 ? '2000s' : parseInt(year) < 2020 ? '2010s' : '2020s',
+      data_type:    citation.includes('doi.org') || citation.includes('DOI') ? 'article' : 'book',
+      citation:     citation,
+      annotation:   '',
+      sort_order:   maxOrder + 1,
+    }).select().single();
 
-  // Open the new detail row
-  setTimeout(() => {
-    const newRow    = document.getElementById(newId);
-    const newDetail = document.getElementById(newId + '-detail');
-    if (newRow && newDetail) {
-      newDetail.classList.add('open');
-      newRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  }, 100);
+    addSubmit.disabled = false;
+    if (error) { console.error(error); alert('Error: ' + error.message); return; }
+
+    _sources.push(data);
+    closeModal();
+    showToast('Source added');
+    renderTable();
+    setTimeout(() => {
+      const newRow    = document.getElementById(newId);
+      const newDetail = document.getElementById(newId + '-detail');
+      if (newRow && newDetail) {
+        newDetail.classList.add('open');
+        newRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 100);
+  }
 });
 
 // ── Toast ─────────────────────────────────────────────────────────────────────
