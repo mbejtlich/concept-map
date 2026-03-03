@@ -802,7 +802,7 @@ function setupAnnotationEditing() {
         ann.classList.remove('pending');
         ann.textContent = '';
       }
-      ann.contentEditable = 'true';
+      ann.contentEditable = 'plaintext-only';
       ann.focus();
     });
     ann.addEventListener('blur', async () => {
