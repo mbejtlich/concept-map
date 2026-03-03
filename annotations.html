@@ -527,6 +527,8 @@ const SECTION_NAMES = {
   'Care Ethics':         'Care Ethics, Eco-Feminism, and Creative Practice',
   'Grey Literature':     'Grey Literature and Practitioner Knowledge',
 };
+// Fixed section order — used to sort sources so new additions never create duplicate headers
+const SECTION_ORDER = Object.keys(SECTION_NAMES);
 
 // Section ID map — built after render so filters reference correct sec-N ids
 let _sectionIdMap = {}; // short section name → 'sec-N'
@@ -589,7 +591,15 @@ function renderTable() {
   let secIndex = 0;
   _sectionIdMap = {};
 
-  _sources.forEach(s => {
+  // Sort by canonical section order, then by sort_order within each section
+  const sorted = [..._sources].sort((a, b) => {
+    const ai = SECTION_ORDER.indexOf(a.section);
+    const bi = SECTION_ORDER.indexOf(b.section);
+    if (ai !== bi) return ai - bi;
+    return (a.sort_order || 0) - (b.sort_order || 0);
+  });
+
+  sorted.forEach(s => {
     if (s.section !== currentSection) {
       currentSection = s.section;
       secIndex++;
