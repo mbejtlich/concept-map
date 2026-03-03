@@ -185,7 +185,6 @@
       font-family: var(--ff);
       font-size: 11px;
       letter-spacing: 0.07em;
-      text-transform: uppercase;
       border: none;
       background: transparent;
       cursor: pointer;
@@ -756,11 +755,17 @@ function buildDetailRow(s, keywords) {
   const terrainSel = document.createElement('select');
   terrainSel.className = 'terrain-select';
   terrainSel.dataset.sourceId = s.id;
+  // Placeholder — always shown as the label; literal caps so only it is uppercase
+  const placeholder = document.createElement('option');
+  placeholder.value = '';
+  placeholder.textContent = 'TERRAIN';
+  placeholder.disabled = true;
+  placeholder.selected = true;
+  terrainSel.appendChild(placeholder);
   Object.entries(SECTION_NAMES).forEach(([key, val]) => {
     const opt = document.createElement('option');
     opt.value = key;
     opt.textContent = val;
-    if (key === s.section) opt.selected = true;
     terrainSel.appendChild(opt);
   });
 
@@ -1037,6 +1042,7 @@ function setupSectionEditing() {
       const s = _sources.find(x => x.id === sourceId);
       if (s) s.section = newSection;
       showToast('Saved');
+      sel.selectedIndex = 0; // reset label back to TERRAIN
       renderTable();
       setTimeout(() => {
         const row    = document.getElementById(sourceId);
