@@ -210,13 +210,12 @@
 
     /* ── Section headers ── */
     .sec-header { background: transparent; }
-    .sec-header td { padding: 32px 0 8px; border-bottom: none; color: #6670d8; }
+    .sec-header td { padding: 48px 0 12px; border-bottom: none; color: var(--ink); }
     .sec-title {
-      font-size: 14px !important;
-      letter-spacing: 0.07em !important;
-      line-height: 1.4 !important;
+      font-size: 96px !important;
+      letter-spacing: -0.02em !important;
+      line-height: 1.05 !important;
       padding-left: 24px !important;
-      text-transform: uppercase !important;
       visibility: visible !important;
     }
 
@@ -396,7 +395,7 @@
     /* ── Mobile ── */
     @media (max-width: 768px) {
       :root { --start-num: 0%; --start-author: 10%; --start-section: 48%; --start-year: 82%; }
-      .sec-title { font-size: 14px !important; }
+      .sec-title { font-size: 32px !important; letter-spacing: -0.01em !important; padding-top: 28px !important; }
       .sec-header td { padding: 28px 0 8px; }
       thead th { padding: 8px 0; font-size: 11px; }
       .detail-annotation { font-size: 20px; max-width: 95%; }
@@ -413,7 +412,7 @@
       .col-author { width: 75%; padding-right: 8px; }
       .col-year { width: 25%; }
       thead th.col-num, thead th.col-section { display: none; }
-      .sec-title { font-size: 14px !important; }
+      .sec-title { font-size: 22px !important; }
       .detail-annotation { font-size: 17px; }
       .map-link { display: none; }
       .filter-group { flex: 0 0 100%; }
