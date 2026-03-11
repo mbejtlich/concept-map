@@ -597,6 +597,21 @@ function renderTable() {
   });
 
   setupAll();
+  handleHash();
+}
+
+// ── Deep-link from map: annotations.html#source-01 ───────────────────────────
+function handleHash() {
+  const hash = window.location.hash; // e.g. "#source-01"
+  if (!hash.startsWith('#source-')) return;
+  const num = hash.replace('#source-', '');
+  const src = _sources.find(s => String(s.display_num) === String(num));
+  if (!src) return;
+  const row    = document.getElementById(src.id);
+  const detail = document.getElementById(src.id + '-detail');
+  if (!row || !detail) return;
+  detail.classList.add('open');
+  setTimeout(() => row.scrollIntoView({ behavior: 'smooth', block: 'center' }), 80);
 }
 
 // ── Row builders ──────────────────────────────────────────────────────────────

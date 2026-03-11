@@ -849,7 +849,7 @@ function showPanel(d) {
   const sec = sectionDesc[d.group];
   const refsHtml = d.refs.map(r => {
     const annotUrl = r.num ? `annotations.html#source-${r.num}` : (r.url || '#');
-    return `<a href="${annotUrl}" target="_blank">${r.label}</a>`;
+    return `<a href="${annotUrl}">${r.label}</a>`;
   }).join("");
 
   document.getElementById("info-content").innerHTML = `
