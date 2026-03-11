@@ -97,7 +97,7 @@
 
     .detail-annotation {
       font-family: 'Sabon', 'Sabon LT Std', Georgia, serif;
-      font-size: 20px;
+      font-size: 22px;
       line-height: 1.55;
       color: #2255cc;
       max-width: 70%;
@@ -174,37 +174,91 @@
       font-variant-numeric: tabular-nums;
     }
 
-    /* ── Active keyword filter ── */
+    /* ── Active keyword filter bar ── */
     .keyword-pill.kw-active {
       background: #111111;
       color: #ffffff;
       border-color: #111111;
     }
     .keyword-pill.kw-active .keyword-remove { color: #ffffff; }
+
+    :root { --kw-bar-h: 38px; }
+
     .kw-filter-bar {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
-      z-index: 200;
+      z-index: 500;
       background: #111111;
       color: #ffffff;
       font-family: var(--ff);
       font-size: 11px;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      padding: 10px 24px;
-      display: flex;
+      height: var(--kw-bar-h);
+      padding: 0 24px;
+      display: none;
       align-items: center;
       gap: 12px;
     }
+    .kw-filter-bar.visible { display: flex; }
+    .kw-filter-bar-label { opacity: 0.45; font-size: 9px; letter-spacing: 0.12em; }
+    .kw-filter-bar-value { font-size: 12px; }
     .kw-filter-bar-clear {
       cursor: pointer;
-      opacity: 0.6;
-      font-size: 15px;
+      opacity: 0.55;
+      font-size: 16px;
       line-height: 1;
+      margin-left: 2px;
     }
     .kw-filter-bar-clear:hover { opacity: 1; }
+
+    /* push sticky header below bar when active */
+    body.has-kw-filter thead th { top: var(--kw-bar-h); }
+
+    /* ── Sort button ── */
+    .sort-btn {
+      float: right;
+      margin-right: 10px;
+      cursor: pointer;
+      user-select: none;
+      font-size: 11px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--ink);
+      opacity: 0.3;
+    }
+    .sort-btn:hover { opacity: 0.8; }
+    .sort-btn.active { opacity: 1; color: #6670d8; }
+
+    /* ── Keyword filter list in filter panel ── */
+    .fg-keywords { flex: 0 0 100%; padding-right: 0; margin-top: 8px; }
+    .fg-kw-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 4px;
+    }
+    .fg-kw-tag {
+      display: inline-block;
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border: 1px solid var(--ink);
+      border-radius: 100px;
+      padding: 3px 10px;
+      cursor: pointer;
+      opacity: 0.45;
+      user-select: none;
+      transition: opacity 0.12s, background 0.12s, color 0.12s;
+    }
+    .fg-kw-tag:hover { opacity: 0.85; }
+    .fg-kw-tag.active {
+      background: #111111;
+      color: #ffffff;
+      opacity: 1;
+    }
     .keyword-input {
       font-family: var(--ff);
       font-size: 11px;
@@ -303,9 +357,9 @@
       overflow: hidden;
       transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .filter-pane-wrap.open { max-height: 500px; }
+    .filter-pane-wrap.open { max-height: 700px; }
 
-    .filter-groups { display: flex; padding: 20px 16px 24px 16px; }
+    .filter-groups { display: flex; flex-wrap: wrap; padding: 20px 16px 24px 16px; }
     .filter-group { flex: 1; padding-right: 20px; }
     .filter-group:last-child { padding-right: 0; }
     .fg-section { flex: 2; }
@@ -459,6 +513,7 @@
       <th class="col-year">
         <span class="add-btn" id="add-btn">+ Add</span>
         <span class="filter-btn" id="filter-btn">Filter</span>
+        <span class="sort-btn" id="sort-btn" title="Toggle sort: default / by year">↕</span>
         Year
       </th>
     </tr>
@@ -491,6 +546,10 @@
         <label class="filter-opt"><input type="radio" name="type" value="book"> Book</label>
         <label class="filter-opt"><input type="radio" name="type" value="article"> Article</label>
       </div>
+    </div>
+    <div class="filter-group fg-keywords">
+      <div class="fg-title">Keywords</div>
+      <div class="fg-kw-cloud" id="fg-keywords-list"></div>
     </div>
   </div>
 </div>
@@ -550,6 +609,7 @@ function debounce(fn, ms) {
 let _sources = [];
 let _kwMap   = {}; // source_id → [{id, source_id, keyword}]
 let _activeKeyword = null; // currently filtered keyword, or null
+let _sortMode = 'order';   // 'order' | 'year'
 
 // ── Init ─────────────────────────────────────────────────────────────────────
 async function init() {
@@ -601,8 +661,12 @@ function renderTable() {
   const tbody = document.getElementById('sources-tbody');
   tbody.innerHTML = '';
 
-  // Flat list sorted by sort_order — no section headers
-  const sorted = [..._sources].sort((a, b) => (a.sort_order || 9999) - (b.sort_order || 9999));
+  const sorted = [..._sources].sort((a, b) => {
+    if (_sortMode === 'year') {
+      return (parseInt(a.year) || 9999) - (parseInt(b.year) || 9999);
+    }
+    return (a.sort_order || 9999) - (b.sort_order || 9999);
+  });
 
   sorted.forEach(s => {
     tbody.appendChild(buildEntryRow(s));
@@ -612,6 +676,7 @@ function renderTable() {
   setupAll();
   handleHash();
   updateProgress();
+  populateKeywordFilter();
 }
 
 // ── Deep-link from map: annotations.html#source-01 ───────────────────────────
@@ -619,7 +684,8 @@ function handleHash() {
   const hash = window.location.hash; // e.g. "#source-01"
   if (!hash.startsWith('#source-')) return;
   const num = hash.replace('#source-', '');
-  const src = _sources.find(s => String(s.display_num) === String(num));
+  // Compare numerically so "01" matches "#source-1", "10" matches "#source-10", etc.
+  const src = _sources.find(s => parseInt(s.display_num, 10) === parseInt(num, 10));
   if (!src) return;
   const row    = document.getElementById(src.id);
   const detail = document.getElementById(src.id + '-detail');
@@ -752,6 +818,53 @@ function updateProgress() {
   if (el) el.textContent = `${done} / ${total} annotated`;
 }
 
+// ── Sort toggle ───────────────────────────────────────────────────────────────
+function toggleSort() {
+  _sortMode = _sortMode === 'order' ? 'year' : 'order';
+  const btn = document.getElementById('sort-btn');
+  if (btn) btn.classList.toggle('active', _sortMode === 'year');
+  renderTable();
+  // Re-apply any active filters after re-render
+  applyFilters();
+}
+
+// ── Keyword cloud in filter panel ─────────────────────────────────────────────
+function populateKeywordFilter() {
+  const container = document.getElementById('fg-keywords-list');
+  if (!container) return;
+  container.innerHTML = '';
+
+  // Collect all unique keywords across all sources
+  const kwCounts = new Map();
+  Object.values(_kwMap).forEach(kwArr => {
+    kwArr.forEach(kw => {
+      kwCounts.set(kw.keyword, (kwCounts.get(kw.keyword) || 0) + 1);
+    });
+  });
+
+  if (kwCounts.size === 0) {
+    const empty = document.createElement('span');
+    empty.style.cssText = 'opacity:0.35; font-size:11px; letter-spacing:0.06em; text-transform:uppercase;';
+    empty.textContent = 'None yet';
+    container.appendChild(empty);
+    return;
+  }
+
+  // Sort alphabetically and render
+  [...kwCounts.keys()].sort().forEach(keyword => {
+    const tag = document.createElement('span');
+    tag.className = 'fg-kw-tag';
+    tag.dataset.keyword = keyword;
+    tag.textContent = keyword;
+    tag.classList.toggle('active', keyword === _activeKeyword);
+    tag.addEventListener('click', e => {
+      e.stopPropagation();
+      setKeywordFilter(_activeKeyword === keyword ? null : keyword);
+    });
+    container.appendChild(tag);
+  });
+}
+
 // ── Keyword filter ────────────────────────────────────────────────────────────
 function setKeywordFilter(kw) {
   _activeKeyword = kw;
@@ -761,7 +874,12 @@ function setKeywordFilter(kw) {
     p.classList.toggle('kw-active', p.dataset.keyword === kw);
   });
 
-  // Show/hide filter bar
+  // Update keyword cloud tags in filter panel
+  document.querySelectorAll('.fg-kw-tag').forEach(t => {
+    t.classList.toggle('active', t.dataset.keyword === kw);
+  });
+
+  // Show/hide filter bar + body class for sticky header offset
   let bar = document.getElementById('kw-filter-bar');
   if (kw) {
     if (!bar) {
@@ -771,18 +889,25 @@ function setKeywordFilter(kw) {
       document.body.appendChild(bar);
     }
     bar.innerHTML = '';
-    const txt = document.createElement('span');
-    txt.textContent = kw;
+    const lbl = document.createElement('span');
+    lbl.className = 'kw-filter-bar-label';
+    lbl.textContent = 'Keyword';
+    const val = document.createElement('span');
+    val.className = 'kw-filter-bar-value';
+    val.textContent = kw;
     const clr = document.createElement('span');
     clr.className = 'kw-filter-bar-clear';
     clr.textContent = '×';
     clr.title = 'Clear filter';
     clr.addEventListener('click', () => setKeywordFilter(null));
-    bar.appendChild(txt);
+    bar.appendChild(lbl);
+    bar.appendChild(val);
     bar.appendChild(clr);
-    bar.style.display = 'flex';
-  } else if (bar) {
-    bar.style.display = 'none';
+    bar.classList.add('visible');
+    document.body.classList.add('has-kw-filter');
+  } else {
+    if (bar) bar.classList.remove('visible');
+    document.body.classList.remove('has-kw-filter');
   }
 
   applyFilters();
@@ -1139,6 +1264,12 @@ function applyFilters() {
     if (detail) detail.style.display = ok ? '' : 'none';
   });
 }
+
+// ── Sort button ───────────────────────────────────────────────────────────────
+document.getElementById('sort-btn').addEventListener('click', e => {
+  e.stopPropagation();
+  toggleSort();
+});
 
 // ── Filter button toggle ──────────────────────────────────────────────────────
 const filterBtn      = document.getElementById('filter-btn');
