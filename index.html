@@ -724,129 +724,142 @@ const rawLinks = [
 ].map(([s, t]) => ({ source: s, target: t }));
 
 // ══════════════════════════════════════════════════════════════════════════════
-//  D3 SETUP
+//  D3 SETUP  — called after Supabase data is loaded
 // ══════════════════════════════════════════════════════════════════════════════
 
-const W = window.innerWidth;
-const H = window.innerHeight;
+function initD3() {
+  const W = window.innerWidth;
+  const H = window.innerHeight;
 
-const svg = d3.select("#canvas")
-  .attr("width", W)
-  .attr("height", H);
+  const svg = d3.select("#canvas")
+    .attr("width", W)
+    .attr("height", H);
 
-const g = svg.append("g");
+  const g = svg.append("g");
 
-const zoom = d3.zoom()
-  .scaleExtent([0.08, 6])
-  .on("zoom", e => g.attr("transform", e.transform));
+  const zoom = d3.zoom()
+    .scaleExtent([0.08, 6])
+    .on("zoom", e => g.attr("transform", e.transform));
 
-svg.call(zoom);
-// Start zoomed out so the whole graph is visible on load
-svg.call(zoom.transform, d3.zoomIdentity.translate(W * 0.25, H * 0.25).scale(0.5));
+  svg.call(zoom);
+  svg.call(zoom.transform, d3.zoomIdentity.translate(W * 0.25, H * 0.25).scale(0.5));
+  svg.on("click", () => closePanel());
 
-// Clear panel on canvas click
-svg.on("click", () => closePanel());
+  function approxW(d) {
+    const all = [d.id, ...d.refs.map(r => r.label)];
+    return Math.max(...all.map(s => s.length * 6.4), 40);
+  }
 
-// Approximate width for collision
-function approxW(d) {
-  const all = [d.id, ...d.refs.map(r => r.label)];
-  return Math.max(...all.map(s => s.length * 6.4), 40);
+  // ── Simulation ──────────────────────────────────────────────────────────────
+  const simulation = d3.forceSimulation(nodes)
+    .force("link",    d3.forceLink(rawLinks).id(d => d.id).distance(180).strength(0.25))
+    .force("charge",  d3.forceManyBody().strength(-700).distanceMax(700))
+    .force("center",  d3.forceCenter(W / 2, H / 2))
+    .force("collide", d3.forceCollide().radius(d => approxW(d) / 2 + 38))
+    .force("x",       d3.forceX(W / 2).strength(0.025))
+    .force("y",       d3.forceY(H / 2).strength(0.025));
+
+  // ── Links ───────────────────────────────────────────────────────────────────
+  rawLinks.forEach(l => {
+    l._cx = (Math.random() - 0.5) * 90;
+    l._cy = (Math.random() - 0.5) * 90;
+  });
+
+  const linkSel = g.append("g")
+    .selectAll("path")
+    .data(rawLinks)
+    .join("path")
+      .attr("class", "rhizo-link")
+      .attr("stroke", () => `rgba(255,255,255,${(Math.random() * 0.06 + 0.06).toFixed(2)})`);
+
+  // ── Nodes ───────────────────────────────────────────────────────────────────
+  const nodeSel = g.append("g")
+    .selectAll("g")
+    .data(nodes)
+    .join("g")
+      .call(
+        d3.drag()
+          .on("start", (e, d) => { if (!e.active) simulation.alphaTarget(0.2).restart(); d.fx = d.x; d.fy = d.y; })
+          .on("drag",  (e, d) => { d.fx = e.x; d.fy = e.y; })
+          .on("end",   (e, d) => { if (!e.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; })
+      )
+      .on("click", (event, d) => {
+        event.stopPropagation();
+        showPanel(d);
+      });
+
+  const REF_OFFSET = 8;
+
+  nodeSel.each(function(d) {
+    const grp = d3.select(this);
+    grp.append("text")
+      .attr("class", "label-concept")
+      .attr("text-anchor", "middle")
+      .attr("dy", 0)
+      .text(d.id);
+    d.refs.forEach((ref, i) => {
+      grp.append("text")
+        .attr("class", "label-ref")
+        .attr("text-anchor", "middle")
+        .attr("dy", REF_OFFSET + (i + 1) * LINE)
+        .text(ref.label)
+        .on("click", function(event) {
+          event.stopPropagation();
+          if (ref.num) window.location.href = "annotations.html#source-" + ref.num;
+        });
+    });
+  });
+
+  // ── Tick ────────────────────────────────────────────────────────────────────
+  simulation.on("tick", () => {
+    linkSel.attr("d", d => {
+      const sx = d.source.x, sy = d.source.y;
+      const tx = d.target.x, ty = d.target.y;
+      const mx = (sx + tx) / 2 + (d._cx || 0);
+      const my = (sy + ty) / 2 + (d._cy || 0);
+      return `M${sx},${sy} Q${mx},${my} ${tx},${ty}`;
+    });
+    nodeSel.attr("transform", d => `translate(${d.x},${d.y})`);
+  });
+
+  // ── Drift ───────────────────────────────────────────────────────────────────
+  let t = 0;
+  (function drift() {
+    t += 0.0003;
+    nodes.forEach((d, i) => {
+      if (d.fx !== null && d.fx !== undefined) return;
+      const ph = i * 1.4;
+      d.vx += Math.sin(t + ph) * 0.05;
+      d.vy += Math.cos(t + ph * 0.7) * 0.05;
+    });
+    simulation.alpha(Math.max(simulation.alpha(), 0.015)).restart();
+    requestAnimationFrame(drift);
+  })();
+
+  // ── Mobile ──────────────────────────────────────────────────────────────────
+  if (W < 768) {
+    simulation
+      .force("link",   d3.forceLink(rawLinks).id(d => d.id).distance(110).strength(0.3))
+      .force("charge", d3.forceManyBody().strength(-350).distanceMax(450))
+      .force("collide",d3.forceCollide().radius(d => approxW(d) / 2 + 22))
+      .alpha(0.8).restart();
+  }
+
+  // ── Resize ──────────────────────────────────────────────────────────────────
+  window.addEventListener("resize", () => {
+    const nw = window.innerWidth, nh = window.innerHeight;
+    svg.attr("width", nw).attr("height", nh);
+    simulation
+      .force("center", d3.forceCenter(nw/2, nh/2))
+      .force("x", d3.forceX(nw/2).strength(0.025))
+      .force("y", d3.forceY(nh/2).strength(0.025))
+      .alpha(0.25).restart();
+  });
 }
 
-// ── Simulation ────────────────────────────────────────────────────────────────
-const simulation = d3.forceSimulation(nodes)
-  .force("link",    d3.forceLink(rawLinks).id(d => d.id).distance(180).strength(0.25))
-  .force("charge",  d3.forceManyBody().strength(-700).distanceMax(700))
-  .force("center",  d3.forceCenter(W / 2, H / 2))
-  .force("collide", d3.forceCollide().radius(d => approxW(d) / 2 + 38))
-  .force("x",       d3.forceX(W / 2).strength(0.025))
-  .force("y",       d3.forceY(H / 2).strength(0.025));
-
-// ── Links — quadratic bezier (rhizomatic, no arrows) ─────────────────────────
-rawLinks.forEach(l => {
-  l._cx = (Math.random() - 0.5) * 90;
-  l._cy = (Math.random() - 0.5) * 90;
-});
-
-const linkSel = g.append("g")
-  .selectAll("path")
-  .data(rawLinks)
-  .join("path")
-    .attr("class", "rhizo-link")
-    .attr("stroke", () => `rgba(255,255,255,${(Math.random() * 0.06 + 0.06).toFixed(2)})`);
-
-// ── Nodes ─────────────────────────────────────────────────────────────────────
-const nodeSel = g.append("g")
-  .selectAll("g")
-  .data(nodes)
-  .join("g")
-    .call(
-      d3.drag()
-        .on("start", (e, d) => { if (!e.active) simulation.alphaTarget(0.2).restart(); d.fx = d.x; d.fy = d.y; })
-        .on("drag",  (e, d) => { d.fx = e.x; d.fy = e.y; })
-        .on("end",   (e, d) => { if (!e.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; })
-    )
-    .on("click", (event, d) => {
-      event.stopPropagation();
-      showPanel(d);
-    });
-
-// Render each node's text
-const REF_OFFSET = 8; // extra px gap between concept name and first author line
-
-nodeSel.each(function(d) {
-  const grp = d3.select(this);
-
-  // Concept name — clickable (triggers info panel via node click handler)
-  grp.append("text")
-    .attr("class", "label-concept")
-    .attr("text-anchor", "middle")
-    .attr("dy", 0)
-    .text(d.id);
-
-  // Ref lines — click navigates to annotations page
-  d.refs.forEach((ref, i) => {
-    grp.append("text")
-      .attr("class", "label-ref")
-      .attr("text-anchor", "middle")
-      .attr("dy", REF_OFFSET + (i + 1) * LINE)
-      .text(ref.label)
-      .on("click", function(event) {
-        event.stopPropagation();
-        if (ref.num) window.location.href = "annotations.html#source-" + ref.num;
-      });
-  });
-});
-
-// ── Tick ──────────────────────────────────────────────────────────────────────
-simulation.on("tick", () => {
-  linkSel.attr("d", d => {
-    const sx = d.source.x, sy = d.source.y;
-    const tx = d.target.x, ty = d.target.y;
-    const mx = (sx + tx) / 2 + (d._cx || 0);
-    const my = (sy + ty) / 2 + (d._cy || 0);
-    return `M${sx},${sy} Q${mx},${my} ${tx},${ty}`;
-  });
-  nodeSel.attr("transform", d => `translate(${d.x},${d.y})`);
-});
-
-// ── Slow ambient drift ────────────────────────────────────────────────────────
-let t = 0;
-(function drift() {
-  t += 0.0003;
-  nodes.forEach((d, i) => {
-    if (d.fx !== null && d.fx !== undefined) return;
-    const ph = i * 1.4;
-    d.vx += Math.sin(t + ph) * 0.05;
-    d.vy += Math.cos(t + ph * 0.7) * 0.05;
-  });
-  simulation.alpha(Math.max(simulation.alpha(), 0.015)).restart();
-  requestAnimationFrame(drift);
-})();
-
-// ── Info panel ────────────────────────────────────────────────────────────────
+// ── Info panel ─────────────────────────────────────────────────────────────────
 function showPanel(d) {
-  const sec = sectionDesc[d.group];
+  const sec = sectionDesc[d.group] || { name: d.id, text: '' };
   const refsHtml = d.refs.map(r => {
     const annotUrl = r.num ? `annotations.html#source-${r.num}` : (r.url || '#');
     return `<a href="${annotUrl}">${r.label}</a>`;
@@ -866,37 +879,57 @@ function closePanel() {
   document.getElementById("info-panel").classList.remove("visible");
 }
 
-// ── Mobile: tighten simulation on small screens ───────────────────────────────
-if (W < 768) {
-  simulation
-    .force("link",   d3.forceLink(rawLinks).id(d => d.id).distance(110).strength(0.3))
-    .force("charge", d3.forceManyBody().strength(-350).distanceMax(450))
-    .force("collide",d3.forceCollide().radius(d => approxW(d) / 2 + 22))
-    .alpha(0.8).restart();
-}
-
-// ── Resize ────────────────────────────────────────────────────────────────────
-window.addEventListener("resize", () => {
-  const nw = window.innerWidth, nh = window.innerHeight;
-  svg.attr("width", nw).attr("height", nh);
-  simulation
-    .force("center", d3.forceCenter(nw/2, nh/2))
-    .force("x", d3.forceX(nw/2).strength(0.025))
-    .force("y", d3.forceY(nh/2).strength(0.025))
-    .alpha(0.25).restart();
-});
-
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+// ── Load Supabase data, add new sources to map, then start D3 ─────────────────
 (async () => {
   const sb = supabase.createClient(
     'https://dnqtrzsiqkosrxoitzol.supabase.co',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRucXRyenNpcWtvc3J4b2l0em9sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0OTY4MDIsImV4cCI6MjA4ODA3MjgwMn0.DRKZA1h9mWBZcp7wWgf-s5ZYpuYUYd1-Z_96GIONjZU'
   );
-  const { count } = await sb.from('sources').select('*', { count: 'exact', head: true });
-  if (count !== null) document.getElementById('source-count').textContent = count;
+
+  try {
+    const { data } = await sb.from('sources')
+      .select('id, display_num, author, year')
+      .order('sort_order');
+
+    if (data) {
+      // Update source count in footer
+      document.getElementById('source-count').textContent = data.length;
+
+      // Collect display_nums already represented in the static node map
+      const staticNums = new Set(nodes.flatMap(n => n.refs.map(r => r.num)));
+
+      // Sources added via the annotations UI won't be in the static set
+      const newSources = data.filter(s => {
+        const num = parseInt(s.display_num, 10);
+        return !isNaN(num) && !staticNums.has(num);
+      });
+
+      if (newSources.length > 0) {
+        sectionDesc[9] = {
+          name: "Recently Added",
+          text: "Sources added during the research period via the annotations interface. Click any source to open its annotation."
+        };
+        nodes.push({
+          id: "Recently Added",
+          refs: newSources.map(s => ({
+            label: `${s.author}, ${s.year}`,
+            num:   parseInt(s.display_num, 10),
+            url:   ''
+          })),
+          group: 9
+        });
+      }
+    }
+  } catch(e) {
+    console.warn('Supabase unavailable:', e);
+  }
+
+  // Start D3 (with or without new sources)
+  initD3();
 })();
 </script>
 </body>

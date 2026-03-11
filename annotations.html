@@ -162,6 +162,49 @@
       user-select: none;
     }
     .keyword-add-btn:hover { opacity: 0.8; }
+
+    /* ── Annotation progress ── */
+    .annot-progress {
+      display: block;
+      font-size: 10px;
+      letter-spacing: 0.05em;
+      color: var(--ink);
+      opacity: 0.35;
+      margin-top: 4px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ── Active keyword filter ── */
+    .keyword-pill.kw-active {
+      background: #111111;
+      color: #ffffff;
+      border-color: #111111;
+    }
+    .keyword-pill.kw-active .keyword-remove { color: #ffffff; }
+    .kw-filter-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 200;
+      background: #111111;
+      color: #ffffff;
+      font-family: var(--ff);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .kw-filter-bar-clear {
+      cursor: pointer;
+      opacity: 0.6;
+      font-size: 15px;
+      line-height: 1;
+    }
+    .kw-filter-bar-clear:hover { opacity: 1; }
     .keyword-input {
       font-family: var(--ff);
       font-size: 11px;
@@ -410,7 +453,7 @@
 <table>
   <thead>
     <tr>
-      <th class="col-num"><a href="index.html" class="map-link">← Map</a></th>
+      <th class="col-num"><a href="index.html" class="map-link">← Map</a><span id="annot-progress" class="annot-progress"></span></th>
       <th class="col-author"><input type="text" id="search-input" class="search-input" placeholder="Search…" autocomplete="off" spellcheck="false"></th>
       <th class="col-section">Title</th>
       <th class="col-year">
@@ -469,20 +512,6 @@
       <input type="text" id="add-year" placeholder="2024" maxlength="4" autocomplete="off">
     </div>
     <div class="add-field">
-      <label>Terrain</label>
-      <select id="add-section">
-        <option value="Foundations">Foundations</option>
-        <option value="Leadership">Leadership</option>
-        <option value="Sensemaking">Sensemaking</option>
-        <option value="Practice Theory">Practice Theory</option>
-        <option value="Posthumanism">Posthumanism</option>
-        <option value="Indigenous / Decolonial">Indigenous / Decolonial</option>
-        <option value="Ecological">Ecological</option>
-        <option value="Care Ethics">Care Ethics</option>
-        <option value="Grey Literature">Grey Literature</option>
-      </select>
-    </div>
-    <div class="add-field">
       <label>Citation (APA — use *asterisks* around italicised title)</label>
       <textarea id="add-citation" placeholder="Last, F. (Year). *Title of work*. Publisher."></textarea>
     </div>
@@ -511,32 +540,16 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const SECTION_NAMES = {
-  'Foundations':         'Foundations of Organizational Theory and Worldviews',
-  'Leadership':          'Leadership, Values, and Organizational Culture',
-  'Sensemaking':         'Sensemaking, Enactment, and Meaning-Making',
-  'Practice Theory':     'Practice Theory, Sociomateriality, and Process Ontology',
-  'Posthumanism':        'Posthumanist and More-than-Human Organization Studies',
-  'Indigenous / Decolonial':'Indigenous Worldviews, Decolonial Knowledge, and Relational Accountability',
-  'Ecological':          'Ecological Embeddedness, Living Systems, and Regenerative Organizing',
-  'Care Ethics':         'Care Ethics, Eco-Feminism, and Creative Practice',
-  'Grey Literature':     'Grey Literature and Practitioner Knowledge',
-};
-// Fixed section order — used to sort sources so new additions never create duplicate headers
-const SECTION_ORDER = Object.keys(SECTION_NAMES);
-
 // ── Debounce utility ─────────────────────────────────────────────────────────
 function debounce(fn, ms) {
   let t;
   return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
 }
 
-// Section ID map — built after render so filters reference correct sec-N ids
-let _sectionIdMap = {}; // short section name → 'sec-N'
-
 // In-memory state
 let _sources = [];
 let _kwMap   = {}; // source_id → [{id, source_id, keyword}]
+let _activeKeyword = null; // currently filtered keyword, or null
 
 // ── Init ─────────────────────────────────────────────────────────────────────
 async function init() {
@@ -598,6 +611,7 @@ function renderTable() {
 
   setupAll();
   handleHash();
+  updateProgress();
 }
 
 // ── Deep-link from map: annotations.html#source-01 ───────────────────────────
@@ -615,22 +629,6 @@ function handleHash() {
 }
 
 // ── Row builders ──────────────────────────────────────────────────────────────
-function buildSectionHeader(section, secId) {
-  const tr = document.createElement('tr');
-  tr.className = 'sec-header';
-  tr.id = secId;
-  const numTd = document.createElement('td');
-  numTd.className = 'col-num';
-  numTd.textContent = secId.replace('sec-', '').padStart(2, '0');
-  const authTd = document.createElement('td');
-  authTd.className = 'col-author';
-  authTd.setAttribute('colspan', '3');
-  authTd.textContent = SECTION_NAMES[section] || section;
-  tr.appendChild(numTd);
-  tr.appendChild(authTd);
-  return tr;
-}
-
 function buildEntryRow(s) {
   const tr = document.createElement('tr');
   tr.className = 'entry-row';
@@ -726,13 +724,68 @@ function buildPill(kw) {
   const span = document.createElement('span');
   span.className = 'keyword-pill';
   span.dataset.kwId = kw.id;
-  span.textContent = kw.keyword;
+  span.dataset.keyword = kw.keyword;
+
+  const label = document.createElement('span');
+  label.textContent = kw.keyword;
+  label.style.cursor = 'pointer';
+  label.addEventListener('click', e => {
+    e.stopPropagation();
+    setKeywordFilter(_activeKeyword === kw.keyword ? null : kw.keyword);
+  });
+
   const x = document.createElement('span');
   x.className = 'keyword-remove';
   x.textContent = '×';
   x.title = 'Remove';
+
+  span.appendChild(label);
   span.appendChild(x);
   return span;
+}
+
+// ── Annotation progress ───────────────────────────────────────────────────────
+function updateProgress() {
+  const total = _sources.length;
+  const done  = _sources.filter(s => s.annotation && s.annotation.trim()).length;
+  const el    = document.getElementById('annot-progress');
+  if (el) el.textContent = `${done} / ${total} annotated`;
+}
+
+// ── Keyword filter ────────────────────────────────────────────────────────────
+function setKeywordFilter(kw) {
+  _activeKeyword = kw;
+
+  // Update pill highlight across all open rows
+  document.querySelectorAll('.keyword-pill').forEach(p => {
+    p.classList.toggle('kw-active', p.dataset.keyword === kw);
+  });
+
+  // Show/hide filter bar
+  let bar = document.getElementById('kw-filter-bar');
+  if (kw) {
+    if (!bar) {
+      bar = document.createElement('div');
+      bar.id = 'kw-filter-bar';
+      bar.className = 'kw-filter-bar';
+      document.body.appendChild(bar);
+    }
+    bar.innerHTML = '';
+    const txt = document.createElement('span');
+    txt.textContent = kw;
+    const clr = document.createElement('span');
+    clr.className = 'kw-filter-bar-clear';
+    clr.textContent = '×';
+    clr.title = 'Clear filter';
+    clr.addEventListener('click', () => setKeywordFilter(null));
+    bar.appendChild(txt);
+    bar.appendChild(clr);
+    bar.style.display = 'flex';
+  } else if (bar) {
+    bar.style.display = 'none';
+  }
+
+  applyFilters();
 }
 
 // ── Setup all listeners ───────────────────────────────────────────────────────
@@ -785,19 +838,6 @@ function populateTitles() {
     }
     const em = cit.querySelector('em');
     if (em) titleCell.textContent = em.textContent.trim();
-  });
-}
-
-// ── Section titles → big display ─────────────────────────────────────────────
-function setupSectionTitles() {
-  document.querySelectorAll('.sec-header').forEach(hdr => {
-    const numCell    = hdr.querySelector('.col-num');
-    const authorCell = hdr.querySelector('.col-author');
-    if (!numCell || !authorCell) return;
-    numCell.textContent = authorCell.textContent;
-    numCell.setAttribute('colspan', '4');
-    numCell.classList.add('sec-title');
-    authorCell.remove();
   });
 }
 
@@ -861,6 +901,7 @@ function setupAnnotationEditing() {
       else {
         const s = _sources.find(x => x.id === sourceId);
         if (s) s.annotation = text;
+        updateProgress();
         showToast('Saved');
       }
     });
@@ -960,7 +1001,6 @@ function setupEditButtons() {
       document.getElementById('add-author').value  = s.author  || '';
       document.getElementById('add-title').value   = s.title   || '';
       document.getElementById('add-year').value    = s.year    || '';
-      document.getElementById('add-section').value = s.section || 'Foundations';
       // Convert <em> back to *asterisks* for editing
       const rawCit = (s.citation || '').replace(/<em>(.*?)<\/em>/gi, '*$1*').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>');
       document.getElementById('add-citation').value = rawCit;
@@ -1089,6 +1129,11 @@ function applyFilters() {
     let ok = (yearVal === 'all' || row.dataset.yearBucket === yearVal)
           && (typeVal === 'all' || row.dataset.type       === typeVal);
     if (ok && searchVal) ok = row.textContent.toLowerCase().includes(searchVal);
+    // Keyword filter: show only sources that have the active keyword
+    if (ok && _activeKeyword) {
+      const kws = _kwMap[row.id] || [];
+      ok = kws.some(k => k.keyword === _activeKeyword);
+    }
     row.style.display = ok ? '' : 'none';
     const detail = document.getElementById(row.id + '-detail');
     if (detail) detail.style.display = ok ? '' : 'none';
@@ -1146,7 +1191,6 @@ addSubmit.addEventListener('click', async () => {
   const author   = document.getElementById('add-author').value.trim();
   const title    = document.getElementById('add-title').value.trim();
   const year     = document.getElementById('add-year').value.trim();
-  const section  = document.getElementById('add-section').value;
   const rawCit   = document.getElementById('add-citation').value.trim();
 
   if (!author || !title || !year) { alert('Author, title, and year are required.'); return; }
@@ -1163,7 +1207,6 @@ addSubmit.addEventListener('click', async () => {
       author:       author,
       title:        title,
       year:         year,
-      section:      section,
       data_year:    parseInt(year) < 2000 ? 'pre-2000' : parseInt(year) < 2010 ? '2000s' : parseInt(year) < 2020 ? '2010s' : '2020s',
       data_type:    citation.includes('doi.org') || citation.includes('DOI') ? 'article' : 'book',
       citation:     citation,
@@ -1174,7 +1217,7 @@ addSubmit.addEventListener('click', async () => {
 
     // Update local cache
     const s = _sources.find(x => x.id === _editingSourceId);
-    if (s) { s.author = author; s.title = title; s.year = year; s.section = section; s.citation = citation; }
+    if (s) { s.author = author; s.title = title; s.year = year; s.citation = citation; }
 
     const editedId = _editingSourceId;
     closeModal();
@@ -1197,12 +1240,10 @@ addSubmit.addEventListener('click', async () => {
 
     const { data, error } = await sb.from('sources').insert({
       id:           newId,
-      display_num:  String(maxNum + 1).padStart(2, '0'),
+      display_num:  String(maxNum + 1),
       author:       author,
       title:        title,
-      section:      section,
       year:         year,
-      data_section: _sectionIdMap[section] || '',
       data_year:    parseInt(year) < 2000 ? 'pre-2000' : parseInt(year) < 2010 ? '2000s' : parseInt(year) < 2020 ? '2010s' : '2020s',
       data_type:    citation.includes('doi.org') || citation.includes('DOI') ? 'article' : 'book',
       citation:     citation,
@@ -1244,6 +1285,13 @@ document.getElementById('export-btn').addEventListener('click', () => {
 
   const allSources = [..._sources]
     .sort((a, b) => (a.sort_order || 9999) - (b.sort_order || 9999));
+
+  const annotatedCount = allSources.filter(s => s.annotation && s.annotation.trim()).length;
+  const pct = Math.round(annotatedCount / allSources.length * 100);
+  const statsHtml = `<div class="stats-block">
+    <span class="stat-label">Annotation progress</span>
+    <span class="stat-value">${annotatedCount} of ${allSources.length} sources annotated (${pct}%)</span>
+  </div>`;
 
   let bodyHtml = '';
 
@@ -1299,7 +1347,26 @@ document.getElementById('export-btn').addEventListener('click', () => {
       letter-spacing: 0.07em;
       text-transform: uppercase;
       opacity: 0.4;
-      margin-bottom: 48px;
+      margin-bottom: 20px;
+    }
+    .stats-block {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      margin-bottom: 40px;
+      padding: 10px 14px;
+      background: #f7f7f7;
+      border-left: 2px solid #111;
+    }
+    .stat-label {
+      font-size: 9px;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      color: #888;
+    }
+    .stat-value {
+      font-size: 13px;
+      color: #111;
     }
     .source {
       margin-bottom: 36px;
@@ -1359,6 +1426,7 @@ document.getElementById('export-btn').addEventListener('click', () => {
 <body>
   <h1>Annotated Bibliography</h1>
   <div class="subtitle">Organizational Worldviews &nbsp;·&nbsp; ${allSources.length} sources &nbsp;·&nbsp; Matthew Bejtlich &nbsp;·&nbsp; ${new Date().getFullYear()}</div>
+  ${statsHtml}
   ${bodyHtml}
   <script>window.onload = () => window.print();<\/script>
 </body>
