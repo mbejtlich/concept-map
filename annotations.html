@@ -360,10 +360,21 @@
     }
     .filter-pane-wrap.open { max-height: 700px; }
 
-    .filter-groups { display: flex; padding: 20px 16px 24px 16px; gap: 0; }
-    .filter-group { flex: 1; padding-right: 24px; }
-    .filter-group:last-child { padding-right: 0; }
+    /* 2-row grid: [Year | Type] on row 1, [Keywords spanning both] on row 2 */
+    .filter-groups {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-areas:
+        "year type"
+        "kw   kw";
+      padding: 20px 24px 24px 24px;
+      row-gap: 20px;
+      column-gap: 32px;
+    }
     .fg-section { flex: 2; }
+    .fg-year { grid-area: year; }
+    .fg-type { grid-area: type; }
+    .fg-keywords { grid-area: kw; padding-right: 0; }
     .fg-title { font-size: 14px; letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 10px; }
     .fg-opts { display: flex; flex-direction: column; gap: 6px; }
     .fg-opts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; }
@@ -486,9 +497,8 @@
       .detail-annotation { font-size: 17px; max-width: 95%; }
       .detail-inner { padding: 12px 12px 16px 0; }
       .filter-pane-wrap { left: 0 !important; right: 0 !important; }
-      .filter-groups { flex-wrap: wrap; gap: 16px; padding: 16px 12px 16px 12px; }
-      .filter-group { flex: 0 0 45%; padding-right: 0; }
-      .fg-section { flex: 0 0 100%; }
+      .filter-groups { grid-template-columns: 1fr 1fr; padding: 16px 12px 16px 12px; row-gap: 16px; column-gap: 16px; }
+      .fg-keywords { padding-right: 0; }
       .map-link { display: none; }
     }
     @media (max-width: 480px) {
@@ -499,7 +509,7 @@
       thead th.col-num, thead th.col-section { display: none; }
       .detail-annotation { font-size: 17px; }
       .map-link { display: none; }
-      .filter-group { flex: 0 0 100%; }
+      .filter-groups { grid-template-columns: 1fr; grid-template-areas: "year" "type" "kw"; }
     }
   </style>
 </head>
@@ -835,9 +845,20 @@ function populateKeywordFilter() {
   if (!container) return;
   container.innerHTML = '';
 
-  // Collect unique keywords with source counts
+  // Only count keywords among sources that pass the current year/type filters
+  const yearVal = document.querySelector('input[name="year"]:checked')?.value || 'all';
+  const typeVal = document.querySelector('input[name="type"]:checked')?.value || 'all';
+  const visibleIds = new Set();
+  document.querySelectorAll('#sources-tbody .entry-row').forEach(row => {
+    const yearOk = yearVal === 'all' || row.dataset.yearBucket === yearVal;
+    const typeOk = typeVal === 'all' || row.dataset.type === typeVal;
+    if (yearOk && typeOk) visibleIds.add(row.id);
+  });
+
+  // Collect unique keywords with source counts (filtered)
   const kwCounts = new Map();
-  Object.values(_kwMap).forEach(kwArr => {
+  Object.entries(_kwMap).forEach(([sourceId, kwArr]) => {
+    if (!visibleIds.has(sourceId)) return;
     kwArr.forEach(kw => {
       kwCounts.set(kw.keyword, (kwCounts.get(kw.keyword) || 0) + 1);
     });
@@ -1271,6 +1292,8 @@ function applyFilters() {
     const detail = document.getElementById(row.id + '-detail');
     if (detail) detail.style.display = ok ? '' : 'none';
   });
+  // Keep keyword cloud counts in sync with active year/type filters
+  populateKeywordFilter();
 }
 
 // ── Sort button ───────────────────────────────────────────────────────────────
