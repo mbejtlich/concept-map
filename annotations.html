@@ -207,16 +207,6 @@
     }
     .delete-btn:hover { opacity: 1; color: #cc2222; }
 
-    /* ── Section headers ── */
-    .sec-header { background: transparent; }
-    .sec-header td { padding: 48px 0 12px; border-bottom: none; color: var(--ink); }
-    .sec-title {
-      font-size: 96px !important;
-      letter-spacing: -0.02em !important;
-      line-height: 1.05 !important;
-      padding-left: 24px !important;
-      visibility: visible !important;
-    }
 
     /* ── Search input ── */
     .search-input {
@@ -394,8 +384,6 @@
     /* ── Mobile ── */
     @media (max-width: 768px) {
       :root { --start-num: 0%; --start-author: 10%; --start-section: 48%; --start-year: 82%; }
-      .sec-title { font-size: 32px !important; letter-spacing: -0.01em !important; padding-top: 28px !important; }
-      .sec-header td { padding: 28px 0 8px; }
       thead th { padding: 8px 0; font-size: 11px; }
       .detail-annotation { font-size: 20px; max-width: 95%; }
       .detail-inner { padding: 12px 12px 16px 0; }
@@ -411,7 +399,6 @@
       .col-author { width: 75%; padding-right: 8px; }
       .col-year { width: 25%; }
       thead th.col-num, thead th.col-section { display: none; }
-      .sec-title { font-size: 22px !important; }
       .detail-annotation { font-size: 17px; }
       .map-link { display: none; }
       .filter-group { flex: 0 0 100%; }
@@ -444,21 +431,6 @@
 <!-- Filter panel -->
 <div class="filter-pane-wrap" id="filter-pane-wrap">
   <div class="filter-groups">
-    <div class="filter-group fg-section">
-      <div class="fg-title">Section</div>
-      <div class="fg-opts fg-opts-grid">
-        <label class="filter-opt"><input type="radio" name="sec" value="all" checked> All</label>
-        <label class="filter-opt"><input type="radio" name="sec" value="sec-1"> Foundations</label>
-        <label class="filter-opt"><input type="radio" name="sec" value="sec-2"> Leadership</label>
-        <label class="filter-opt"><input type="radio" name="sec" value="sec-3"> Sensemaking</label>
-        <label class="filter-opt"><input type="radio" name="sec" value="sec-4"> Practice Theory</label>
-        <label class="filter-opt"><input type="radio" name="sec" value="sec-5"> Posthumanist</label>
-        <label class="filter-opt"><input type="radio" name="sec" value="sec-6"> Indigenous</label>
-        <label class="filter-opt"><input type="radio" name="sec" value="sec-7"> Ecological</label>
-        <label class="filter-opt"><input type="radio" name="sec" value="sec-8"> Care Ethics</label>
-        <label class="filter-opt"><input type="radio" name="sec" value="sec-9"> Grey Literature</label>
-      </div>
-    </div>
     <div class="filter-group fg-year">
       <div class="fg-title">Year</div>
       <div class="fg-opts">
@@ -616,47 +588,10 @@ function renderTable() {
   const tbody = document.getElementById('sources-tbody');
   tbody.innerHTML = '';
 
-  let currentSection = null;
-  let secIndex = 0;
-  _sectionIdMap = {};
-
-  // Sort: existing sources by sort_order (preserves original 01–60 sequence);
-  // newly added sources (sort_order > 60) grouped by section then sort_order.
-  const sorted = [..._sources].sort((a, b) => {
-    const ao = a.sort_order || 0;
-    const bo = b.sort_order || 0;
-    const isNewA = ao > 60;
-    const isNewB = bo > 60;
-    // Both original → strict sort_order
-    if (!isNewA && !isNewB) return ao - bo;
-    // Both new → section order, then sort_order
-    if (isNewA && isNewB) {
-      const ai = SECTION_ORDER.indexOf(a.section);
-      const bi = SECTION_ORDER.indexOf(b.section);
-      if (ai !== bi) return ai - bi;
-      return ao - bo;
-    }
-    // Mixed: insert new source after last original source in same section
-    if (isNewA) {
-      const secMaxB = _sources
-        .filter(s => s.section === a.section && (s.sort_order || 0) <= 60)
-        .reduce((m, s) => Math.max(m, s.sort_order || 0), -1);
-      return secMaxB >= bo ? 1 : -1;
-    }
-    const secMaxA = _sources
-      .filter(s => s.section === b.section && (s.sort_order || 0) <= 60)
-      .reduce((m, s) => Math.max(m, s.sort_order || 0), -1);
-    return secMaxA >= ao ? -1 : 1;
-  });
+  // Flat list sorted by sort_order — no section headers
+  const sorted = [..._sources].sort((a, b) => (a.sort_order || 9999) - (b.sort_order || 9999));
 
   sorted.forEach(s => {
-    if (s.section !== currentSection) {
-      currentSection = s.section;
-      secIndex++;
-      const secId = 'sec-' + secIndex;
-      _sectionIdMap[s.section] = secId;
-      tbody.appendChild(buildSectionHeader(s.section, secId));
-    }
     tbody.appendChild(buildEntryRow(s));
     tbody.appendChild(buildDetailRow(s, _kwMap[s.id] || []));
   });
@@ -789,7 +724,6 @@ function buildPill(kw) {
 function setupAll() {
   tagRows();
   populateTitles();
-  setupSectionTitles();
   setupAccordion();
   setupAnnotationEditing();
   setupCitationEditing();
@@ -802,14 +736,9 @@ function setupAll() {
 
 // ── Tag rows for filtering ────────────────────────────────────────────────────
 function tagRows() {
-  let currentSec = null;
-  document.querySelectorAll('#sources-tbody tr').forEach(row => {
-    if (row.classList.contains('sec-header')) {
-      currentSec = row.id;
-      return;
-    }
-    if (!row.classList.contains('entry-row')) return;
-    row.dataset.section = currentSec;
+  document.querySelectorAll('#sources-tbody .entry-row').forEach(row => {
+    const src = _sources.find(s => s.id === row.id);
+    if (src) row.dataset.section = src.section;
     const yr = parseInt(row.querySelector('.col-year')?.textContent) || 0;
     row.dataset.yearBucket = yr < 2000 ? 'pre-2000' : yr < 2010 ? '2000s' : yr < 2020 ? '2010s' : '2020s';
     const detail = document.getElementById(row.id + '-detail');
@@ -1130,30 +1059,24 @@ function setupDeleteButtons() {
 
 // ── Filter ────────────────────────────────────────────────────────────────────
 function setupFilterListeners() {
-  document.querySelectorAll('input[name="sec"], input[name="year"], input[name="type"]')
+  document.querySelectorAll('input[name="year"], input[name="type"]')
     .forEach(r => r.addEventListener('change', applyFilters));
   document.getElementById('search-input')?.addEventListener('input', applyFilters);
   document.getElementById('search-input')?.addEventListener('click', e => e.stopPropagation());
 }
 
 function applyFilters() {
-  const secVal    = document.querySelector('input[name="sec"]:checked').value;
   const yearVal   = document.querySelector('input[name="year"]:checked').value;
   const typeVal   = document.querySelector('input[name="type"]:checked').value;
   const searchVal = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
-  const isFiltered = secVal !== 'all' || yearVal !== 'all' || typeVal !== 'all' || searchVal !== '';
 
   document.querySelectorAll('.entry-row').forEach(row => {
-    let ok = (secVal  === 'all' || row.dataset.section    === secVal)
-          && (yearVal === 'all' || row.dataset.yearBucket  === yearVal)
-          && (typeVal === 'all' || row.dataset.type        === typeVal);
+    let ok = (yearVal === 'all' || row.dataset.yearBucket === yearVal)
+          && (typeVal === 'all' || row.dataset.type       === typeVal);
     if (ok && searchVal) ok = row.textContent.toLowerCase().includes(searchVal);
     row.style.display = ok ? '' : 'none';
     const detail = document.getElementById(row.id + '-detail');
     if (detail) detail.style.display = ok ? '' : 'none';
-  });
-  document.querySelectorAll('.sec-header').forEach(hdr => {
-    hdr.style.display = isFiltered ? 'none' : '';
   });
 }
 
@@ -1304,21 +1227,15 @@ function showToast(msg) {
 document.getElementById('export-btn').addEventListener('click', () => {
   if (!_sources.length) { alert('Sources not loaded yet.'); return; }
 
-  let currentSection = null;
+  // Only include sources that have annotation text
+  const annotated = [..._sources]
+    .sort((a, b) => (a.sort_order || 9999) - (b.sort_order || 9999))
+    .filter(s => s.annotation && s.annotation.trim());
+
   let bodyHtml = '';
 
-  _sources.forEach(s => {
-    // Section break
-    if (s.section !== currentSection) {
-      currentSection = s.section;
-      const longName = SECTION_NAMES[s.section] || s.section;
-      bodyHtml += `<div class="section-header">${longName}</div>`;
-    }
-
-    const hasAnn = s.annotation && s.annotation.trim();
-    const annHtml = hasAnn
-      ? `<div class="annotation">${s.annotation.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`
-      : `<div class="annotation pending">Annotation in progress.</div>`;
+  annotated.forEach(s => {
+    const annHtml = `<div class="annotation">${s.annotation.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`;
 
     const kws = (_kwMap[s.id] || []).map(k =>
       `<span class="pill">${k.keyword}</span>`).join('');
@@ -1367,15 +1284,6 @@ document.getElementById('export-btn').addEventListener('click', () => {
       text-transform: uppercase;
       opacity: 0.4;
       margin-bottom: 48px;
-    }
-    .section-header {
-      font-size: 28px;
-      letter-spacing: -0.01em;
-      font-weight: 400;
-      margin: 48px 0 20px;
-      padding-top: 24px;
-      border-top: 1px solid #111;
-      page-break-after: avoid;
     }
     .source {
       margin-bottom: 36px;
@@ -1429,13 +1337,12 @@ document.getElementById('export-btn').addEventListener('click', () => {
     }
     @media print {
       body { padding: 0; }
-      .section-header { page-break-before: auto; }
     }
   </style>
 </head>
 <body>
   <h1>Annotated Bibliography</h1>
-  <div class="subtitle">Organizational Worldviews &nbsp;·&nbsp; ${_sources.length} sources &nbsp;·&nbsp; Matthew Bejtlich &nbsp;·&nbsp; ${new Date().getFullYear()}</div>
+  <div class="subtitle">Organizational Worldviews &nbsp;·&nbsp; ${annotated.length} annotated sources &nbsp;·&nbsp; Matthew Bejtlich &nbsp;·&nbsp; ${new Date().getFullYear()}</div>
   ${bodyHtml}
   <script>window.onload = () => window.print();<\/script>
 </body>
