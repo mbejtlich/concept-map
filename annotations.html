@@ -324,21 +324,21 @@
     }
     .filter-pane-wrap.open { max-height: 700px; }
 
-    /* 2-row grid: [Year | Type] on row 1, [Keywords spanning both] on row 2 */
+    /* 2-row grid: Year aligns with Author col, Type aligns with Title col */
     .filter-groups {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 15vw 1fr;
       grid-template-areas:
         "year type"
         "kw   kw";
-      padding: 20px 24px 24px 24px;
+      padding: 20px 24px 24px 0;
       row-gap: 20px;
-      column-gap: 32px;
+      column-gap: 0;
     }
     .fg-section { flex: 2; }
-    .fg-year { grid-area: year; }
+    .fg-year { grid-area: year; padding-left: 24px; }
     .fg-type { grid-area: type; }
-    .fg-keywords { grid-area: kw; padding-right: 0; }
+    .fg-keywords { grid-area: kw; padding-left: 24px; padding-right: 0; }
     .fg-title { font-size: 14px; letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 10px; }
     .fg-opts { display: flex; flex-direction: column; gap: 6px; }
     .fg-opts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; }
@@ -462,7 +462,8 @@
       .detail-inner { padding: 12px 12px 16px 0; }
       .filter-pane-wrap { left: 0 !important; right: 0 !important; }
       .filter-groups { grid-template-columns: 1fr 1fr; padding: 16px 12px 16px 12px; row-gap: 16px; column-gap: 16px; }
-      .fg-keywords { padding-right: 0; }
+      .fg-year { padding-left: 0; }
+      .fg-keywords { padding-left: 0; padding-right: 0; }
       .map-link { display: none; }
     }
     @media (max-width: 480px) {
