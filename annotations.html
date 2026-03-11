@@ -165,13 +165,14 @@
 
     /* ── Annotation progress ── */
     .annot-progress {
-      display: block;
-      font-size: 10px;
-      letter-spacing: 0.05em;
+      display: inline-block;
+      font-size: 9px;
+      letter-spacing: 0.06em;
       color: var(--ink);
       opacity: 0.35;
-      margin-top: 4px;
+      margin-left: 8px;
       font-variant-numeric: tabular-nums;
+      vertical-align: middle;
     }
 
     /* ── Active keyword filter bar ── */
@@ -233,7 +234,7 @@
     .sort-btn.active { opacity: 1; color: #6670d8; }
 
     /* ── Keyword filter list in filter panel ── */
-    .fg-keywords { flex: 0 0 100%; padding-right: 0; margin-top: 8px; }
+    .fg-keywords { flex: 1; padding-right: 0; }
     .fg-kw-cloud {
       display: flex;
       flex-wrap: wrap;
@@ -359,8 +360,8 @@
     }
     .filter-pane-wrap.open { max-height: 700px; }
 
-    .filter-groups { display: flex; flex-wrap: wrap; padding: 20px 16px 24px 16px; }
-    .filter-group { flex: 1; padding-right: 20px; }
+    .filter-groups { display: flex; padding: 20px 16px 24px 16px; gap: 0; }
+    .filter-group { flex: 1; padding-right: 24px; }
     .filter-group:last-child { padding-right: 0; }
     .fg-section { flex: 2; }
     .fg-title { font-size: 14px; letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 10px; }
@@ -815,7 +816,7 @@ function updateProgress() {
   const total = _sources.length;
   const done  = _sources.filter(s => s.annotation && s.annotation.trim()).length;
   const el    = document.getElementById('annot-progress');
-  if (el) el.textContent = `${done} / ${total} annotated`;
+  if (el) el.textContent = `${done}/${total}`;
 }
 
 // ── Sort toggle ───────────────────────────────────────────────────────────────
@@ -834,7 +835,7 @@ function populateKeywordFilter() {
   if (!container) return;
   container.innerHTML = '';
 
-  // Collect all unique keywords across all sources
+  // Collect unique keywords with source counts
   const kwCounts = new Map();
   Object.values(_kwMap).forEach(kwArr => {
     kwArr.forEach(kw => {
@@ -842,21 +843,28 @@ function populateKeywordFilter() {
     });
   });
 
-  if (kwCounts.size === 0) {
+  // Only surface keywords that appear across ≥ 2 sources (the "main" themes)
+  const MIN = 2;
+  const mainKws = [...kwCounts.keys()]
+    .filter(kw => kwCounts.get(kw) >= MIN)
+    .sort();
+
+  if (mainKws.length === 0) {
     const empty = document.createElement('span');
-    empty.style.cssText = 'opacity:0.35; font-size:11px; letter-spacing:0.06em; text-transform:uppercase;';
-    empty.textContent = 'None yet';
+    empty.style.cssText = 'opacity:0.3; font-size:10px; letter-spacing:0.06em; text-transform:uppercase;';
+    empty.textContent = 'Tag ≥ 2 sources with a keyword to surface it here';
     container.appendChild(empty);
     return;
   }
 
-  // Sort alphabetically and render
-  [...kwCounts.keys()].sort().forEach(keyword => {
+  mainKws.forEach(keyword => {
+    const count = kwCounts.get(keyword);
     const tag = document.createElement('span');
     tag.className = 'fg-kw-tag';
     tag.dataset.keyword = keyword;
-    tag.textContent = keyword;
     tag.classList.toggle('active', keyword === _activeKeyword);
+    // Label + count badge
+    tag.innerHTML = `${keyword} <span style="opacity:0.45; font-size:8px; margin-left:2px;">${count}</span>`;
     tag.addEventListener('click', e => {
       e.stopPropagation();
       setKeywordFilter(_activeKeyword === keyword ? null : keyword);
