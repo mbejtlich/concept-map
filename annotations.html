@@ -97,7 +97,7 @@
 
     .detail-annotation {
       font-family: 'Sabon', 'Sabon LT Std', Georgia, serif;
-      font-size: 22px;
+      font-size: 27px;
       line-height: 1.55;
       color: #2255cc;
       max-width: 70%;
@@ -166,7 +166,7 @@
     /* ── Annotation progress ── */
     .annot-progress {
       display: inline-block;
-      font-size: 9px;
+      font-size: 11px;
       letter-spacing: 0.06em;
       color: var(--ink);
       opacity: 0.35;
@@ -175,7 +175,7 @@
       vertical-align: middle;
     }
 
-    /* ── Active keyword filter bar ── */
+    /* ── Active keyword highlight ── */
     .keyword-pill.kw-active {
       background: #111111;
       color: #ffffff;
@@ -183,50 +183,13 @@
     }
     .keyword-pill.kw-active .keyword-remove { color: #ffffff; }
 
-    :root { --kw-bar-h: 38px; }
-
-    .kw-filter-bar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 500;
-      background: #111111;
-      color: #ffffff;
-      font-family: var(--ff);
-      font-size: 11px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      height: var(--kw-bar-h);
-      padding: 0 24px;
-      display: none;
-      align-items: center;
-      gap: 12px;
-    }
-    .kw-filter-bar.visible { display: flex; }
-    .kw-filter-bar-label { opacity: 0.45; font-size: 9px; letter-spacing: 0.12em; }
-    .kw-filter-bar-value { font-size: 12px; }
-    .kw-filter-bar-clear {
-      cursor: pointer;
-      opacity: 0.55;
-      font-size: 16px;
-      line-height: 1;
-      margin-left: 2px;
-    }
-    .kw-filter-bar-clear:hover { opacity: 1; }
-
-    /* push sticky header below bar when active */
-    body.has-kw-filter thead th { top: var(--kw-bar-h); }
-
     /* ── Sort button ── */
     .sort-btn {
-      float: right;
-      margin-right: 10px;
       cursor: pointer;
       user-select: none;
       font-size: 11px;
       letter-spacing: 0.07em;
-      text-transform: uppercase;
+      margin-left: 4px;
       color: var(--ink);
       opacity: 0.3;
     }
@@ -494,7 +457,7 @@
     @media (max-width: 768px) {
       :root { --start-num: 0%; --start-author: 10%; --start-section: 48%; --start-year: 82%; }
       thead th { padding: 8px 0; font-size: 11px; }
-      .detail-annotation { font-size: 17px; max-width: 95%; }
+      .detail-annotation { font-size: 22px; max-width: 95%; }
       .detail-inner { padding: 12px 12px 16px 0; }
       .filter-pane-wrap { left: 0 !important; right: 0 !important; }
       .filter-groups { grid-template-columns: 1fr 1fr; padding: 16px 12px 16px 12px; row-gap: 16px; column-gap: 16px; }
@@ -507,7 +470,7 @@
       .col-author { width: 75%; padding-right: 8px; }
       .col-year { width: 25%; }
       thead th.col-num, thead th.col-section { display: none; }
-      .detail-annotation { font-size: 17px; }
+      .detail-annotation { font-size: 22px; }
       .map-link { display: none; }
       .filter-groups { grid-template-columns: 1fr; grid-template-areas: "year" "type" "kw"; }
     }
@@ -524,8 +487,7 @@
       <th class="col-year">
         <span class="add-btn" id="add-btn">+ Add</span>
         <span class="filter-btn" id="filter-btn">Filter</span>
-        <span class="sort-btn" id="sort-btn" title="Toggle sort: default / by year">↕</span>
-        Year
+        Year <span class="sort-btn" id="sort-btn" title="Toggle sort: default / by year">↕</span>
       </th>
     </tr>
   </thead>
@@ -856,11 +818,17 @@ function populateKeywordFilter() {
   });
 
   // Collect unique keywords with source counts (filtered)
+  // Deduplicate: count each keyword at most once per source
   const kwCounts = new Map();
   Object.entries(_kwMap).forEach(([sourceId, kwArr]) => {
     if (!visibleIds.has(sourceId)) return;
+    const seenForSource = new Set();
     kwArr.forEach(kw => {
-      kwCounts.set(kw.keyword, (kwCounts.get(kw.keyword) || 0) + 1);
+      const k = kw.keyword.toLowerCase();
+      if (!seenForSource.has(k)) {
+        seenForSource.add(k);
+        kwCounts.set(k, (kwCounts.get(k) || 0) + 1);
+      }
     });
   });
 
@@ -868,7 +836,7 @@ function populateKeywordFilter() {
   const MIN = 2;
   const mainKws = [...kwCounts.keys()]
     .filter(kw => kwCounts.get(kw) >= MIN)
-    .sort();
+    .sort(); // keys are already lowercased
 
   if (mainKws.length === 0) {
     const empty = document.createElement('span');
@@ -898,46 +866,15 @@ function populateKeywordFilter() {
 function setKeywordFilter(kw) {
   _activeKeyword = kw;
 
-  // Update pill highlight across all open rows
+  // Highlight matching pills in expanded source rows
   document.querySelectorAll('.keyword-pill').forEach(p => {
     p.classList.toggle('kw-active', p.dataset.keyword === kw);
   });
 
-  // Update keyword cloud tags in filter panel
+  // Highlight active tag in the filter panel cloud
   document.querySelectorAll('.fg-kw-tag').forEach(t => {
     t.classList.toggle('active', t.dataset.keyword === kw);
   });
-
-  // Show/hide filter bar + body class for sticky header offset
-  let bar = document.getElementById('kw-filter-bar');
-  if (kw) {
-    if (!bar) {
-      bar = document.createElement('div');
-      bar.id = 'kw-filter-bar';
-      bar.className = 'kw-filter-bar';
-      document.body.appendChild(bar);
-    }
-    bar.innerHTML = '';
-    const lbl = document.createElement('span');
-    lbl.className = 'kw-filter-bar-label';
-    lbl.textContent = 'Keyword';
-    const val = document.createElement('span');
-    val.className = 'kw-filter-bar-value';
-    val.textContent = kw;
-    const clr = document.createElement('span');
-    clr.className = 'kw-filter-bar-clear';
-    clr.textContent = '×';
-    clr.title = 'Clear filter';
-    clr.addEventListener('click', () => setKeywordFilter(null));
-    bar.appendChild(lbl);
-    bar.appendChild(val);
-    bar.appendChild(clr);
-    bar.classList.add('visible');
-    document.body.classList.add('has-kw-filter');
-  } else {
-    if (bar) bar.classList.remove('visible');
-    document.body.classList.remove('has-kw-filter');
-  }
 
   applyFilters();
 }
@@ -1283,10 +1220,10 @@ function applyFilters() {
     let ok = (yearVal === 'all' || row.dataset.yearBucket === yearVal)
           && (typeVal === 'all' || row.dataset.type       === typeVal);
     if (ok && searchVal) ok = row.textContent.toLowerCase().includes(searchVal);
-    // Keyword filter: show only sources that have the active keyword
+    // Keyword filter: show only sources that have the active keyword (case-insensitive)
     if (ok && _activeKeyword) {
       const kws = _kwMap[row.id] || [];
-      ok = kws.some(k => k.keyword === _activeKeyword);
+      ok = kws.some(k => k.keyword.toLowerCase() === _activeKeyword.toLowerCase());
     }
     row.style.display = ok ? '' : 'none';
     const detail = document.getElementById(row.id + '-detail');
