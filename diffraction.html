@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Diffraction Journal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:    #ffffff;
+  --text:  #000000;
+  --dim:   rgba(0,0,0,0.35);
+  --div:   rgba(0,0,0,0.1);
+  --hover: rgba(0,0,0,0.03);
+  --sel:   rgba(0,0,0,0.06);
+  --hdr-h: 38px;
+}
+
+html, body {
+  height: 100%; overflow: hidden;
+  background: var(--bg); color: var(--text);
+  font-family: 'Suisse Int\'l','HelveticaNeue','Helvetica Neue','Inter',Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Shell ── */
+#app  { display: flex; flex-direction: column; height: 100vh; }
+#body { display: flex; flex: 1; overflow: hidden; }
+
+/* ── Header ── */
+#header {
+  height: var(--hdr-h); flex-shrink: 0;
+  display: flex; align-items: center; padding: 0 18px;
+  border-bottom: 1px solid var(--div);
+}
+#app-title {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.22em;
+  text-transform: uppercase; color: rgba(0,0,0,0.35); flex-shrink: 0;
+}
+.h-gap  { flex: 1; }
+.h-btn  {
+  font-family: inherit; font-size: 8px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  background: none; border: 1px solid rgba(0,0,0,0.2);
+  color: rgba(0,0,0,0.45); padding: 4px 10px; cursor: pointer; margin-left: 6px;
+}
+.h-btn:hover { color: var(--text); border-color: var(--text); }
+
+/* ── Two-column grid ── */
+#channels { flex: 1; display: flex; overflow: hidden; }
+
+.channel {
+  flex: 1; display: flex; flex-direction: column;
+  border-right: 1px solid var(--div); overflow: hidden;
+}
+.channel:last-of-type { border-right: none; }
+
+/* ── Channel header ── */
+.ch-hdr {
+  flex-shrink: 0; padding: 18px 20px 14px;
+  border-bottom: 1px solid var(--div);
+  display: flex; align-items: baseline; gap: 10px;
+}
+.ch-name {
+  flex: 1; min-width: 0;
+  font-size: 24px; font-weight: 700; line-height: 1; letter-spacing: -0.025em;
+  background: none; border: none; outline: none;
+  color: var(--text); font-family: inherit; cursor: text;
+}
+.ch-name::placeholder { color: rgba(0,0,0,0.2); }
+.ch-cycle {
+  font-family: inherit; font-size: 11px; font-weight: 700;
+  background: none; border: 1px solid rgba(0,0,0,0.18);
+  color: rgba(0,0,0,0.4); padding: 3px 7px; cursor: pointer; flex-shrink: 0;
+  line-height: 1;
+}
+.ch-cycle:hover { color: var(--text); border-color: var(--text); }
+.ch-add {
+  font-family: inherit; font-size: 8px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: rgba(0,0,0,0.35); background: none; border: none;
+  cursor: pointer; flex-shrink: 0;
+}
+.ch-add:hover { color: var(--text); }
+
+/* ── Item list — 2-col grid for gallery layout ── */
+.ch-list {
+  flex: 1; overflow-y: auto;
+  display: grid; grid-template-columns: 1fr 1fr;
+  align-content: start;
+  gap: 1px; background: rgba(0,0,0,0.07);
+}
+.ch-list::-webkit-scrollbar { width: 3px; }
+.ch-list::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); }
+
+/* ── Items ── */
+.item {
+  grid-column: span 2; /* default: full width */
+  padding: 16px 20px; cursor: pointer;
+  background: var(--bg);
+  position: relative;
+}
+.item:hover { background: #f9f9f9; }
+.item.sel   { background: var(--sel); }
+
+/* ── Image items — full bleed, no padding ── */
+.item.img-item {
+  padding: 0; overflow: hidden;
+}
+.item.img-item:hover { background: #f4f4f4; }
+/* Half-width (span 1 column) */
+.item.img-half { grid-column: span 1; }
+/* Full-width (span 2 columns) */
+.item.img-full { grid-column: span 2; }
+
+.item-type {
+  font-size: 7px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
+  color: rgba(0,0,0,0.28); margin-bottom: 5px;
+}
+.item-title {
+  font-size: 17px; font-weight: 700; line-height: 1.15; letter-spacing: -0.02em;
+  color: var(--text);
+}
+.item-title.untitled { color: rgba(0,0,0,0.2); }
+.item-content {
+  font-size: 12px; font-weight: 400; line-height: 1.65;
+  color: rgba(0,0,0,0.5); margin-top: 6px;
+  font-family: Georgia,'Times New Roman',serif;
+}
+
+/* ── Image placeholder blocks ── */
+.ph-img {
+  display: block; width: 100%;
+}
+/* size × height */
+.ph-img.xs  { height: 90px;  background: #ebebeb; }
+.ph-img.sm  { height: 150px; background: #e4e4e4; }
+.ph-img.md  { height: 220px; background: #dcdcdc; }
+.ph-img.lg  { height: 310px; background: #d4d4d4; }
+.ph-img.xl  { height: 420px; background: #c8c8c8; }
+
+/* ── Gallery caption block (below image) ── */
+.gal-cap {
+  padding: 9px 11px 11px;
+}
+.gal-title {
+  font-size: 8px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+  color: rgba(0,0,0,0.55);
+  font-family: 'Suisse Int\'l','HelveticaNeue','Helvetica Neue','Inter',Helvetica,Arial,sans-serif;
+}
+.gal-sub {
+  font-size: 9px; font-weight: 400; color: rgba(0,0,0,0.35); margin-top: 3px; line-height: 1.4;
+  font-family: 'Suisse Int\'l','HelveticaNeue','Helvetica Neue','Inter',Helvetica,Arial,sans-serif;
+}
+
+.item-caption {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: rgba(0,0,0,0.3); margin-top: 7px;
+}
+
+/* ── Audio ── */
+.item-audio-row {
+  display: flex; align-items: center; gap: 10px; margin-top: 2px;
+}
+.play-btn {
+  width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
+  border: 1.5px solid rgba(0,0,0,0.35); background: none;
+  color: var(--text); font-size: 8px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-family: inherit;
+}
+.play-btn:hover  { background: rgba(0,0,0,0.05); border-color: var(--text); }
+.play-btn.playing { background: var(--text); color: var(--bg); }
+
+/* ── Channel footer ── */
+.ch-footer {
+  flex-shrink: 0; padding: 9px 20px;
+  border-top: 1px solid var(--div);
+  font-size: 7px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: rgba(0,0,0,0.28);
+  display: flex; justify-content: space-between;
+}
+
+/* ── Detail panel ── */
+#detail {
+  width: 280px; flex-shrink: 0;
+  background: #f6f6f6; border-left: 1px solid var(--div);
+  display: flex; flex-direction: column;
+}
+#detail.hidden { width: 0; overflow: hidden; border: none; }
+
+#d-header {
+  padding: 13px 16px; border-bottom: 1px solid var(--div);
+  display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+}
+#d-strip  { width: 3px; height: 16px; background: var(--text); flex-shrink: 0; border-radius: 1px; }
+#d-track  {
+  flex: 1; font-size: 8px; font-weight: 700; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--dim);
+}
+#d-close  { cursor: pointer; color: var(--dim); font-size: 18px; line-height: 1; }
+#d-close:hover { color: var(--text); }
+
+#d-body {
+  flex: 1; overflow-y: auto; padding: 14px;
+  display: flex; flex-direction: column; gap: 14px;
+}
+#d-body::-webkit-scrollbar { width: 2px; }
+#d-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); }
+
+.f-label {
+  font-size: 7px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--dim); margin-bottom: 6px;
+}
+#d-title {
+  width: 100%; background: #fff; border: 1px solid rgba(0,0,0,0.18);
+  color: var(--text); font-family: inherit; font-size: 13px; font-weight: 700;
+  padding: 7px 9px; outline: none;
+}
+#d-title::placeholder { color: rgba(0,0,0,0.25); }
+#d-title:focus { border-color: var(--text); }
+#d-content {
+  width: 100%; background: #fff; border: 1px solid rgba(0,0,0,0.18);
+  color: var(--text); font-family: Georgia,'Times New Roman',serif;
+  font-size: 12px; line-height: 1.65; padding: 8px 9px;
+  outline: none; resize: vertical; min-height: 80px;
+}
+#d-content::placeholder { color: rgba(0,0,0,0.25); }
+#d-content:focus { border-color: var(--text); }
+
+.type-bar { display: flex; gap: 3px; flex-wrap: wrap; }
+.type-pill {
+  font-family: inherit; font-size: 7px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  background: none; border: 1px solid rgba(0,0,0,0.2); color: var(--dim);
+  padding: 4px 9px; cursor: pointer;
+}
+.type-pill:hover { color: var(--text); border-color: rgba(0,0,0,0.5); }
+.type-pill.on { color: var(--text); background: rgba(0,0,0,0.07); border-color: var(--text); }
+
+#d-media-section { display: flex; flex-direction: column; gap: 7px; }
+#d-media-section.hidden { display: none; }
+#d-media-url {
+  width: 100%; background: #fff; border: 1px solid rgba(0,0,0,0.18);
+  color: var(--text); font-family: inherit; font-size: 10px;
+  padding: 5px 9px; outline: none;
+}
+#d-media-url:focus { border-color: var(--text); }
+.media-row { display: flex; gap: 6px; align-items: center; }
+#d-file-btn {
+  font-family: inherit; font-size: 7px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; background: none; border: 1px solid rgba(0,0,0,0.2);
+  color: var(--dim); padding: 4px 10px; cursor: pointer; white-space: nowrap;
+}
+#d-file-btn:hover { color: var(--text); border-color: var(--text); }
+#d-file-size { font-size: 8px; color: var(--dim); }
+.media-clear { font-size: 8px; color: var(--dim); cursor: pointer; text-decoration: underline; }
+.media-clear:hover { color: var(--text); }
+#d-img-preview { max-width: 100%; max-height: 90px; object-fit: contain; display: none; }
+#d-img-preview.show { display: block; }
+#d-vid-preview { width: 100%; max-height: 90px; display: none; }
+#d-vid-preview.show { display: block; }
+#d-aud-preview { width: 100%; display: none; opacity: 0.7; }
+#d-aud-preview.show { display: block; }
+
+#d-tags { display: flex; flex-wrap: wrap; gap: 3px; }
+.t-pill {
+  font-size: 7px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  background: none; border: 1px solid rgba(0,0,0,0.18);
+  padding: 3px 7px; cursor: pointer; color: var(--dim);
+}
+.t-pill.on { background: rgba(0,0,0,0.07); border-color: var(--text); color: var(--text); }
+
+#d-footer {
+  padding: 12px 16px; border-top: 1px solid var(--div);
+  display: flex; gap: 6px; flex-shrink: 0;
+}
+.btn {
+  font-family: inherit; font-size: 8px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; padding: 6px 14px; cursor: pointer;
+  border: 1px solid rgba(0,0,0,0.3); background: none; color: var(--text);
+}
+.btn:hover { background: rgba(0,0,0,0.05); }
+.btn-del { border-color: rgba(0,0,0,0.15); color: rgba(0,0,0,0.4); }
+.btn-del:hover { background: rgba(0,0,0,0.04); color: var(--text); border-color: rgba(0,0,0,0.3); }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div id="header">
+    <span id="app-title">Diffraction Journal</span>
+    <div class="h-gap"></div>
+    <button class="h-btn" onclick="addStream()">+ Stream</button>
+    <button class="h-btn" onclick="doExport()">↓ Export</button>
+    <button class="h-btn" style="color:rgba(0,0,0,0.3)" onclick="doShuffle()">↺ Shuffle</button>
+  </div>
+
+  <div id="body">
+    <div id="channels"><!-- built by JS --></div>
+
+    <div id="detail" class="hidden">
+      <div id="d-header">
+        <div id="d-strip"></div>
+        <div id="d-track">Entry</div>
+        <div id="d-close" onclick="closeDetail()">×</div>
+      </div>
+      <div id="d-body">
+        <div>
+          <div class="f-label">Title</div>
+          <input id="d-title" type="text" placeholder="Entry title…" autocomplete="off" spellcheck="false">
+        </div>
+        <div>
+          <div class="f-label">Type</div>
+          <div class="type-bar">
+            <button class="type-pill on" data-t="text"  onclick="setClipType('text')">Text</button>
+            <button class="type-pill"    data-t="audio" onclick="setClipType('audio')">Audio</button>
+            <button class="type-pill"    data-t="image" onclick="setClipType('image')">Image</button>
+            <button class="type-pill"    data-t="video" onclick="setClipType('video')">Video</button>
+          </div>
+        </div>
+        <div id="d-media-section" class="hidden">
+          <div class="f-label">Media</div>
+          <input id="d-media-url" type="text" placeholder="Paste a URL…" autocomplete="off" spellcheck="false">
+          <div class="media-row">
+            <button id="d-file-btn" onclick="triggerFileUpload()">↑ Upload file</button>
+            <span id="d-file-size"></span>
+            <span class="media-clear" id="d-media-clear" onclick="clearMedia()" style="display:none">remove</span>
+          </div>
+          <input id="d-file-input" type="file" style="display:none" onchange="handleFileUpload(this)">
+          <img  id="d-img-preview">
+          <video id="d-vid-preview" controls playsinline></video>
+          <audio id="d-aud-preview" controls></audio>
+        </div>
+        <div>
+          <div class="f-label">Note</div>
+          <textarea id="d-content" placeholder="Observation or diffractive note…"></textarea>
+        </div>
+        <div><div class="f-label">Tags</div><div id="d-tags"></div></div>
+      </div>
+      <div id="d-footer">
+        <button class="btn" onclick="saveDetail()">Save</button>
+        <button class="btn btn-del" onclick="delClip()">Delete</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════
+// CONSTANTS
+// ════════════════════════════════════════════════
+const TAGS = ['embodiment','diffraction','intra-action','silence','affect',
+              'disruption','emergence','multispecies','relational','ecology'];
+
+const IMG_SIZES = ['xs','sm','md','lg','xl'];
+
+// ════════════════════════════════════════════════
+// CONTENT POOL — randomised on each load
+// ════════════════════════════════════════════════
+const POOL = [
+  // ─ Image placeholders ─
+  { title: 'Site photograph', type: 'image', size: 'lg',
+    caption: 'Leadership development centre, inner city' },
+  { title: 'Window, third floor', type: 'image', size: 'md',
+    caption: 'The outside pressing in' },
+  { title: 'Architectural detail', type: 'image', size: 'sm',
+    caption: 'Built environment, 2023' },
+  { title: 'Field site', type: 'image', size: 'xl',
+    caption: 'Ecological encounter zone' },
+  { title: 'Diagram fragment', type: 'image', size: 'xs',
+    caption: 'Wave interference, annotated' },
+  { title: 'Texture study', type: 'image', size: 'md',
+    caption: 'Surface, material, skin' },
+  { title: 'Threshold space', type: 'image', size: 'lg',
+    caption: 'Between built and wild' },
+  { title: 'Close observation', type: 'image', size: 'sm',
+    caption: 'Detail, field notes' },
+  { title: 'Aerial view', type: 'image', size: 'xl',
+    caption: 'Site from above, survey 2022' },
+  { title: 'Interior, morning light', type: 'image', size: 'md',
+    caption: 'Session room A, 09:00' },
+  { title: 'Landscape', type: 'image', size: 'lg',
+    caption: 'Peripheral vision during session' },
+  { title: 'Material sample', type: 'image', size: 'xs',
+    caption: 'Collected from site' },
+
+  // ─ Text items ─
+  { title: 'Barad — intra-action', type: 'text',
+    content: 'The HVAC and the leader\'s body do not pre-exist their encounter. The tension emerges in the intra-action. Matter and meaning are inseparable. What counts as a body is an ongoing materialising process.' },
+  { title: 'Leader A reflection', type: 'text',
+    content: '"When I heard the bird I felt something shift. Like the room got larger. My shoulders dropped. I hadn\'t noticed they were up."' },
+  { title: 'Staying with the trouble', type: 'text',
+    content: 'Haraway: the trouble is not resolved. The interference is not a problem to be solved but a condition to dwell in. This is not pessimism — it is diffractive realism.' },
+  { title: 'Bird as participant', type: 'text',
+    content: 'The bird was not invited. It entered the session anyway. It reorganised attention without permission. Three leaders stopped mid-sentence and turned toward it. Is this leadership?' },
+  { title: 'Diffractive reading', type: 'text',
+    content: 'Reading Barad through the session data: matter and meaning are inseparable. The sound is not just heard — it constitutes the body that hears it. The HVAC did not interrupt leadership. It produced a kind of leader.' },
+  { title: 'Ecological attention', type: 'text',
+    content: 'What if leadership practice began with listening to the room, not just the people in it? The HVAC, the light, the walls — these are already participants in the relational field.' },
+  { title: 'Threshold moment', type: 'text',
+    content: 'Three humans and one bird, briefly co-inhabiting a problem. The bird had no stake in leadership development. The encounter was generative anyway. Some of the most important data is uninvited.' },
+  { title: 'HVAC analysis', type: 'text',
+    content: 'Constant 60 Hz hum. The body habituates but the nervous system does not. After forty minutes, three participants mentioned fatigue. The room was working against them without anyone deciding this.' },
+  { title: 'Sound note', type: 'text',
+    content: '9:43 am. HVAC cycles off. Silence lasts eight seconds. Every person in the room looks up. Silence was louder than the machine. The absence named what the presence had been doing.' },
+  { title: 'HVAC and birdsong: interference', type: 'text',
+    content: 'Leader A: HVAC = antagonist. Leader B: HVAC = calming white noise. The same sound produces different bodies, different orientations, different leadership possibilities. Same frequency, different diffractions.' },
+  { title: 'Posthumanist leadership', type: 'text',
+    content: 'Leadership is not a property of individuals. It emerges in the intra-action of human and non-human forces. The bird led. The HVAC led. The silence led. The human leaders followed and did not notice.' },
+  { title: 'Practice theory note', type: 'text',
+    content: 'Practice is not what practitioners do. Practice is what gathers humans and non-humans into a temporary configuration of action. The room is a practitioner.' },
+  { title: 'Sensemaking', type: 'text',
+    content: 'Weick, 1988: sensemaking is a process of invention, not discovery. But what if sensemaking is also a material process — made in and through the body\'s encounter with its environment?' },
+  { title: 'Organisational becoming', type: 'text',
+    content: 'The organisation is not a container for human activity. It is an event — a repeating, material, more-than-human happening. The HVAC is part of the organisation.' },
+
+  // ─ Audio ─
+  { title: 'HVAC — Session 1', type: 'audio',
+    caption: '43:22  ·  ambient recording' },
+  { title: 'Birdsong, 9:43 am', type: 'audio',
+    caption: '0:34  ·  field capture' },
+  { title: 'Room tone, midday', type: 'audio',
+    caption: '1:12  ·  ambient' },
+];
+
+// ════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════
+let G = {
+  leftId:  null,   // painting ID in left panel
+  rightId: null,   // painting ID in right panel
+  paintings: [],   // [{id, name, clips, connections}]
+  sel: null,       // selected clip ID
+  selPid: null,    // painting containing selected clip
+};
+
+// ════════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════════
+function mk(tag, cls) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  return e;
+}
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function randSize() {
+  return IMG_SIZES[Math.floor(Math.random() * IMG_SIZES.length)];
+}
+function paintingById(id) { return G.paintings.find(p => p.id === id); }
+
+// ════════════════════════════════════════════════
+// RANDOM SEED — always regenerates on load
+// ════════════════════════════════════════════════
+function randomSeed() {
+  const streamNames = [
+    'Channel A', 'Channel B', 'Channel C', 'Channel D',
+  ];
+  G.paintings = streamNames.map((name, i) => {
+    const pool  = shuffle(POOL);
+    const n     = 3 + Math.floor(Math.random() * 6); // 3–8 items
+    const clips = pool.slice(0, n).map((item, j) => {
+      const size = item.size || randSize();
+      // Large sizes → full width; small/med → coin-flip half or full
+      const span = item.type === 'image'
+        ? (['xl','lg'].includes(size) ? 2 : Math.random() < 0.55 ? 1 : 2)
+        : 2;
+      return {
+        id:       `p${i}c${j}`,
+        order:    j,
+        title:    item.title   || '',
+        content:  item.content || '',
+        caption:  item.caption || '',
+        type:     item.type    || 'text',
+        mediaUrl: '',
+        phSize:   size,
+        phSpan:   span,
+        tags:     [],
+      };
+    });
+    return { id: `p${i}`, name, clips, connections: [] };
+  });
+
+  G.leftId  = 'p0';
+  G.rightId = 'p1';
+  G.sel = null; G.selPid = null;
+}
+
+// ════════════════════════════════════════════════
+// PERSIST
+// ════════════════════════════════════════════════
+// (Not used for seeded content, but kept for user-added entries)
+function saveG() {
+  try {
+    localStorage.setItem('dj-v6', JSON.stringify({
+      leftId: G.leftId, rightId: G.rightId, paintings: G.paintings,
+    }));
+  } catch(e) {}
+}
+
+// ════════════════════════════════════════════════
+// RENDER
+// ════════════════════════════════════════════════
+function render() {
+  renderChannels();
+  renderDetail();
+}
+
+function renderChannels() {
+  const wrap = document.getElementById('channels');
+  wrap.innerHTML = '';
+  wrap.appendChild(buildChannel(paintingById(G.leftId),  'left'));
+  wrap.appendChild(buildChannel(paintingById(G.rightId), 'right'));
+}
+
+function buildChannel(painting, side) {
+  const ch = mk('div', 'channel');
+  if (!painting) {
+    const empty = mk('div');
+    empty.style.cssText = 'padding:40px 20px;color:rgba(0,0,0,0.2);font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;';
+    empty.textContent = 'No stream';
+    ch.appendChild(empty);
+    return ch;
+  }
+
+  // ── Channel header ──
+  const hdr = mk('div', 'ch-hdr');
+
+  const nameInp = mk('input', 'ch-name');
+  nameInp.value       = painting.name;
+  nameInp.placeholder = 'Stream name';
+  nameInp.spellcheck  = false;
+  nameInp.addEventListener('blur', () => {
+    if (nameInp.value.trim()) painting.name = nameInp.value.trim();
+    saveG();
+  });
+  nameInp.addEventListener('keydown', e => { if (e.key === 'Enter') nameInp.blur(); e.stopPropagation(); });
+
+  const prevBtn = mk('button', 'ch-cycle');
+  prevBtn.textContent = '←';
+  prevBtn.title = 'Previous stream';
+  prevBtn.addEventListener('click', () => cyclePainting(side, -1));
+
+  const nextBtn = mk('button', 'ch-cycle');
+  nextBtn.textContent = '→';
+  nextBtn.title = 'Next stream';
+  nextBtn.addEventListener('click', () => cyclePainting(side, 1));
+
+  const addBtn = mk('button', 'ch-add');
+  addBtn.textContent = '+ Add';
+  addBtn.addEventListener('click', () => addClip(painting.id));
+
+  hdr.appendChild(nameInp);
+  hdr.appendChild(prevBtn);
+  hdr.appendChild(nextBtn);
+  hdr.appendChild(addBtn);
+  ch.appendChild(hdr);
+
+  // ── Item list ──
+  const list = mk('div', 'ch-list');
+  const sorted = [...painting.clips].sort((a, b) => a.order - b.order);
+  sorted.forEach(clip => list.appendChild(buildItem(clip, painting.id)));
+
+  // Empty state
+  if (!sorted.length) {
+    const em = mk('div');
+    em.style.cssText = 'padding:32px 20px;color:rgba(0,0,0,0.18);font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;';
+    em.textContent = 'Empty — click + Add';
+    list.appendChild(em);
+  }
+
+  ch.appendChild(list);
+
+  // ── Footer ──
+  const footer = mk('div', 'ch-footer');
+  const pidx   = G.paintings.findIndex(p => p.id === painting.id) + 1;
+  const ptotal = G.paintings.length;
+  const tcount = {};
+  painting.clips.forEach(c => { tcount[c.type||'text'] = (tcount[c.type||'text']||0) + 1; });
+  const parts = Object.entries(tcount).filter(([,v]) => v).map(([k,v]) => `${v} ${k}`);
+  const left  = `${pidx} / ${ptotal}`;
+  const right = parts.join('  ·  ') || 'empty';
+  footer.innerHTML = `<span>${left}</span><span>${right}</span>`;
+  ch.appendChild(footer);
+
+  return ch;
+}
+
+// ════════════════════════════════════════════════
+// ITEM BUILDER
+// ════════════════════════════════════════════════
+function buildItem(clip, paintingId) {
+  const type = clip.type || 'text';
+  const item = mk('div', 'item');
+  item.dataset.id = clip.id;
+  if (clip.id === G.sel) item.classList.add('sel');
+
+  item.addEventListener('click', e => {
+    e.stopPropagation();
+    G.sel = clip.id; G.selPid = paintingId;
+    render();
+  });
+
+  if (type === 'image') {
+    // ── Gallery image item ──
+    item.classList.add('img-item');
+    item.classList.add(clip.phSpan === 1 ? 'img-half' : 'img-full');
+
+    // Full-bleed placeholder or real image
+    if (clip.mediaUrl) {
+      const img = mk('img', 'ph-img ' + (clip.phSize || 'md'));
+      img.src = clip.mediaUrl; img.alt = clip.title || '';
+      img.style.cssText = 'display:block;width:100%;object-fit:cover;';
+      item.appendChild(img);
+    } else {
+      item.appendChild(mk('div', 'ph-img ' + (clip.phSize || 'md')));
+    }
+
+    // Minimal gallery caption below
+    const cap = mk('div', 'gal-cap');
+    if (clip.title) {
+      const t = mk('div', 'gal-title'); t.textContent = clip.title; cap.appendChild(t);
+    }
+    if (clip.caption) {
+      const s = mk('div', 'gal-sub'); s.textContent = clip.caption; cap.appendChild(s);
+    }
+    item.appendChild(cap);
+
+  } else {
+    // ── Non-image: type badge ──
+    const badge = mk('div', 'item-type');
+    badge.textContent = type.toUpperCase();
+    item.appendChild(badge);
+  }
+
+  if (type === 'audio') {
+    const row = mk('div', 'item-audio-row');
+    const isPlaying = _audioClipId === clip.id && _audio && !_audio.paused;
+    const pb = mk('button', 'play-btn' + (isPlaying ? ' playing' : ''));
+    pb.textContent = isPlaying ? '⏸' : '▶';
+    pb.addEventListener('click', e => { e.stopPropagation(); toggleAudio(clip, pb); });
+    const title = mk('span', 'item-title');
+    title.textContent = clip.title || 'Untitled Audio';
+    if (!clip.title) title.classList.add('untitled');
+    row.appendChild(pb);
+    row.appendChild(title);
+    item.appendChild(row);
+    if (clip.caption) {
+      const cap = mk('div', 'item-caption');
+      cap.textContent = clip.caption;
+      item.appendChild(cap);
+    }
+
+  } else if (type === 'video') {
+    const t = mk('div', 'item-title');
+    t.textContent = clip.title || 'Untitled Video';
+    if (!clip.title) t.classList.add('untitled');
+    item.appendChild(t);
+    if (clip.mediaUrl) {
+      const vid = mk('video', 'ph-img ' + (clip.phSize || 'md'));
+      vid.src = clip.mediaUrl; vid.muted = true; vid.playsInline = true;
+      vid.addEventListener('mouseenter', () => vid.play().catch(() => {}));
+      vid.addEventListener('mouseleave', () => { vid.pause(); vid.currentTime = 0; });
+      item.appendChild(vid);
+    } else {
+      const ph = mk('div', 'ph-img ' + (clip.phSize || 'md'));
+      item.appendChild(ph);
+    }
+    if (clip.caption) {
+      const cap = mk('div', 'item-caption');
+      cap.textContent = clip.caption;
+      item.appendChild(cap);
+    }
+
+  } else if (type === 'text') {
+    const t = mk('div', 'item-title');
+    t.textContent = clip.title || 'Untitled';
+    if (!clip.title) t.classList.add('untitled');
+    item.appendChild(t);
+    if (clip.content) {
+      const c = mk('div', 'item-content');
+      c.textContent = clip.content;
+      item.appendChild(c);
+    }
+  }
+
+  return item;
+}
+
+// ════════════════════════════════════════════════
+// AUDIO
+// ════════════════════════════════════════════════
+let _audio = null, _audioClipId = null;
+function toggleAudio(clip, btn) {
+  if (!clip.mediaUrl) { G.sel = clip.id; render(); return; }
+  if (_audioClipId === clip.id && _audio) {
+    if (_audio.paused) { _audio.play(); btn.textContent = '⏸'; btn.classList.add('playing'); }
+    else               { _audio.pause(); btn.textContent = '▶'; btn.classList.remove('playing'); }
+  } else {
+    if (_audio) _audio.pause();
+    _audioClipId = clip.id;
+    _audio = new Audio(clip.mediaUrl);
+    _audio.play().catch(() => {});
+    btn.textContent = '⏸'; btn.classList.add('playing');
+    _audio.addEventListener('ended', () => {
+      _audioClipId = null; _audio = null;
+      btn.textContent = '▶'; btn.classList.remove('playing');
+    });
+  }
+}
+
+// ════════════════════════════════════════════════
+// CHANNEL ACTIONS
+// ════════════════════════════════════════════════
+function cyclePainting(side, dir) {
+  const currentId = side === 'left' ? G.leftId : G.rightId;
+  const idx = G.paintings.findIndex(p => p.id === currentId);
+  const newIdx = (idx + dir + G.paintings.length) % G.paintings.length;
+  const newId  = G.paintings[newIdx].id;
+  if (side === 'left')  G.leftId  = newId;
+  else                  G.rightId = newId;
+  G.sel = null; G.selPid = null;
+  saveG(); render();
+}
+
+function addStream() {
+  const id   = 'p' + Date.now();
+  const name = 'Channel ' + String.fromCharCode(65 + G.paintings.length);
+  G.paintings.push({ id, name, clips: [], connections: [] });
+  saveG(); render();
+}
+
+// ════════════════════════════════════════════════
+// CLIP ACTIONS
+// ════════════════════════════════════════════════
+function addClip(paintingId) {
+  const p = paintingById(paintingId); if (!p) return;
+  const clip = {
+    id: 'c' + Date.now(), order: p.clips.length,
+    title: '', content: '', caption: '', type: 'text',
+    mediaUrl: '', phSize: randSize(), tags: [],
+  };
+  p.clips.push(clip);
+  G.sel = clip.id; G.selPid = paintingId;
+  saveG(); render();
+  setTimeout(() => document.getElementById('d-title').focus(), 80);
+}
+
+function closeDetail() { G.sel = null; G.selPid = null; render(); }
+
+function saveDetail() {
+  if (!G.sel || !G.selPid) return;
+  const p = paintingById(G.selPid); if (!p) return;
+  const clip = p.clips.find(c => c.id === G.sel); if (!clip) return;
+  clip.title   = document.getElementById('d-title').value;
+  clip.content = document.getElementById('d-content').value;
+  saveG(); render();
+}
+
+function delClip() {
+  if (!G.sel || !G.selPid) return;
+  const p = paintingById(G.selPid); if (!p) return;
+  p.clips = p.clips.filter(c => c.id !== G.sel);
+  G.sel = null; G.selPid = null;
+  saveG(); render();
+}
+
+function setClipType(type) {
+  if (!G.sel || !G.selPid) return;
+  const p = paintingById(G.selPid);
+  const clip = p?.clips.find(c => c.id === G.sel); if (!clip) return;
+  clip.type = type; saveG(); renderDetail(); render();
+}
+
+function toggleTag(clipId, tag) {
+  if (!G.selPid) return;
+  const p = paintingById(G.selPid);
+  const clip = p?.clips.find(c => c.id === clipId); if (!clip) return;
+  clip.tags = clip.tags || [];
+  const i = clip.tags.indexOf(tag);
+  if (i === -1) clip.tags.push(tag); else clip.tags.splice(i, 1);
+  saveG(); renderDetail();
+}
+
+function triggerFileUpload() { document.getElementById('d-file-input').click(); }
+function handleFileUpload(input) {
+  const file = input.files[0]; if (!file) return;
+  if (!G.sel || !G.selPid) return;
+  const p = paintingById(G.selPid);
+  const clip = p?.clips.find(c => c.id === G.sel); if (!clip) return;
+  const reader = new FileReader();
+  reader.onload = e => { clip.mediaUrl = e.target.result; saveG(); renderDetail(); render(); input.value = ''; };
+  reader.readAsDataURL(file);
+}
+function clearMedia() {
+  if (!G.sel || !G.selPid) return;
+  const p = paintingById(G.selPid);
+  const clip = p?.clips.find(c => c.id === G.sel); if (!clip) return;
+  clip.mediaUrl = ''; saveG(); renderDetail(); render();
+}
+
+// ════════════════════════════════════════════════
+// DETAIL PANEL
+// ════════════════════════════════════════════════
+function renderDetail() {
+  const panel = document.getElementById('detail');
+  if (!G.sel || !G.selPid) { panel.classList.add('hidden'); return; }
+  const p = paintingById(G.selPid);
+  const clip = p?.clips.find(c => c.id === G.sel);
+  if (!clip) { panel.classList.add('hidden'); return; }
+  panel.classList.remove('hidden');
+
+  document.getElementById('d-track').textContent = p.name;
+  document.getElementById('d-title').value   = clip.title   || '';
+  document.getElementById('d-content').value = clip.content || '';
+
+  const type = clip.type || 'text';
+  document.querySelectorAll('.type-pill').forEach(btn => btn.classList.toggle('on', btn.dataset.t === type));
+  const ms = document.getElementById('d-media-section');
+  ms.classList.toggle('hidden', type === 'text');
+
+  if (type !== 'text') {
+    const mediaUrl = clip.mediaUrl || '';
+    document.getElementById('d-media-url').value = (mediaUrl.startsWith('data:')) ? '' : mediaUrl;
+    document.getElementById('d-media-url').placeholder =
+      type === 'audio' ? 'Paste audio URL…' : type === 'image' ? 'Paste image URL…' : 'Paste video URL…';
+    document.getElementById('d-file-input').accept =
+      type === 'audio' ? 'audio/*' : type === 'image' ? 'image/*' : 'video/*';
+    const kb = mediaUrl.startsWith('data:')
+      ? Math.round(mediaUrl.length * 0.75 / 1024) : 0;
+    document.getElementById('d-file-size').textContent = kb ? (kb>1024 ? (kb/1024).toFixed(1)+' MB' : kb+' KB') : '';
+    document.getElementById('d-media-clear').style.display = mediaUrl ? '' : 'none';
+    const img = document.getElementById('d-img-preview'),
+          vid = document.getElementById('d-vid-preview'),
+          aud = document.getElementById('d-aud-preview');
+    img.className = ''; vid.className = ''; aud.className = '';
+    if (type === 'image' && mediaUrl) { img.src = mediaUrl; img.className = 'show'; }
+    if (type === 'video' && mediaUrl) { vid.src = mediaUrl; vid.className = 'show'; }
+    if (type === 'audio' && mediaUrl) { aud.src = mediaUrl; aud.className = 'show'; }
+  }
+
+  document.getElementById('d-tags').innerHTML = TAGS.map(tag =>
+    `<span class="t-pill ${(clip.tags||[]).includes(tag)?'on':''}" onclick="toggleTag('${clip.id}','${tag}')">${tag}</span>`
+  ).join('');
+}
+
+// ════════════════════════════════════════════════
+// MEDIA URL INPUT
+// ════════════════════════════════════════════════
+function initMediaUrlInput() {
+  const inp = document.getElementById('d-media-url');
+  const commit = () => {
+    if (!G.sel || !G.selPid) return;
+    const p = paintingById(G.selPid);
+    const clip = p?.clips.find(c => c.id === G.sel); if (!clip) return;
+    const val = inp.value.trim();
+    if (val && !val.startsWith('(')) { clip.mediaUrl = val; saveG(); renderDetail(); render(); }
+  };
+  inp.addEventListener('blur', commit);
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') inp.blur(); });
+}
+
+// ════════════════════════════════════════════════
+// SHUFFLE / EXPORT
+// ════════════════════════════════════════════════
+function doShuffle() {
+  randomSeed();
+  render();
+}
+
+function doExport() {
+  const lp = paintingById(G.leftId);
+  const rp = paintingById(G.rightId);
+  const blob = new Blob([JSON.stringify({
+    left:  { name: lp?.name, clips: lp?.clips.map(({mediaUrl,...r}) => r) },
+    right: { name: rp?.name, clips: rp?.clips.map(({mediaUrl,...r}) => r) },
+    exported: new Date().toISOString(),
+  }, null, 2)], { type: 'application/json' });
+  const a = mk('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'diffraction-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+}
+
+// ════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  randomSeed(); // fresh arrangement every load
+  initMediaUrlInput();
+  render();
+  document.getElementById('d-title').addEventListener('blur', saveDetail);
+  document.getElementById('d-content').addEventListener('blur', saveDetail);
+});
+</script>
+</body>
+</html>

@@ -209,11 +209,8 @@
         padding: 12px 14px;
         border-radius: 0;
       }
-      #annotations-link {
-        top: 14px;
-        right: 14px;
-        font-size: 8px;
-      }
+      #annotations-link  { top: 14px; right: 14px; font-size: 8px; }
+      #conferences-link  { top: 30px; right: 14px; font-size: 8px; }
       .label-concept { font-size: 11px; }
       .label-ref      { font-size: 10px; }
     }
@@ -223,10 +220,9 @@
       .label-concept { font-size: 10px; }
       .label-ref      { font-size: 9px; }
     }
-    /* ── Annotations link ── */
-    #annotations-link {
+    /* ── Nav links (top-right) ── */
+    .nav-corner-link {
       position: fixed;
-      top: 32px;
       right: 36px;
       font-size: 10px;
       font-weight: 300;
@@ -238,22 +234,25 @@
       transition: color 0.2s;
       pointer-events: auto;
     }
-    #annotations-link:hover { color: rgba(255,255,255,0.88); }
-    #annotations-link::after { content: " →"; }
+    .nav-corner-link:hover { color: rgba(255,255,255,0.88); }
+    .nav-corner-link::after { content: " →"; }
+    #annotations-link  { top: 28px; }
+    #conferences-link  { top: 48px; }
   </style>
 </head>
 <body>
 
 <!-- Title -->
 <div id="title-block">
-  <div id="title-main">Organizational Worldviews:<br>Leadership, Culture, and More-than-Human Practice</div>
+  <div id="title-main">Organizational Worldviews:<br>Values, Culture, and More-than-Human</div>
   <div id="title-sub">Posthumanism · Relational OB · Indigenous Worldviews · Practice Theory · Sensemaking · Regeneration</div>
 </div>
 
-<div id="research-question">How do dominant and alternative organizational worldviews constitute what counts as legitimate leadership, culture, and organizing — and what might alternative worldviews make possible that dominant ones foreclose?</div>
+<div id="research-question">How do dominant and alternative organizational worldviews constitute what counts as legitimate values, culture, and organizing — and what might alternative worldviews make possible that dominant ones foreclose?</div>
 <div id="meta">mbejtlich &nbsp;·&nbsp; doctoral directed study &nbsp;·&nbsp; <span id="source-count">69</span> sources &nbsp;·&nbsp; 2025–2026</div>
 <div id="hint">scroll to zoom &nbsp;·&nbsp; drag to pan &nbsp;·&nbsp; click theme to open info</div>
-<a id="annotations-link" href="annotations.html">Annotations</a>
+<a id="annotations-link"  class="nav-corner-link" href="annotations.html">Annotations</a>
+<a id="conferences-link" class="nav-corner-link" href="conferences.html">Conferences</a>
 
 <!-- Info panel -->
 <div id="info-panel">

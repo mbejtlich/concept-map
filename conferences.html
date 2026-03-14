@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conferences — Organizational Worldviews</title>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    a { text-decoration: none; }
+
+    :root {
+      --ink:   #111111;
+      --rule:  #111111;
+      --ff:    'Suisse Intl', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      --serif: 'EB Garamond', Georgia, serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: #ffffff;
+      color: var(--ink);
+      font-family: var(--ff);
+      font-size: 16px;
+      line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Table (fills page, matches annotations) ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      padding: 0 24px;
+    }
+
+    /* Sticky header — exact match to annotations.html */
+    thead th {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 10px 0;
+      background: #ffffff;
+      border-bottom: 1px solid var(--ink);
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      font-weight: 400;
+      vertical-align: middle;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    /* Nav links — exact match to annotations.html */
+    .map-link {
+      color: var(--ink);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-size: 14px;
+    }
+    .map-link:hover { opacity: 0.5; }
+
+    td {
+      padding: 20px 0;
+      vertical-align: top;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    /* Column widths */
+    .col-num   { width: 10%;  padding-left: 24px; font-variant-numeric: tabular-nums; vertical-align: middle; }
+    .col-name  { width: 50%;  padding-right: 28px; }
+    .col-type  { width: 16%;  vertical-align: middle; }
+    .col-dead  { width: 24%;  vertical-align: top; padding-right: 24px; }
+
+    thead th.col-num  { padding-left: 24px; }
+    thead th.col-dead { padding-right: 24px; }
+
+    /* Entry name & host */
+    .entry-name {
+      font-size: 22px;
+      font-weight: 400;
+      line-height: 1.3;
+      margin-bottom: 4px;
+    }
+    .entry-host {
+      font-size: 12px;
+      letter-spacing: 0.02em;
+      line-height: 1.4;
+    }
+
+    /* Type badge */
+    .type-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      border: 1px solid var(--ink);
+      border-radius: 100px;
+      padding: 4px 12px;
+    }
+
+    /* Deadline column */
+    .dl-label { font-size: 15px; font-weight: 400; margin-bottom: 3px; padding-top: 10px; }
+    .dl-sub   { font-size: 12px; letter-spacing: 0.02em; }
+
+    /* Deadline status — keep red urgent, keep blue desc */
+    .urgent { color: #cc2222; }
+    .open   { color: #111111; }
+    .closed { color: #111111; }
+
+    /* Row interaction */
+    .entry-row { cursor: pointer; }
+
+    /* Detail row */
+    .entry-detail { display: none; }
+    .entry-detail.open { display: table-row; }
+    .entry-detail td { padding-top: 0; border-bottom: 1px solid var(--ink); background: #ffffff; }
+    .detail-inner { padding: 4px 28px 36px 0; }
+
+    /* Big Garamond description — keep blue */
+    .detail-desc {
+      font-family: var(--serif);
+      font-size: 24px;
+      line-height: 1.6;
+      color: #2255cc;
+      padding: 20px 0 24px;
+      max-width: 720px;
+    }
+
+    /* Relevance section */
+    .detail-sec {
+      font-size: 11px;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .detail-relevance {
+      font-size: 15px;
+      line-height: 1.7;
+      margin-bottom: 20px;
+      max-width: 680px;
+    }
+
+    /* Event meta */
+    .detail-event {
+      font-size: 12px;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    /* Link */
+    .detail-link {
+      font-size: 12px;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--ink);
+      border-bottom: 1px solid var(--ink);
+      padding-bottom: 1px;
+      transition: opacity 0.15s;
+    }
+    .detail-link:hover { opacity: 0.4; }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .col-type { display: none; }
+      .col-num  { width: 12%; }
+      .col-name { width: 58%; }
+      .col-dead { width: 30%; }
+      .entry-name { font-size: 15px; }
+      thead th { padding: 8px 0; font-size: 11px; }
+      .map-link { display: inline; font-size: 11px; }
+    }
+    @media (max-width: 480px) {
+      .col-num { display: none; }
+      .col-name { width: 65%; }
+      .col-dead { width: 35%; }
+    }
+  </style>
+</head>
+<body>
+
+<table>
+  <thead>
+    <tr>
+      <th class="col-num">
+        <a href="index.html" class="map-link">← Map</a>
+      </th>
+      <th class="col-name">Conference</th>
+      <th class="col-type">Type</th>
+      <th class="col-dead">Deadline</th>
+    </tr>
+  </thead>
+  <tbody id="conf-body"></tbody>
+</table>
+
+<script>
+const CONF = [
+  {
+    num: "01",
+    name: "Beyond Humanism: AI, Education & Multispecies Sustainability",
+    host: "16th Beyond Humanism Conference — West University of Timișoara",
+    type: "Conference",
+    deadline: "31 Mar 2026",
+    dlStatus: "urgent",
+    eventDate: "1–4 Jul 2026",
+    location: "Timișoara, Romania",
+    desc: "A sustained dialogue across Humanism, Transhumanism, and Critical Posthumanism. Abstracts of ~300 words to bhcsubmissions@gmail.com.",
+    relevance: "Direct alignment with my posthumanist turn — Barad, Braidotti, Haraway, Deleuze & Guattari — and multispecies sustainability central to my research question. Shortest runway of all open calls.",
+    url: "https://www.icnova.fcsh.unl.pt/en/call-for-papers-16th-beyond-humanism-conference/"
+  },
+  {
+    num: "02",
+    name: "Organization Studies: Nomadic Life and Organizing in Forcible Migration",
+    host: "Special Issue — Organization Studies (SAGE)",
+    type: "Special Issue",
+    deadline: "30 Apr 2026",
+    dlStatus: "open",
+    eventDate: "Rolling publication",
+    location: "",
+    desc: "Examines the ethico-political implications of organizing in forcible migration — marginalized knowledges, relational accountability, and alternative organizational logics in contexts of displacement.",
+    relevance: "Connects to my decolonial cluster — Tuck & Yang, Banerjee, Tuhiwai Smith — and my central question about what organizing forecloses versus makes possible.",
+    url: "https://journals.sagepub.com/page/oss/call-for-papers"
+  },
+  {
+    num: "03",
+    name: "Organization Studies Research Network: Organization in Uncertain Worlds",
+    host: "26th International Conference — Transition Collective, Copenhagen",
+    type: "Conference",
+    deadline: "~25 May 2026",
+    dlStatus: "open",
+    eventDate: "25–26 Jun 2026",
+    location: "Copenhagen + Online (hybrid)",
+    desc: "Annual meeting of the Organization Studies Research Network. Special focus: navigating cultural differences, volatility, and rapidly shifting global environments. Hybrid format integrating in-person and asynchronous participation. Proposals accepted rolling until one month prior.",
+    relevance: "Good venue for leadership, culture, and sensemaking work — Weick, Schein, Gioia, Maitlis & Christianson — all central to my bibliography. Accessible hybrid format.",
+    url: "https://organization-studies.com/2026-conference/call-for-papers"
+  },
+  {
+    num: "04",
+    name: "ephemera: Neoliberalism for Losers — Reclaiming Well-Being",
+    host: "Special Issue — ephemera: Theory & Politics in Organization",
+    type: "Special Issue",
+    deadline: "1 Jun 2026",
+    dlStatus: "open",
+    eventDate: "Rolling publication",
+    location: "",
+    desc: "Explores how those marginalized by the achievement society might find well-being through unproductive being and resistance to neoliberal productivity. Articles, notes, reviews, and interviews welcome. Max 8,000 words. Submit to Benjamin.richards@northumbria.ac.uk. Diamond open access, no fees.",
+    relevance: "Speaks to my care ethics sources (Tronto, Held), eco-feminist critique (Plumwood), and apocalyptic reflexivity (Carollo et al.) — particularly the question of what alternative worldviews make possible that dominant ones foreclose.",
+    url: "https://ephemerajournal.org/node/5162"
+  },
+  {
+    num: "05",
+    name: "ephemera Conference: Beyond the Mind — Eco-Embodied Scholarship",
+    host: "ephemera + Ecological Crises & Organization Network",
+    type: "Conference",
+    deadline: "Check site",
+    dlStatus: "open",
+    eventDate: "8–11 Jun 2026",
+    location: "TBC",
+    desc: "Convened by George Ferns, Friederike Döbbe, and Steffen Böhm in collaboration with the Ecological Crises & Organization Network. Focused on organising for eco-embodied scholarship — scholarship that refuses to extract the mind from its bodily, ecological, and more-than-human entanglements.",
+    relevance: "Exceptionally strong fit with my §7 sources: Ingold's dwelling and skill, Capra's web of life, Whiteman & Cooper's ecological embeddedness, and the posthumanist practice turn. Likely the most intellectually proximate conference to my argument.",
+    url: "https://ephemerajournal.org/ephemera-events"
+  },
+  {
+    num: "06",
+    name: "EGOS 2026: Reframing Organizations in the More-than-Human Society",
+    host: "42nd EGOS Colloquium — University of Bergamo",
+    type: "Conference",
+    deadline: "Full paper: 15 Jun 2026",
+    dlStatus: "open",
+    eventDate: "9–11 Jul 2026",
+    location: "Bergamo, Italy (primarily online)",
+    desc: "The overarching theme foregrounds more-than-human relations and what they mean for organizations and organizing. Key sub-themes: ST17 Routine Dynamics in the More-than-Human Sphere; ST18 Agency — Human, More-than- and Other-than-Human; ST19 Alternative Epistemologies and Organizational Alternatives; ST25 Critical Reflections on More-than-Human Ways of Knowing (Bobby Banerjee); ST40 Organizing Decolonial and Queer Ecologies; ST41 Organizing with Earthly Entanglements (Maria Ehrnström-Fuentes). Short paper deadline passed Jan 7 — full papers due June 15 for accepted submissions only.",
+    relevance: "The single most aligned major conference for my research. The theme directly mirrors my research question. Multiple sub-themes map exactly onto my nine bibliography sections. Ehrnström-Fuentes and Banerjee — both in my source list — are sub-theme convenors.",
+    url: "https://www.egos.org/2026_Bergamo/General_Theme"
+  },
+  {
+    num: "07",
+    name: "EURAM 2026: Navigating High Waters",
+    host: "European Academy of Management — University of Agder",
+    type: "Conference",
+    deadline: "Closed Jan 7, 2026",
+    dlStatus: "closed",
+    eventDate: "16–19 Jun 2026",
+    location: "Kristiansand, Norway",
+    desc: "Annual EURAM conference on organizational resilience, paradox management, agility, and innovative business models in an era of disruption. 13 Strategic Interest Groups covering sustainability, strategy, and management practice. Proceedings published ISSN 2466-7498.",
+    relevance: "Strong for organizational theory broadly. Less critical-theory aligned than EGOS or ephemera — better suited for empirical or applied work. Note Jan 2027 deadline for next cycle.",
+    url: "https://conferences.euram.academy/2026conference/"
+  },
+  {
+    num: "08",
+    name: "SCOS 2026: The Sacred and Organizations",
+    host: "Standing Conference on Organizational Symbolism — Salvador, Brazil",
+    type: "Conference",
+    deadline: "Closed Feb 23, 2026",
+    dlStatus: "closed",
+    eventDate: "2026 — Date TBC",
+    location: "Salvador, Brazil",
+    desc: "SCOS examines organizational symbolism, culture, and change through interdisciplinary lenses. This year's theme explores the sacred, religious syncretism, African-origin religions, and resistance in organizational life. Linked publication opportunity in Culture and Organization journal.",
+    relevance: "Connects to my §1–2 sources on organizational culture (Schein), Deleuzian creativity, and the aesthetic dimensions of organizing. The sacred-as-resistance angle also speaks to indigenous worldviews. A strong note-for-next-year conference.",
+    url: "https://www.scos.org/scos-2026"
+  },
+  {
+    num: "09",
+    name: "AOM 2026: 86th Annual Meeting",
+    host: "Academy of Management — Philadelphia, PA",
+    type: "Conference",
+    deadline: "Closed Jan 13, 2026",
+    dlStatus: "closed",
+    eventDate: "10–14 Aug 2026",
+    location: "Philadelphia, PA",
+    desc: "The world's largest annual gathering of management scholars (~10,000 attendees). Most relevant divisions: Critical Management Studies (CMS), Organizations and the Natural Environment (ONE), Management, Spirituality & Religion (MSR), and Gender & Diversity in Organizations (GDO). Submission for the 2027 meeting opens December 2026.",
+    relevance: "CMS division directly aligns with my critical, posthumanist framing. The ONE division covers ecological embeddedness and regenerative organizing. Start preparing now for the 2027 AOM cycle.",
+    url: "https://www.aom.org/event-calendar/aom-2026-annual-meeting/"
+  },
+  {
+    num: "10",
+    name: "Organization Studies: Alternative Organising and Degrowth",
+    host: "Special Issue — Organization Studies (SAGE)",
+    type: "Special Issue",
+    deadline: "30 Sep 2026",
+    dlStatus: "open",
+    eventDate: "Submission window: Aug 30 – Sep 30",
+    location: "",
+    desc: "Countering Capitalist Polycrisis and Organising Liveable Worlds. Seeks work that challenges growth imperatives and imagines post-capitalist organizing — alternative organizations, commons, care economies, degrowth. Submission window opens August 30.",
+    relevance: "Exceptionally strong fit with my entire research framing. Alternative worldviews, what dominant ones foreclose, regenerative and indigenous organizing. My §6–7 sources (Reed, Oberholzer, Capra, Wahl) map directly onto this call.",
+    url: "https://journals.sagepub.com/page/oss/call-for-papers"
+  },
+  {
+    num: "11",
+    name: "Organization Studies: Embodying Processes",
+    host: "Special Issue — Organization Studies (SAGE)",
+    type: "Special Issue",
+    deadline: "30 Sep 2026",
+    dlStatus: "open",
+    eventDate: "Rolling publication",
+    location: "",
+    desc: "Invites theoretical and empirical work on embodiment, affect, and processual approaches to organizational life. Engages posthumanist, phenomenological, and sociomaterial frameworks. Organizational becoming, practice, and more-than-human agency are core concerns.",
+    relevance: "Connects to my practice theory sources (Nicolini, Gherardi, Schatzki), sociomateriality (Orlikowski), and the more-than-human turn (de Vaujany et al., Barad). Ingold's dwelling and skill sits naturally here too.",
+    url: "https://journals.sagepub.com/page/oss/call-for-papers"
+  },
+  {
+    num: "12",
+    name: "ANZAM 2026: Navigating Complexity — People, Planet, Performance",
+    host: "39th ANZAM Conference — University of Newcastle, NSW",
+    type: "Conference",
+    deadline: "Submissions opening soon",
+    dlStatus: "open",
+    eventDate: "30 Nov – 3 Dec 2026",
+    location: "Newcastle, NSW, Australia",
+    desc: "Australian and New Zealand Academy of Management annual conference. Theme: adaptive strategies amid interdependent social, environmental, and economic pressures. Doctoral workshop 30 Nov; main conference 1–3 Dec at Newcastle University City Campus (Nuspace). Early bird registration closes 28 Sep 2026.",
+    relevance: "My primary regional conference as an Australian-based PhD researcher. The Planet and complexity framing aligns with my ecological embeddedness and regenerative organizing threads. Strong for building local scholarly community.",
+    url: "https://anzamconference.org/"
+  },
+  {
+    num: "13",
+    name: "ephemera: Theory & Politics in Organization",
+    host: "Diamond Open Access Journal — Rolling Submissions",
+    type: "Journal",
+    deadline: "Rolling",
+    dlStatus: "open",
+    eventDate: "—",
+    location: "",
+    desc: "Independent journal founded 2001, published at the margins of organization studies. Publishes original theoretical and empirical work up to 8,000 words: articles, notes, reviews, interviews. Double-blind peer review. ~52 weeks to publication. No fees. Submit to editors@ephemerajournal.org.",
+    relevance: "My most natural journal home. Publishes work in posthumanism, critical theory, care ethics, and alternative organizing. Many of my core sources — Ehrnström-Fuentes, Wenzel, Carollo et al. — have appeared in this or closely adjacent venues. Best suited to my conceptual and theoretical contributions.",
+    url: "https://ephemerajournal.org/how-submit"
+  },
+  {
+    num: "14",
+    name: "Australian Journal of Environmental Education",
+    host: "Cambridge University Press — Rolling Submissions",
+    type: "Journal",
+    deadline: "Rolling",
+    dlStatus: "open",
+    eventDate: "—",
+    location: "",
+    desc: "Peer-reviewed journal publishing research on environmental education, ecological literacy, sustainability pedagogy, and place-based learning. Accepts qualitative, quantitative, and theoretical contributions. Published by Cambridge University Press for the Australian Association for Environmental Education.",
+    relevance: "Bridges my §5–6 sources on ecological embeddedness and Indigenous worldviews (Tuhiwai Smith, Tuck & Yang, Todd) with educational contexts. Particularly strong if my argument speaks to pedagogy, outdoor learning, or country-based knowledge practices.",
+    url: "https://www.cambridge.org/core/journals/australian-journal-of-environmental-education"
+  },
+  {
+    num: "15",
+    name: "Management Learning",
+    host: "SAGE Journals — Rolling Submissions",
+    type: "Journal",
+    deadline: "Rolling",
+    dlStatus: "open",
+    eventDate: "—",
+    location: "",
+    desc: "Leading journal for critical and reflexive research on learning, knowing, and organizing. Regularly features practice theory, posthumanism, and alternative methodologies. Special issue proposals accepted twice yearly. Covers organizational learning as a processual, relational, and sociomaterial phenomenon.",
+    relevance: "Strong fit for my practice theory cluster (Gherardi, Nicolini) and a learning-as-organizing argument. The more-than-human and posthumanist turn is increasingly represented. A good secondary venue for work that sits between practice theory and critical organization studies.",
+    url: "https://journals.sagepub.com/home/mlq"
+  }
+];
+
+const tbody = document.getElementById('conf-body');
+
+CONF.forEach((c, i) => {
+  const tr = document.createElement('tr');
+  tr.className = 'entry-row';
+  const loc = c.location ? ` · ${c.location}` : '';
+  tr.innerHTML = `
+    <td class="col-num">${c.num}</td>
+    <td class="col-name">
+      <div class="entry-name">${c.name}</div>
+      <div class="entry-host">${c.host}</div>
+    </td>
+    <td class="col-type"><span class="type-badge">${c.type}</span></td>
+    <td class="col-dead">
+      <div class="dl-label ${c.dlStatus}">${c.deadline}</div>
+      <div class="dl-sub">${c.eventDate}${loc}</div>
+    </td>
+  `;
+
+  const dr = document.createElement('tr');
+  dr.className = 'entry-detail';
+  dr.id = `d${i}`;
+  const evtLine = c.location ? `${c.eventDate} · ${c.location}` : c.eventDate;
+  dr.innerHTML = `
+    <td class="col-num"></td>
+    <td colspan="3">
+      <div class="detail-inner">
+        ${evtLine !== '—' ? `<div class="detail-event">${evtLine}</div>` : ''}
+        <div class="detail-desc">${c.desc}</div>
+        <div class="detail-sec">Why this fits</div>
+        <div class="detail-relevance">${c.relevance}</div>
+        <a href="${c.url}" target="_blank" class="detail-link">Visit &rarr;</a>
+      </div>
+    </td>
+  `;
+
+  tr.addEventListener('click', () => {
+    const detail = document.getElementById(`d${i}`);
+    detail.classList.toggle('open');
+  });
+
+  tbody.appendChild(tr);
+  tbody.appendChild(dr);
+});
+</script>
+</body>
+</html>
