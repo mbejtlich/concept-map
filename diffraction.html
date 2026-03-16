@@ -2,695 +2,529 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Diffraction Journal</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
+<title>Qualitative Analysis — Moon et al. (2016)</title>
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+a { text-decoration: none; }
 
 :root {
-  --bg:    #ffffff;
-  --text:  #000000;
+  --ink:   #111111;
+  --rule:  #111111;
   --dim:   rgba(0,0,0,0.35);
-  --div:   rgba(0,0,0,0.1);
-  --sel:   rgba(0,0,0,0.06);
-  --hdr-h: 38px;
+  --div:   rgba(0,0,0,0.12);
+  --ff:    'Suisse Intl','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --serif: 'EB Garamond',Georgia,serif;
 
   /* Quality criteria colours */
   --cred: #2255cc;
   --tran: #228833;
-  --dep:  #cc7700;
+  --dep:  #b86000;
   --conf: #cc2255;
 }
 
-html, body {
-  height: 100%; overflow: hidden;
-  background: var(--bg); color: var(--text);
-  font-family: 'Suisse Int\'l','HelveticaNeue','Helvetica Neue',Helvetica,Arial,sans-serif;
+html { scroll-behavior: smooth; }
+
+body {
+  background: #fff;
+  color: var(--ink);
+  font-family: var(--ff);
+  font-size: 14px;
+  line-height: 1.45;
   -webkit-font-smoothing: antialiased;
 }
 
-/* ── Shell ── */
-#app  { display: flex; flex-direction: column; height: 100vh; }
-#body { display: flex; flex: 1; overflow: hidden; }
+/* ── Table layout ── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
 
-/* ── Header ── */
-#header {
-  height: var(--hdr-h); flex-shrink: 0;
-  display: flex; align-items: center; padding: 0 18px;
+/* Column widths */
+.col-criterion { width: 22%; }
+.col-p1        { width: 39%; }
+.col-p2        { width: 39%; }
+
+/* ── Sticky header ── */
+thead th {
+  position: sticky; top: 0; z-index: 100;
+  padding: 10px 0;
+  background: #fff;
+  border-bottom: 1px solid var(--ink);
+  letter-spacing: 0.07em; text-transform: uppercase;
+  font-weight: 400; font-size: 13px;
+  vertical-align: middle; text-align: left;
+}
+thead th.col-criterion { padding-left: 24px; }
+thead th.col-p1        { padding-right: 20px; border-left: 1px solid var(--div); padding-left: 16px; }
+thead th.col-p2        { padding-right: 24px; border-left: 1px solid var(--div); padding-left: 16px; }
+
+.map-link {
+  color: var(--ink); letter-spacing: 0.05em;
+  text-transform: uppercase; font-size: 13px;
+}
+.map-link:hover { opacity: 0.5; }
+
+.paper-name {
+  font-size: 13px; font-weight: 400; letter-spacing: 0.02em;
+  display: block; line-height: 1.35;
+}
+.paper-year { opacity: 0.45; }
+
+/* ── Legend ── */
+.legend {
+  display: inline-flex; gap: 14px; align-items: center;
+  font-size: 10px; letter-spacing: 0.07em; text-transform: uppercase;
+  font-weight: 400; margin-left: 20px; vertical-align: middle;
+}
+.leg { display: inline-flex; align-items: center; gap: 5px; }
+.leg-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+
+/* ── Section header rows ── */
+.section-row td {
+  padding: 22px 0 6px;
+  font-size: 10px; font-weight: 400; letter-spacing: 0.14em;
+  text-transform: uppercase; color: rgba(0,0,0,0.35);
+  border-bottom: none;
+}
+.section-row td.col-criterion { padding-left: 24px; }
+
+/* ── Regular rows ── */
+td {
+  padding: 14px 0;
+  vertical-align: top;
   border-bottom: 1px solid var(--div);
 }
-#app-title {
-  font-size: 9px; font-weight: 700; letter-spacing: 0.22em;
-  text-transform: uppercase; color: rgba(0,0,0,0.35); flex-shrink: 0;
-}
-#app-subtitle {
-  font-size: 9px; letter-spacing: 0.10em; color: rgba(0,0,0,0.2);
-  text-transform: uppercase; margin-left: 14px; flex-shrink: 0;
-}
-.h-gap  { flex: 1; }
-.h-btn  {
-  font-family: inherit; font-size: 8px; font-weight: 700;
-  letter-spacing: 0.14em; text-transform: uppercase;
-  background: none; border: 1px solid rgba(0,0,0,0.2);
-  color: rgba(0,0,0,0.45); padding: 4px 10px; cursor: pointer; margin-left: 6px;
-}
-.h-btn:hover { color: var(--text); border-color: var(--text); }
 
-/* Legend in header */
-.h-legend { display: flex; align-items: center; gap: 10px; margin-left: 18px; }
-.h-leg-item { display: flex; align-items: center; gap: 4px; font-size: 7px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }
-.h-leg-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-.h-leg-dot.cred { background: var(--cred); }
-.h-leg-dot.tran { background: var(--tran); }
-.h-leg-dot.dep  { background: var(--dep); }
-.h-leg-dot.conf { background: var(--conf); }
-.h-leg-label.cred { color: var(--cred); }
-.h-leg-label.tran { color: var(--tran); }
-.h-leg-label.dep  { color: var(--dep); }
-.h-leg-label.conf { color: var(--conf); }
-
-/* ── Two-column grid ── */
-#channels { flex: 1; display: flex; overflow: hidden; }
-
-.channel {
-  flex: 1; display: flex; flex-direction: column;
-  border-right: 1px solid var(--div); overflow: hidden;
+.col-criterion {
+  padding-left: 24px;
+  padding-right: 16px;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: rgba(0,0,0,0.5);
+  vertical-align: top;
 }
-.channel:last-of-type { border-right: none; }
+.col-p1 {
+  border-left: 1px solid var(--div);
+  padding-left: 16px; padding-right: 20px;
+}
+.col-p2 {
+  border-left: 1px solid var(--div);
+  padding-left: 16px; padding-right: 24px;
+}
 
-/* ── Channel header ── */
-.ch-hdr {
-  flex-shrink: 0; padding: 16px 20px 12px;
+/* ── Editable cells ── */
+.cell {
+  font-family: var(--serif);
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--ink);
+  outline: none;
+  min-height: 1.65em;
+  white-space: pre-wrap;
+  cursor: text;
+  display: block;
+}
+.cell:empty::before {
+  content: attr(data-placeholder);
+  color: rgba(0,0,0,0.18);
+  pointer-events: none;
+}
+.cell:focus {
+  background: rgba(0,0,0,0.02);
+  outline: none;
+}
+
+/* Pre-filled cells shown in blue */
+.cell.prefilled { color: #2255cc; }
+.cell.prefilled:focus { color: var(--ink); }
+
+/* ── Quality rows ── */
+tr.q-cred td { background: rgba(34,85,204,0.04); }
+tr.q-tran td { background: rgba(34,136,51,0.04); }
+tr.q-dep  td { background: rgba(184,96,0,0.04); }
+tr.q-conf td { background: rgba(204,34,85,0.04); }
+
+tr.q-cred .col-criterion { color: var(--cred); }
+tr.q-tran .col-criterion { color: var(--tran); }
+tr.q-dep  .col-criterion { color: var(--dep); }
+tr.q-conf .col-criterion { color: var(--conf); }
+
+.q-dot {
+  display: inline-block; width: 7px; height: 7px;
+  border-radius: 50%; margin-right: 5px; vertical-align: middle;
+  position: relative; top: -1px;
+}
+
+/* ── Save indicator ── */
+#save-toast {
+  position: fixed; bottom: 24px; right: 28px;
+  font-size: 9px; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; color: rgba(0,0,0,0.3);
+  opacity: 0; transition: opacity 0.4s;
+  pointer-events: none;
+}
+#save-toast.show { opacity: 1; }
+
+/* ── Export btn ── */
+.export-btn {
+  font-family: var(--ff); font-size: 10px; font-weight: 400;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  background: none; border: none; color: rgba(0,0,0,0.3);
+  cursor: pointer; padding: 0; margin-left: 16px;
+}
+.export-btn:hover { color: var(--ink); }
+
+/* ── Discussion section ── */
+.disc-label {
+  font-size: 10px; font-weight: 400; letter-spacing: 0.14em;
+  text-transform: uppercase; margin-bottom: 8px;
+}
+.disc-cell {
+  font-family: var(--serif);
+  font-size: 16px; line-height: 1.65; color: var(--ink);
+  outline: none; min-height: 2em;
+  white-space: pre-wrap; cursor: text; display: block;
+}
+.disc-cell:empty::before {
+  content: attr(data-placeholder);
+  color: rgba(0,0,0,0.18); pointer-events: none;
+}
+
+.disc-block {
+  padding: 20px 24px;
   border-bottom: 1px solid var(--div);
-  display: flex; align-items: baseline; gap: 10px;
 }
-.ch-name {
-  flex: 1; min-width: 0;
-  font-size: 20px; font-weight: 700; line-height: 1; letter-spacing: -0.02em;
-  background: none; border: none; outline: none;
-  color: var(--text); font-family: inherit; cursor: text;
-}
-.ch-name::placeholder { color: rgba(0,0,0,0.2); }
-.ch-cycle {
-  font-family: inherit; font-size: 11px; font-weight: 700;
-  background: none; border: 1px solid rgba(0,0,0,0.18);
-  color: rgba(0,0,0,0.4); padding: 3px 7px; cursor: pointer; flex-shrink: 0; line-height: 1;
-}
-.ch-cycle:hover { color: var(--text); border-color: var(--text); }
-.ch-add {
-  font-family: inherit; font-size: 8px; font-weight: 700;
-  letter-spacing: 0.14em; text-transform: uppercase;
-  color: rgba(0,0,0,0.35); background: none; border: none; cursor: pointer; flex-shrink: 0;
-}
-.ch-add:hover { color: var(--text); }
+.disc-block.cred { background: rgba(34,85,204,0.03); }
+.disc-block.tran { background: rgba(34,136,51,0.03); }
+.disc-block.dep  { background: rgba(184,96,0,0.03); }
+.disc-block.conf { background: rgba(204,34,85,0.03); }
 
-/* ── Item list ── */
-.ch-list {
-  flex: 1; overflow-y: auto;
-  display: flex; flex-direction: column;
-  gap: 0;
-}
-.ch-list::-webkit-scrollbar { width: 3px; }
-.ch-list::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); }
+.disc-label.cred { color: var(--cred); }
+.disc-label.tran { color: var(--tran); }
+.disc-label.dep  { color: var(--dep); }
+.disc-label.conf { color: var(--conf); }
 
-/* ── Items ── */
-.item {
-  padding: 14px 20px 12px; cursor: pointer;
-  background: var(--bg);
-  border-bottom: 1px solid var(--div);
-  position: relative;
+/* ── Section dividers outside table ── */
+.page-section {
+  padding: 28px 24px 0;
+  font-size: 10px; font-weight: 400; letter-spacing: 0.14em;
+  text-transform: uppercase; color: rgba(0,0,0,0.35);
+  border-top: 1px solid var(--rule);
 }
-.item:hover { background: #f9f9f9; }
-.item.sel   { background: var(--sel); }
-
-.item-section {
-  font-size: 7px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
-  color: rgba(0,0,0,0.25); margin-bottom: 4px;
-}
-.item-title {
-  font-size: 15px; font-weight: 700; line-height: 1.2; letter-spacing: -0.015em;
-  color: var(--text);
-}
-.item-title.untitled { color: rgba(0,0,0,0.2); }
-.item-content {
-  font-size: 12px; line-height: 1.6;
-  color: rgba(0,0,0,0.45); margin-top: 6px;
-  font-family: 'EB Garamond', Georgia, serif;
-  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
-}
-.item-tags {
-  display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px;
-}
-.item-tag-chip {
-  font-size: 6px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
-  padding: 2px 6px; border-radius: 2px;
-}
-.item-tag-chip.credibility   { background: rgba(34,85,204,0.10); color: var(--cred); }
-.item-tag-chip.transferability { background: rgba(34,136,51,0.10); color: var(--tran); }
-.item-tag-chip.dependability { background: rgba(204,119,0,0.10); color: var(--dep); }
-.item-tag-chip.confirmability { background: rgba(204,34,85,0.10); color: var(--conf); }
-
-/* ── Channel footer ── */
-.ch-footer {
-  flex-shrink: 0; padding: 8px 20px;
-  border-top: 1px solid var(--div);
-  font-size: 7px; font-weight: 700; letter-spacing: 0.12em;
-  text-transform: uppercase; color: rgba(0,0,0,0.28);
-  display: flex; justify-content: space-between;
-}
-
-/* ── Detail panel ── */
-#detail {
-  width: 300px; flex-shrink: 0;
-  background: #f7f7f7; border-left: 1px solid var(--div);
-  display: flex; flex-direction: column;
-}
-#detail.hidden { width: 0; overflow: hidden; border: none; }
-
-#d-header {
-  padding: 13px 16px; border-bottom: 1px solid var(--div);
-  display: flex; align-items: center; gap: 10px; flex-shrink: 0;
-}
-#d-strip  { width: 3px; height: 16px; background: var(--text); flex-shrink: 0; border-radius: 1px; }
-#d-track  {
-  flex: 1; font-size: 8px; font-weight: 700; letter-spacing: 0.16em;
-  text-transform: uppercase; color: var(--dim);
-}
-#d-close  { cursor: pointer; color: var(--dim); font-size: 18px; line-height: 1; }
-#d-close:hover { color: var(--text); }
-
-#d-body {
-  flex: 1; overflow-y: auto; padding: 14px;
-  display: flex; flex-direction: column; gap: 14px;
-}
-#d-body::-webkit-scrollbar { width: 2px; }
-#d-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); }
-
-.f-label {
-  font-size: 7px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
-  color: var(--dim); margin-bottom: 6px;
-}
-#d-title {
-  width: 100%; background: #fff; border: 1px solid rgba(0,0,0,0.18);
-  color: var(--text); font-family: inherit; font-size: 13px; font-weight: 700;
-  padding: 7px 9px; outline: none;
-}
-#d-title::placeholder { color: rgba(0,0,0,0.25); }
-#d-title:focus { border-color: var(--text); }
-
-#d-content {
-  width: 100%; background: #fff; border: 1px solid rgba(0,0,0,0.18);
-  color: var(--text); font-family: 'EB Garamond', Georgia, serif;
-  font-size: 14px; line-height: 1.7; padding: 8px 9px;
-  outline: none; resize: vertical; min-height: 120px;
-}
-#d-content::placeholder { color: rgba(0,0,0,0.25); }
-#d-content:focus { border-color: var(--text); }
-
-/* ── Tags (coloured quality criteria) ── */
-.type-bar { display: flex; gap: 3px; flex-wrap: wrap; }
-
-.t-pill {
-  font-family: inherit; font-size: 7px; font-weight: 700;
-  letter-spacing: 0.12em; text-transform: uppercase;
-  background: none; border: 1px solid; padding: 4px 9px; cursor: pointer;
-}
-
-.t-pill[data-tag="credibility"]    { border-color: rgba(34,85,204,0.3);  color: rgba(34,85,204,0.5); }
-.t-pill[data-tag="transferability"]{ border-color: rgba(34,136,51,0.3);  color: rgba(34,136,51,0.5); }
-.t-pill[data-tag="dependability"]  { border-color: rgba(204,119,0,0.3);  color: rgba(204,119,0,0.5); }
-.t-pill[data-tag="confirmability"] { border-color: rgba(204,34,85,0.3);  color: rgba(204,34,85,0.5); }
-
-.t-pill[data-tag="credibility"].on    { border-color: var(--cred); color: var(--cred); background: rgba(34,85,204,0.07); }
-.t-pill[data-tag="transferability"].on{ border-color: var(--tran); color: var(--tran); background: rgba(34,136,51,0.07); }
-.t-pill[data-tag="dependability"].on  { border-color: var(--dep);  color: var(--dep);  background: rgba(204,119,0,0.07); }
-.t-pill[data-tag="confirmability"].on { border-color: var(--conf); color: var(--conf); background: rgba(204,34,85,0.07); }
-
-#d-footer {
-  padding: 12px 16px; border-top: 1px solid var(--div);
-  display: flex; gap: 6px; flex-shrink: 0;
-}
-.btn {
-  font-family: inherit; font-size: 8px; font-weight: 700; letter-spacing: 0.12em;
-  text-transform: uppercase; padding: 6px 14px; cursor: pointer;
-  border: 1px solid rgba(0,0,0,0.3); background: none; color: var(--text);
-}
-.btn:hover { background: rgba(0,0,0,0.05); }
-.btn-del { border-color: rgba(0,0,0,0.15); color: rgba(0,0,0,0.4); }
-.btn-del:hover { background: rgba(0,0,0,0.04); color: var(--text); border-color: rgba(0,0,0,0.3); }
 </style>
 </head>
 <body>
-<div id="app">
 
-  <div id="header">
-    <span id="app-title">Diffraction Journal</span>
-    <span id="app-subtitle">Qualitative Analysis — Moon et al. (2016)</span>
-    <div class="h-legend">
-      <div class="h-leg-item"><div class="h-leg-dot cred"></div><span class="h-leg-label cred">Credibility</span></div>
-      <div class="h-leg-item"><div class="h-leg-dot tran"></div><span class="h-leg-label tran">Transferability</span></div>
-      <div class="h-leg-item"><div class="h-leg-dot dep"></div><span class="h-leg-label dep">Dependability</span></div>
-      <div class="h-leg-item"><div class="h-leg-dot conf"></div><span class="h-leg-label conf">Confirmability</span></div>
-    </div>
-    <div class="h-gap"></div>
-    <a href="index.html" style="font-family:inherit;font-size:8px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:rgba(0,0,0,0.35);text-decoration:none;margin-right:10px;">← Map</a>
-    <button class="h-btn" onclick="addClipToActive()">+ Note</button>
-    <button class="h-btn" onclick="doExport()">↓ Export</button>
-    <button class="h-btn" onclick="resetConfirm()" style="color:rgba(0,0,0,0.25)">↺ Reset</button>
-  </div>
+<table>
+  <thead>
+    <tr>
+      <th class="col-criterion">
+        <a href="index.html" class="map-link">← Map</a>
+        <span class="legend">
+          <span class="leg"><span class="leg-dot" style="background:var(--cred)"></span><span style="color:var(--cred)">Credibility</span></span>
+          <span class="leg"><span class="leg-dot" style="background:var(--tran)"></span><span style="color:var(--tran)">Transferability</span></span>
+          <span class="leg"><span class="leg-dot" style="background:var(--dep)"></span><span style="color:var(--dep)">Dependability</span></span>
+          <span class="leg"><span class="leg-dot" style="background:var(--conf)"></span><span style="color:var(--conf)">Confirmability</span></span>
+        </span>
+      </th>
+      <th class="col-p1">
+        <span class="paper-name">Allen &amp; Strauß <span class="paper-year">(2026)</span></span>
+        <span style="font-size:10px;letter-spacing:0.03em;text-transform:none;opacity:0.4;display:block;margin-top:2px;">Thinking-being with a garden</span>
+      </th>
+      <th class="col-p2">
+        <span class="paper-name">Whiteman &amp; Cooper <span class="paper-year">(2000)</span></span>
+        <span style="font-size:10px;letter-spacing:0.03em;text-transform:none;opacity:0.4;display:block;margin-top:2px;">Ecological embeddedness</span>
+        <button class="export-btn" onclick="doExport()">↓ Export</button>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
 
-  <div id="body">
-    <div id="channels"><!-- built by JS --></div>
+    <!-- ── RESEARCH DESIGN ── -->
+    <tr class="section-row">
+      <td class="col-criterion">Research Design</td>
+      <td class="col-p1"></td>
+      <td class="col-p2"></td>
+    </tr>
 
-    <div id="detail" class="hidden">
-      <div id="d-header">
-        <div id="d-strip"></div>
-        <div id="d-track">Note</div>
-        <div id="d-close" onclick="closeDetail()">×</div>
-      </div>
-      <div id="d-body">
-        <div>
-          <div class="f-label">Title</div>
-          <input id="d-title" type="text" placeholder="Note title…" autocomplete="off" spellcheck="false">
-        </div>
-        <div>
-          <div class="f-label">Reflection / Notes</div>
-          <textarea id="d-content" placeholder="Write your observations, close readings, and reflections here…"></textarea>
-        </div>
-        <div>
-          <div class="f-label">Quality Criterion</div>
-          <div class="type-bar" id="d-tags"></div>
-        </div>
-      </div>
-      <div id="d-footer">
-        <button class="btn" onclick="saveDetail()">Save</button>
-        <button class="btn btn-del" onclick="delClip()">Delete</button>
-      </div>
-    </div>
+    <tr>
+      <td class="col-criterion">Research question</td>
+      <td class="col-p1"><div class="cell prefilled" contenteditable="true" data-key="rq-p1" data-placeholder="Add note…">How can embodied gardening practices generate a form of thinking-being that supports ecocentric, relational ethics in sustainable organising?</div></td>
+      <td class="col-p2"><div class="cell prefilled" contenteditable="true" data-key="rq-p2" data-placeholder="Add note…">How does ecological embeddedness manifest in Cree land management practice, and what does this reveal about the limits of conventional management sustainability frameworks?</div></td>
+    </tr>
 
-  </div>
+    <tr>
+      <td class="col-criterion">Qualitative approach justified</td>
+      <td class="col-p1"><div class="cell prefilled" contenteditable="true" data-key="just-p1" data-placeholder="Add note…">Posthumanist methodology requires embodied presence and participation; qualitative approach enables exploration of relational, affective knowing that quantitative methods cannot access.</div></td>
+      <td class="col-p2"><div class="cell prefilled" contenteditable="true" data-key="just-p2" data-placeholder="Add note…">Ethnographic methods enable access to the lived, place-based practices of ecological embeddedness that surveys or structured interviews alone cannot capture.</div></td>
+    </tr>
+
+    <tr>
+      <td class="col-criterion">Epistemological / ontological positioning</td>
+      <td class="col-p1"><div class="cell prefilled" contenteditable="true" data-key="ep-p1" data-placeholder="Add note…">Posthumanist relational ontology; challenges anthropocentric epistemology; moves away from the human as reference point; ecocentric — knowledge is produced through embodied, more-than-human entanglement.</div></td>
+      <td class="col-p2"><div class="cell prefilled" contenteditable="true" data-key="ep-p2" data-placeholder="Add note…">Interpretive / constructivist; draws on Indigenous ecological knowledge systems and ecological science; knowledge understood as situated in specific places and practices.</div></td>
+    </tr>
+
+    <tr>
+      <td class="col-criterion">Methodology / design</td>
+      <td class="col-p1"><div class="cell prefilled" contenteditable="true" data-key="meth-p1" data-placeholder="Add note…">Qualitative; garden as vignette and empirical site; thinking-being as method — a form of reflexive, embodied philosophical inquiry at the intersection of practice and theory.</div></td>
+      <td class="col-p2"><div class="cell prefilled" contenteditable="true" data-key="meth-p2" data-placeholder="Add note…">Ethnography; extended participant observation with Cree hunters and tallymen in subarctic Canada; fieldwork as primary mode of inquiry.</div></td>
+    </tr>
+
+    <!-- ── DATA COLLECTION ── -->
+    <tr class="section-row">
+      <td class="col-criterion">Data Collection</td>
+      <td class="col-p1"></td>
+      <td class="col-p2"></td>
+    </tr>
+
+    <tr>
+      <td class="col-criterion">Site &amp; participants</td>
+      <td class="col-p1"><div class="cell prefilled" contenteditable="true" data-key="site-p1" data-placeholder="Add note…">Gardens as ecological sites; plants, soil, seasons, and human gardeners as co-participants; non-human others as central to the inquiry.</div></td>
+      <td class="col-p2"><div class="cell prefilled" contenteditable="true" data-key="site-p2" data-placeholder="Add note…">James Bay region, subarctic Canada; Cree hunters and tallymen (land managers); ecological community including land, species, and seasonal cycles as implicit participants.</div></td>
+    </tr>
+
+    <tr>
+      <td class="col-criterion">Sampling strategy</td>
+      <td class="col-p1"><div class="cell" contenteditable="true" data-key="samp-p1" data-placeholder="Add note…"></div></td>
+      <td class="col-p2"><div class="cell prefilled" contenteditable="true" data-key="samp-p2" data-placeholder="Add note…">Purposive — Cree community selected for deep ecological embeddedness; specific tallymen as key informants with intensive land knowledge.</div></td>
+    </tr>
+
+    <tr>
+      <td class="col-criterion">Data collection methods</td>
+      <td class="col-p1"><div class="cell prefilled" contenteditable="true" data-key="dc-p1" data-placeholder="Add note…">Embodied engagement with gardens; reflexive inquiry; gardening as participatory, sensory practice — attention to affect, material relations, and temporal rhythms.</div></td>
+      <td class="col-p2"><div class="cell prefilled" contenteditable="true" data-key="dc-p2" data-placeholder="Add note…">Extended fieldwork; participant observation; informal interviews; ecological walks with Cree hunters; ecological surveys of land and species.</div></td>
+    </tr>
+
+    <tr>
+      <td class="col-criterion">Data richness / saturation</td>
+      <td class="col-p1"><div class="cell" contenteditable="true" data-key="sat-p1" data-placeholder="Add note…"></div></td>
+      <td class="col-p2"><div class="cell prefilled" contenteditable="true" data-key="sat-p2" data-placeholder="Add note…">Extended fieldwork provides rich, multi-layered data; saturation implied through prolonged engagement with community practices and ecological cycles.</div></td>
+    </tr>
+
+    <!-- ── DATA ANALYSIS ── -->
+    <tr class="section-row">
+      <td class="col-criterion">Data Analysis</td>
+      <td class="col-p1"></td>
+      <td class="col-p2"></td>
+    </tr>
+
+    <tr>
+      <td class="col-criterion">Analytical approach</td>
+      <td class="col-p1"><div class="cell prefilled" contenteditable="true" data-key="ana-p1" data-placeholder="Add note…">Interpretive; posthumanist conceptual analysis; develops theoretical framework from garden practices; garden used as vignette to think through organisational ethics.</div></td>
+      <td class="col-p2"><div class="cell prefilled" contenteditable="true" data-key="ana-p2" data-placeholder="Add note…">Grounded theory–influenced; inductive thematic analysis; comparison between ecologically embedded (Cree) and non-embedded (conventional) managerial practices.</div></td>
+    </tr>
+
+    <tr>
+      <td class="col-criterion">Reflexivity / positionality</td>
+      <td class="col-p1"><div class="cell prefilled" contenteditable="true" data-key="ref-p1" data-placeholder="Add note…">Central to method — researchers participate in ecological relations rather than observing from outside; posthumanist reflexivity challenges researcher–researched divide.</div></td>
+      <td class="col-p2"><div class="cell prefilled" contenteditable="true" data-key="ref-p2" data-placeholder="Add note…">Researcher positionality acknowledged; outsider relationship to Indigenous Cree community addressed; limitations of external researcher perspective noted.</div></td>
+    </tr>
+
+    <tr>
+      <td class="col-criterion">Data linked to interpretations</td>
+      <td class="col-p1"><div class="cell" contenteditable="true" data-key="link-p1" data-placeholder="Add note…"></div></td>
+      <td class="col-p2"><div class="cell" contenteditable="true" data-key="link-p2" data-placeholder="Add note…"></div></td>
+    </tr>
+
+    <!-- ── QUALITY CRITERIA ── -->
+    <tr class="section-row">
+      <td class="col-criterion">Quality (Lincoln &amp; Guba)</td>
+      <td class="col-p1"></td>
+      <td class="col-p2"></td>
+    </tr>
+
+    <tr class="q-cred">
+      <td class="col-criterion"><span class="q-dot" style="background:var(--cred)"></span>Credibility</td>
+      <td class="col-p1"><div class="cell" contenteditable="true" data-key="cred-p1" data-placeholder="Member checking, prolonged engagement, triangulation…">Grounded in posthumanist scholarship; rich embodied engagement; peer-reviewed in JBE. No traditional member checking; vignette approach limits conventional credibility markers.</div></td>
+      <td class="col-p2"><div class="cell" contenteditable="true" data-key="cred-p2" data-placeholder="Member checking, prolonged engagement, triangulation…">Strong — prolonged engagement with Cree community; participant observation + interviews = triangulation; rich descriptive data; published in top peer-reviewed journal (AMJ).</div></td>
+    </tr>
+
+    <tr class="q-tran">
+      <td class="col-criterion"><span class="q-dot" style="background:var(--tran)"></span>Transferability</td>
+      <td class="col-p1"><div class="cell" contenteditable="true" data-key="tran-p1" data-placeholder="Thick description, context provided…">Conceptual transferability high — garden as broadly applicable metaphor for organisational ecosystems. Limited empirical thick description of specific contexts limits traditional transferability.</div></td>
+      <td class="col-p2"><div class="cell" contenteditable="true" data-key="tran-p2" data-placeholder="Thick description, context provided…">Rich thick description of Cree context, land, and seasonal practices. Authors acknowledge limits for Western corporate settings — specificity of Indigenous context constrains direct transferability.</div></td>
+    </tr>
+
+    <tr class="q-dep">
+      <td class="col-criterion"><span class="q-dot" style="background:var(--dep)"></span>Dependability</td>
+      <td class="col-p1"><div class="cell" contenteditable="true" data-key="dep-p1" data-placeholder="Audit trail, process documented…">Thinking-being methodology is philosophically transparent but less conventionally auditable than fieldwork-based research. Process of inquiry is described but not step-by-step reproducible.</div></td>
+      <td class="col-p2"><div class="cell" contenteditable="true" data-key="dep-p2" data-placeholder="Audit trail, process documented…">Strong — detailed ethnographic fieldwork process documented; methodology section provides clear audit trail; extended time in field supports process consistency.</div></td>
+    </tr>
+
+    <tr class="q-conf">
+      <td class="col-criterion"><span class="q-dot" style="background:var(--conf)"></span>Confirmability</td>
+      <td class="col-p1"><div class="cell" contenteditable="true" data-key="conf-p1" data-placeholder="Grounding in data, reflexivity…">Interpretations grounded in posthumanist literature and embodied garden practice. Reflexivity present throughout; human-as-reference-point explicitly challenged as potential bias.</div></td>
+      <td class="col-p2"><div class="cell" contenteditable="true" data-key="conf-p2" data-placeholder="Grounding in data, reflexivity…">Interpretations grounded in Indigenous ecological knowledge and observed Cree practices. Reflexivity present regarding outsider-researcher position; data-interpretation links clear.</div></td>
+    </tr>
+
+    <!-- ── OTHER ── -->
+    <tr class="section-row">
+      <td class="col-criterion">Other</td>
+      <td class="col-p1"></td>
+      <td class="col-p2"></td>
+    </tr>
+
+    <tr>
+      <td class="col-criterion">Limitations acknowledged</td>
+      <td class="col-p1"><div class="cell" contenteditable="true" data-key="lim-p1" data-placeholder="Add note…"></div></td>
+      <td class="col-p2"><div class="cell" contenteditable="true" data-key="lim-p2" data-placeholder="Add note…">Context-specific to Cree subarctic community; direct transferability to corporate settings limited. Published in 2000 — some concepts have developed since.</div></td>
+    </tr>
+
+    <tr>
+      <td class="col-criterion">Contribution to knowledge</td>
+      <td class="col-p1"><div class="cell prefilled" contenteditable="true" data-key="contrib-p1" data-placeholder="Add note…">Advances relational posthuman ethics in business ethics; offers ecocentric organisational framework beyond anthropocentrism; contributes to more-than-human organising literature.</div></td>
+      <td class="col-p2"><div class="cell prefilled" contenteditable="true" data-key="contrib-p2" data-placeholder="Add note…">Introduced ecological embeddedness as a management concept; challenged decontextualised corporate sustainability; demonstrated value of Indigenous ecological knowledge for organisations.</div></td>
+    </tr>
+
+    <tr>
+      <td class="col-criterion">Relation to my research</td>
+      <td class="col-p1"><div class="cell" contenteditable="true" data-key="rel-p1" data-placeholder="Add note…"></div></td>
+      <td class="col-p2"><div class="cell" contenteditable="true" data-key="rel-p2" data-placeholder="Add note…"></div></td>
+    </tr>
+
+  </tbody>
+</table>
+
+<!-- ══════════════════════════════════════════════════════
+     DISCUSSION SECTION
+══════════════════════════════════════════════════════ -->
+
+<div class="page-section" style="margin-top:40px;">Discussion — Quality Evaluation</div>
+
+<div class="disc-block cred" style="margin-top:12px;">
+  <div class="disc-label cred"><span class="q-dot" style="background:var(--cred);display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;"></span>Credibility — Comparative Evaluation</div>
+  <div class="disc-cell" contenteditable="true" data-key="disc-cred" data-placeholder="How does each paper establish credibility? Which does this better and why?"></div>
 </div>
+
+<div class="disc-block tran">
+  <div class="disc-label tran"><span class="q-dot" style="background:var(--tran);display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;"></span>Transferability — Comparative Evaluation</div>
+  <div class="disc-cell" contenteditable="true" data-key="disc-tran" data-placeholder="How well does each paper provide thick description? What are the contextual limits?"></div>
+</div>
+
+<div class="disc-block dep">
+  <div class="disc-label dep"><span class="q-dot" style="background:var(--dep);display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;"></span>Dependability — Comparative Evaluation</div>
+  <div class="disc-cell" contenteditable="true" data-key="disc-dep" data-placeholder="How well is the research process documented in each paper? Is there an audit trail?"></div>
+</div>
+
+<div class="disc-block conf">
+  <div class="disc-label conf"><span class="q-dot" style="background:var(--conf);display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;"></span>Confirmability — Comparative Evaluation</div>
+  <div class="disc-cell" contenteditable="true" data-key="disc-conf" data-placeholder="How do the authors ground interpretations in data? How is reflexivity used?"></div>
+</div>
+
+<div class="disc-block" style="margin-bottom:60px;">
+  <div class="disc-label">Synthesis</div>
+  <div class="disc-cell" contenteditable="true" data-key="disc-synth" data-placeholder="Overall evaluation: what does comparing these two papers reveal about qualitative research quality in this field? What does this mean for my own research practice?"></div>
+</div>
+
+<div id="save-toast">Saved</div>
 
 <script>
 // ════════════════════════════════════════════════
-// QUALITY CRITERIA TAGS
+// PERSIST editable cells to localStorage
 // ════════════════════════════════════════════════
-const TAGS = ['credibility','transferability','dependability','confirmability'];
+const STORE = 'qa-table-v1';
 
-// ════════════════════════════════════════════════
-// ASSIGNMENT FRAMEWORK
-// ════════════════════════════════════════════════
-function makeClip(id, order, section, title, content, tags=[]) {
-  return { id, order, section, title, content, tags, type: 'text' };
-}
-
-function assignmentSeed() {
-
-  // ── Paper 1: Allen & Strauß (2026) ──────────────────────────────────────
-  const allen = {
-    id: 'p-allen', name: 'Allen & Strauß (2026)', clips: [
-      makeClip('a0', 0, 'Overview', 'Citation',
-        'Allen, S., & Strauß, A. (2026). Thinking-being with a garden: Developing ecocentric ethics for sustainable organising. Journal of Business Ethics. Advance online publication. https://doi.org/10.1007/s10551-026-06255-2'),
-      makeClip('a1', 1, 'Research Design', 'Research Question',
-        'What question(s) does this paper address? What problem motivates the study?'),
-      makeClip('a2', 2, 'Research Design', 'Philosophical Positioning',
-        'What ontological and epistemological stance does the paper take? How is knowledge understood? (e.g. constructivist, posthumanist, interpretivist)'),
-      makeClip('a3', 3, 'Research Design', 'Methodology & Justification',
-        'What qualitative approach is used? How do the authors justify choosing qualitative methods for this question?'),
-      makeClip('a4', 4, 'Data Collection', 'Site & Participants',
-        'Where was the study conducted? Who or what was involved? How was access gained?'),
-      makeClip('a5', 5, 'Data Collection', 'Sampling Strategy',
-        'How were participants/sites selected? Is the sampling purposive, theoretical, snowball? Is this justified?'),
-      makeClip('a6', 6, 'Data Collection', 'Data Collection Methods',
-        'What methods were used? (interviews, observation, documents, artefacts, etc.) How much data was collected?'),
-      makeClip('a7', 7, 'Data Analysis', 'Analytical Approach',
-        'How were data analysed? What coding or interpretive process is described? Is the process transparent?'),
-      makeClip('a8', 8, 'Data Analysis', 'Reflexivity',
-        'How do the authors position themselves in relation to the research? Is positionality acknowledged?'),
-      makeClip('a9', 9, 'Findings', 'Key Themes / Findings',
-        'What are the main themes or findings? How are they presented and supported with data?'),
-      makeClip('a10', 10, 'Quality', 'Credibility',
-        'Is there evidence of prolonged engagement, member checking, or triangulation? Do the findings feel trustworthy?', ['credibility']),
-      makeClip('a11', 11, 'Quality', 'Transferability',
-        'Is enough context (thick description) provided for the reader to judge applicability elsewhere?', ['transferability']),
-      makeClip('a12', 12, 'Quality', 'Dependability',
-        'Is the research process documented with enough detail to follow and audit? Is consistency demonstrated?', ['dependability']),
-      makeClip('a13', 13, 'Quality', 'Confirmability',
-        'Are interpretations grounded in the data rather than researcher bias? Is reflexivity used to address this?', ['confirmability']),
-      makeClip('a14', 14, 'Reflection', 'My Reflection',
-        'What does this paper do well? What gaps or tensions do I notice? How does it connect to my research?'),
-    ], connections: []
-  };
-
-  // ── Paper 2: Whiteman & Cooper (2000) ───────────────────────────────────
-  const whiteman = {
-    id: 'p-whiteman', name: 'Whiteman & Cooper (2000)', clips: [
-      makeClip('w0', 0, 'Overview', 'Citation',
-        'Whiteman, G., & Cooper, W. H. (2000). Ecological embeddedness. Academy of Management Journal, 43(6), 1265–1282.'),
-      makeClip('w1', 1, 'Research Design', 'Research Question',
-        'What question(s) does this paper address? What problem motivates the study?'),
-      makeClip('w2', 2, 'Research Design', 'Philosophical Positioning',
-        'What ontological and epistemological stance does the paper take? How is knowledge understood?'),
-      makeClip('w3', 3, 'Research Design', 'Methodology & Justification',
-        'What qualitative approach is used? (Note: this is an ethnographic study) How do the authors justify qualitative methods?'),
-      makeClip('w4', 4, 'Data Collection', 'Site & Participants',
-        'Where was the study conducted? Who or what was involved? (Note: Cree land manager, sub-arctic Canada)'),
-      makeClip('w5', 5, 'Data Collection', 'Sampling Strategy',
-        'How were participants/sites selected? Is the sampling strategy explained and justified?'),
-      makeClip('w6', 6, 'Data Collection', 'Data Collection Methods',
-        'What methods were used? (fieldwork, participant observation, interviews, etc.) How much data was collected?'),
-      makeClip('w7', 7, 'Data Analysis', 'Analytical Approach',
-        'How were data analysed? Is the process transparent and systematic? What interpretive moves are made?'),
-      makeClip('w8', 8, 'Data Analysis', 'Reflexivity',
-        'How do the authors position themselves? Is the researcher\'s relationship to the site and community acknowledged?'),
-      makeClip('w9', 9, 'Findings', 'Key Themes / Findings',
-        'What are the main themes or findings? How are they presented and supported with data?'),
-      makeClip('w10', 10, 'Quality', 'Credibility',
-        'Is there evidence of prolonged engagement, triangulation, or rich detail that builds trustworthiness?', ['credibility']),
-      makeClip('w11', 11, 'Quality', 'Transferability',
-        'Is enough context provided to assess whether findings could apply in other settings?', ['transferability']),
-      makeClip('w12', 12, 'Quality', 'Dependability',
-        'Is the research process documented with enough detail to follow? Is the study replicable in principle?', ['dependability']),
-      makeClip('w13', 13, 'Quality', 'Confirmability',
-        'Are interpretations grounded in the data? Is the relationship between data and conclusions clear?', ['confirmability']),
-      makeClip('w14', 14, 'Reflection', 'My Reflection',
-        'What does this paper do well? What gaps or tensions do I notice? How does it connect to my research?'),
-    ], connections: []
-  };
-
-  // ── Discussion stream ────────────────────────────────────────────────────
-  const discussion = {
-    id: 'p-discussion', name: 'Discussion', clips: [
-      makeClip('d0', 0, 'Introduction', 'Why These Two Papers',
-        'Why did I choose these papers? What is the relation to my research interests (more-than-human organising, ecological ethics, posthumanism)?'),
-      makeClip('d1', 1, 'Methods', 'How I Read These Papers',
-        'Describe the close reading process. What framework guided the analysis? Reference Moon et al. (2016) here.'),
-      makeClip('d2', 2, 'Results', 'Comparison Table Notes',
-        'Notes for the table comparing both papers across Moon et al. Table 1 criteria. Which criteria does each paper meet clearly? Where are gaps?'),
-      makeClip('d3', 3, 'Discussion', 'Credibility — Both Papers',
-        'How does each paper establish credibility (internal validity)? Which does this better and why?', ['credibility']),
-      makeClip('d4', 4, 'Discussion', 'Transferability — Both Papers',
-        'How well does each paper provide thick description to support transferability? What is the context richness like?', ['transferability']),
-      makeClip('d5', 5, 'Discussion', 'Dependability — Both Papers',
-        'How well does each paper document its research process to support dependability? Is an audit trail present?', ['dependability']),
-      makeClip('d6', 6, 'Discussion', 'Confirmability — Both Papers',
-        'How do the authors ground their interpretations in data? Is reflexivity used to address researcher influence?', ['confirmability']),
-      makeClip('d7', 7, 'Discussion', 'Synthesis',
-        'Overall evaluation: what does comparing these two papers reveal about qualitative research quality in this field? What does this mean for my own research?'),
-    ], connections: []
-  };
-
-  G.paintings = [allen, whiteman, discussion];
-  G.leftId    = 'p-allen';
-  G.rightId   = 'p-whiteman';
-  G.sel = null; G.selPid = null;
-}
-
-// ════════════════════════════════════════════════
-// STATE
-// ════════════════════════════════════════════════
-let G = {
-  leftId:    null,
-  rightId:   null,
-  paintings: [],
-  sel:       null,
-  selPid:    null,
-};
-
-const STORE_KEY = 'dj-assignment-v2';
-
-function paintingById(id) { return G.paintings.find(p => p.id === id); }
-
-// ════════════════════════════════════════════════
-// PERSIST
-// ════════════════════════════════════════════════
-function saveG() {
+function loadSaved() {
   try {
-    localStorage.setItem(STORE_KEY, JSON.stringify({
-      leftId: G.leftId, rightId: G.rightId, paintings: G.paintings,
-    }));
+    const raw = localStorage.getItem(STORE);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    document.querySelectorAll('[data-key]').forEach(el => {
+      const k = el.dataset.key;
+      if (data[k] !== undefined) {
+        el.textContent = data[k];
+        if (data[k]) el.classList.remove('prefilled');
+      }
+    });
   } catch(e) {}
 }
 
-function loadG() {
-  try {
-    const raw = localStorage.getItem(STORE_KEY);
-    if (!raw) return false;
-    const parsed = JSON.parse(raw);
-    G.paintings = parsed.paintings;
-    G.leftId    = parsed.leftId;
-    G.rightId   = parsed.rightId;
-    G.sel = null; G.selPid = null;
-    return true;
-  } catch(e) { return false; }
-}
-
-// ════════════════════════════════════════════════
-// RENDER
-// ════════════════════════════════════════════════
-function render() { renderChannels(); renderDetail(); }
-
-function renderChannels() {
-  const wrap = document.getElementById('channels');
-  wrap.innerHTML = '';
-  wrap.appendChild(buildChannel(paintingById(G.leftId),  'left'));
-  wrap.appendChild(buildChannel(paintingById(G.rightId), 'right'));
-}
-
-function buildChannel(painting, side) {
-  const ch = document.createElement('div');
-  ch.className = 'channel';
-  if (!painting) {
-    const em = document.createElement('div');
-    em.style.cssText = 'padding:40px 20px;color:rgba(0,0,0,0.2);font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;';
-    em.textContent = 'No stream';
-    ch.appendChild(em);
-    return ch;
-  }
-
-  // ── Header ──
-  const hdr = document.createElement('div');
-  hdr.className = 'ch-hdr';
-
-  const nameInp = document.createElement('input');
-  nameInp.className = 'ch-name';
-  nameInp.value = painting.name;
-  nameInp.placeholder = 'Stream name';
-  nameInp.spellcheck = false;
-  nameInp.addEventListener('blur', () => { if (nameInp.value.trim()) painting.name = nameInp.value.trim(); saveG(); });
-  nameInp.addEventListener('keydown', e => { if (e.key === 'Enter') nameInp.blur(); e.stopPropagation(); });
-
-  const prevBtn = document.createElement('button');
-  prevBtn.className = 'ch-cycle'; prevBtn.textContent = '←';
-  prevBtn.addEventListener('click', () => cyclePainting(side, -1));
-
-  const nextBtn = document.createElement('button');
-  nextBtn.className = 'ch-cycle'; nextBtn.textContent = '→';
-  nextBtn.addEventListener('click', () => cyclePainting(side, 1));
-
-  const addBtn = document.createElement('button');
-  addBtn.className = 'ch-add'; addBtn.textContent = '+ Add';
-  addBtn.addEventListener('click', () => addClip(painting.id));
-
-  hdr.appendChild(nameInp);
-  hdr.appendChild(prevBtn);
-  hdr.appendChild(nextBtn);
-  hdr.appendChild(addBtn);
-  ch.appendChild(hdr);
-
-  // ── Items ──
-  const list = document.createElement('div');
-  list.className = 'ch-list';
-
-  const sorted = [...painting.clips].sort((a, b) => a.order - b.order);
-  sorted.forEach(clip => list.appendChild(buildItem(clip, painting.id)));
-
-  if (!sorted.length) {
-    const em = document.createElement('div');
-    em.style.cssText = 'padding:32px 20px;color:rgba(0,0,0,0.18);font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;';
-    em.textContent = 'Empty — click + Add';
-    list.appendChild(em);
-  }
-
-  ch.appendChild(list);
-
-  // ── Footer ──
-  const footer = document.createElement('div');
-  footer.className = 'ch-footer';
-  const pidx   = G.paintings.findIndex(p => p.id === painting.id) + 1;
-  const ptotal = G.paintings.length;
-  const filled = sorted.filter(c => c.content && c.content.length > 80).length;
-  footer.innerHTML = `<span>${pidx} / ${ptotal}</span><span>${filled} / ${sorted.length} filled</span>`;
-  ch.appendChild(footer);
-
-  return ch;
-}
-
-// ════════════════════════════════════════════════
-// ITEM BUILDER
-// ════════════════════════════════════════════════
-function buildItem(clip, paintingId) {
-  const item = document.createElement('div');
-  item.className = 'item';
-  item.dataset.id = clip.id;
-  if (clip.id === G.sel) item.classList.add('sel');
-
-  item.addEventListener('click', e => {
-    e.stopPropagation();
-    G.sel = clip.id; G.selPid = paintingId;
-    render();
+function saveAll() {
+  const data = {};
+  document.querySelectorAll('[data-key]').forEach(el => {
+    data[el.dataset.key] = el.textContent;
   });
-
-  if (clip.section) {
-    const sec = document.createElement('div');
-    sec.className = 'item-section';
-    sec.textContent = clip.section;
-    item.appendChild(sec);
-  }
-
-  const t = document.createElement('div');
-  t.className = 'item-title' + (clip.title ? '' : ' untitled');
-  t.textContent = clip.title || 'Untitled';
-  item.appendChild(t);
-
-  if (clip.content) {
-    const c = document.createElement('div');
-    c.className = 'item-content';
-    c.textContent = clip.content;
-    item.appendChild(c);
-  }
-
-  if (clip.tags && clip.tags.length) {
-    const tagsDiv = document.createElement('div');
-    tagsDiv.className = 'item-tags';
-    clip.tags.forEach(tag => {
-      const chip = document.createElement('span');
-      chip.className = 'item-tag-chip ' + tag;
-      chip.textContent = tag;
-      tagsDiv.appendChild(chip);
-    });
-    item.appendChild(tagsDiv);
-  }
-
-  return item;
+  try { localStorage.setItem(STORE, JSON.stringify(data)); } catch(e) {}
 }
+
+let _saveTimer;
+function debounceSave() {
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(() => {
+    saveAll();
+    showToast();
+  }, 800);
+}
+
+function showToast() {
+  const t = document.getElementById('save-toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1400);
+}
+
+// Remove prefilled class on first edit
+document.querySelectorAll('.cell, .disc-cell').forEach(el => {
+  el.addEventListener('focus', () => el.classList.remove('prefilled'));
+  el.addEventListener('input', debounceSave);
+});
 
 // ════════════════════════════════════════════════
-// CHANNEL ACTIONS
-// ════════════════════════════════════════════════
-function cyclePainting(side, dir) {
-  const currentId = side === 'left' ? G.leftId : G.rightId;
-  const idx    = G.paintings.findIndex(p => p.id === currentId);
-  const newIdx = (idx + dir + G.paintings.length) % G.paintings.length;
-  const newId  = G.paintings[newIdx].id;
-  if (side === 'left')  G.leftId  = newId;
-  else                  G.rightId = newId;
-  G.sel = null; G.selPid = null;
-  saveG(); render();
-}
-
-let _activeAddPid = null;
-function addClipToActive() {
-  const pid = G.selPid || G.leftId;
-  addClip(pid);
-}
-
-function addClip(paintingId) {
-  const p = paintingById(paintingId); if (!p) return;
-  const clip = {
-    id: 'c' + Date.now(), order: p.clips.length,
-    section: 'Reflection', title: '', content: '', tags: [], type: 'text',
-  };
-  p.clips.push(clip);
-  G.sel = clip.id; G.selPid = paintingId;
-  saveG(); render();
-  setTimeout(() => document.getElementById('d-title').focus(), 80);
-}
-
-function closeDetail() { G.sel = null; G.selPid = null; render(); }
-
-function saveDetail() {
-  if (!G.sel || !G.selPid) return;
-  const p = paintingById(G.selPid); if (!p) return;
-  const clip = p.clips.find(c => c.id === G.sel); if (!clip) return;
-  clip.title   = document.getElementById('d-title').value;
-  clip.content = document.getElementById('d-content').value;
-  saveG(); render();
-}
-
-function delClip() {
-  if (!G.sel || !G.selPid) return;
-  const p = paintingById(G.selPid); if (!p) return;
-  p.clips = p.clips.filter(c => c.id !== G.sel);
-  G.sel = null; G.selPid = null;
-  saveG(); render();
-}
-
-function toggleTag(clipId, tag) {
-  if (!G.selPid) return;
-  const p    = paintingById(G.selPid);
-  const clip = p?.clips.find(c => c.id === clipId); if (!clip) return;
-  clip.tags  = clip.tags || [];
-  const i    = clip.tags.indexOf(tag);
-  if (i === -1) clip.tags.push(tag); else clip.tags.splice(i, 1);
-  saveG(); renderDetail();
-}
-
-// ════════════════════════════════════════════════
-// DETAIL PANEL
-// ════════════════════════════════════════════════
-function renderDetail() {
-  const panel = document.getElementById('detail');
-  if (!G.sel || !G.selPid) { panel.classList.add('hidden'); return; }
-  const p    = paintingById(G.selPid);
-  const clip = p?.clips.find(c => c.id === G.sel);
-  if (!clip) { panel.classList.add('hidden'); return; }
-  panel.classList.remove('hidden');
-
-  document.getElementById('d-track').textContent  = p.name;
-  document.getElementById('d-title').value         = clip.title   || '';
-  document.getElementById('d-content').value       = clip.content || '';
-
-  document.getElementById('d-tags').innerHTML = TAGS.map(tag =>
-    `<button class="t-pill ${(clip.tags||[]).includes(tag)?'on':''}" data-tag="${tag}" onclick="toggleTag('${clip.id}','${tag}')">${tag}</button>`
-  ).join('');
-}
-
-// ════════════════════════════════════════════════
-// EXPORT & RESET
+// EXPORT
 // ════════════════════════════════════════════════
 function doExport() {
-  const data = G.paintings.map(p => ({
-    name:  p.name,
-    clips: p.clips.sort((a,b) => a.order - b.order).map(c => ({
-      section: c.section, title: c.title, content: c.content, tags: c.tags,
-    })),
-  }));
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const a    = document.createElement('a');
-  a.href     = URL.createObjectURL(blob);
-  a.download = 'diffraction-' + new Date().toISOString().slice(0,10) + '.json';
-  a.click();
-}
+  const rows = [];
+  document.querySelectorAll('tr[class=""], tr:not(.section-row):not(.q-cred):not(.q-tran):not(.q-dep):not(.q-conf)').forEach(tr => {
+    const crit = tr.querySelector('.col-criterion');
+    const p1   = tr.querySelector('.col-p1 [data-key]');
+    const p2   = tr.querySelector('.col-p2 [data-key]');
+    if (crit && p1 && p2) {
+      rows.push({
+        criterion:      crit.textContent.trim(),
+        allen_strauss:  p1.textContent.trim(),
+        whiteman_cooper: p2.textContent.trim(),
+      });
+    }
+  });
 
-function resetConfirm() {
-  if (confirm('Reset to blank framework? Your notes will be lost.')) {
-    localStorage.removeItem(STORE_KEY);
-    assignmentSeed();
-    render();
-  }
+  // Quality rows
+  ['cred','tran','dep','conf'].forEach(q => {
+    const tr = document.querySelector('.q-' + q);
+    if (!tr) return;
+    const crit = tr.querySelector('.col-criterion');
+    const p1   = tr.querySelector('.col-p1 [data-key]');
+    const p2   = tr.querySelector('.col-p2 [data-key]');
+    rows.push({
+      criterion:      crit.textContent.trim(),
+      allen_strauss:  p1.textContent.trim(),
+      whiteman_cooper: p2.textContent.trim(),
+    });
+  });
+
+  const disc = {};
+  document.querySelectorAll('.disc-cell').forEach(el => {
+    disc[el.dataset.key] = el.textContent.trim();
+  });
+
+  const out = { comparison_table: rows, discussion: disc, exported: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'qualitative-analysis-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
 }
 
 // ════════════════════════════════════════════════
 // INIT
 // ════════════════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
-  const loaded = loadG();
-  if (!loaded) assignmentSeed();
-  render();
-  document.getElementById('d-title').addEventListener('blur', saveDetail);
-  document.getElementById('d-content').addEventListener('blur', saveDetail);
+  loadSaved();
+  // Wire up disc-cells for save
+  document.querySelectorAll('.disc-cell').forEach(el => {
+    el.addEventListener('input', debounceSave);
+  });
 });
 </script>
 </body>
