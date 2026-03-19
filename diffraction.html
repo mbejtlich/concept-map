@@ -45,7 +45,7 @@ thead th {
   letter-spacing: 0.07em; text-transform: uppercase;
   font-weight: 400; font-size: 14px;
   color: var(--ink);
-  vertical-align: middle; text-align: left;
+  vertical-align: bottom; text-align: left;
 }
 thead th.col-criterion { padding-left: 24px; }
 thead th.col-p1 { border-left: 1px solid var(--div); padding-left: 16px; padding-right: 16px; }
@@ -65,7 +65,8 @@ thead th.col-p2 { border-left: 1px solid var(--div); padding-left: 16px; padding
 .export-btn {
   font-family: var(--ff); font-size: 9px; letter-spacing: 0.10em; text-transform: uppercase;
   background: none; border: 1px solid rgba(0,0,0,0.2); color: rgba(0,0,0,0.45);
-  cursor: pointer; padding: 3px 8px; margin-left: 10px;
+  cursor: pointer; padding: 3px 8px;
+  position: fixed; top: 14px; right: 24px; z-index: 200;
 }
 .export-btn:hover { color: var(--ink); border-color: var(--ink); }
 
@@ -89,15 +90,15 @@ td.col-p2 { border-left: 1px solid var(--div); padding-left: 16px; padding-right
 /* ── Criterion label ── */
 .crit-name {
   font-size: 13px; font-weight: 400;
-  color: rgba(0,0,0,0.55); line-height: 1.4; display: block;
+  color: var(--ink); line-height: 1.4; display: block;
 }
 
-/* ── Editable cells — large blue Garamond matching annotations ── */
+/* ── Editable cells ── */
 .cell {
   font-family: var(--serif);
   font-size: 24px;
   line-height: 1.6;
-  color: var(--cred);
+  color: var(--ink);
   outline: none;
   min-height: 1.6em;
   word-break: break-word;
@@ -145,7 +146,7 @@ td.col-p2 { border-left: 1px solid var(--div); padding-left: 16px; padding-right
   font-family: var(--serif);
   font-size: 24px;
   line-height: 1.6;
-  color: var(--cred);
+  color: var(--ink);
   outline: none;
   min-height: 1.6em;
   word-break: break-word;
@@ -195,7 +196,6 @@ td.col-p2 { border-left: 1px solid var(--div); padding-left: 16px; padding-right
       <th class="col-p2">
         <span class="paper-name">Whiteman &amp; Cooper (2000)</span>
         <span class="paper-sub">Ecological embeddedness</span>
-        <button class="export-btn" onclick="doExport()">↓ Export</button>
       </th>
     </tr>
   </thead>
@@ -204,6 +204,15 @@ td.col-p2 { border-left: 1px solid var(--div); padding-left: 16px; padding-right
     <!-- ══ RESEARCH DESIGN ══ -->
     <tr class="section-row">
       <td class="col-criterion">Research Design</td><td class="col-p1"></td><td class="col-p2"></td>
+    </tr>
+
+    <tr>
+      <td class="col-criterion">
+        <span class="crit-name">Research position</span>
+        <span class="crit-tags"><span class="ct-tag ct-conf">Confirmability</span></span>
+      </td>
+      <td class="col-p1"><div class="cell" contenteditable="true" data-key="rpos-p1" data-placeholder="What is the researcher's philosophical or epistemological position?"></div></td>
+      <td class="col-p2"><div class="cell" contenteditable="true" data-key="rpos-p2" data-placeholder="What is the researcher's philosophical or epistemological position?"></div></td>
     </tr>
 
     <tr>
@@ -288,124 +297,244 @@ td.col-p2 { border-left: 1px solid var(--div); padding-left: 16px; padding-right
       <td class="col-p2"><div class="cell" contenteditable="true" data-key="par-p2" data-placeholder="Who or what are the data sources?">Cree hunters and tallymen — Indigenous land managers with deep ecological knowledge. Number not stated precisely; individuals described by name and role.</div></td>
     </tr>
 
-    <!-- ══ RIGOUR ══ -->
+    <tr>
+      <td class="col-criterion">
+        <span class="crit-name">Case boundaries</span>
+        <span class="crit-tags"><span class="ct-tag ct-tran">Transferability</span><span class="ct-tag ct-dep">Dependability</span></span>
+      </td>
+      <td class="col-p1"><div class="cell" contenteditable="true" data-key="cb-p1" data-placeholder="How are the boundaries of the case or study defined?"></div></td>
+      <td class="col-p2"><div class="cell" contenteditable="true" data-key="cb-p2" data-placeholder="How are the boundaries of the case or study defined?"></div></td>
+    </tr>
+
+    <tr>
+      <td class="col-criterion">
+        <span class="crit-name">Nation</span>
+        <span class="crit-tags"><span class="ct-tag ct-tran">Transferability</span></span>
+      </td>
+      <td class="col-p1"><div class="cell" contenteditable="true" data-key="nat-p1" data-placeholder="In which nation was the study conducted?"></div></td>
+      <td class="col-p2"><div class="cell" contenteditable="true" data-key="nat-p2" data-placeholder="In which nation was the study conducted?"></div></td>
+    </tr>
+
+    <tr>
+      <td class="col-criterion">
+        <span class="crit-name">Geographic scale</span>
+        <span class="crit-tags"><span class="ct-tag ct-tran">Transferability</span></span>
+      </td>
+      <td class="col-p1"><div class="cell" contenteditable="true" data-key="geo-p1" data-placeholder="At what geographic scale was the study conducted?"></div></td>
+      <td class="col-p2"><div class="cell" contenteditable="true" data-key="geo-p2" data-placeholder="At what geographic scale was the study conducted?"></div></td>
+    </tr>
+
+    <tr>
+      <td class="col-criterion">
+        <span class="crit-name">Ecosystem</span>
+        <span class="crit-tags"><span class="ct-tag ct-tran">Transferability</span></span>
+      </td>
+      <td class="col-p1"><div class="cell" contenteditable="true" data-key="eco-p1" data-placeholder="What type of ecosystem or environment is the study set in?"></div></td>
+      <td class="col-p2"><div class="cell" contenteditable="true" data-key="eco-p2" data-placeholder="What type of ecosystem or environment is the study set in?"></div></td>
+    </tr>
+
+    <tr>
+      <td class="col-criterion">
+        <span class="crit-name">Recruitment strategy</span>
+        <span class="crit-tags"><span class="ct-tag ct-cred">Credibility</span><span class="ct-tag ct-tran">Transferability</span></span>
+      </td>
+      <td class="col-p1"><div class="cell" contenteditable="true" data-key="rec-p1" data-placeholder="How were participants or data sources recruited or selected?"></div></td>
+      <td class="col-p2"><div class="cell" contenteditable="true" data-key="rec-p2" data-placeholder="How were participants or data sources recruited or selected?"></div></td>
+    </tr>
+
+    <tr>
+      <td class="col-criterion">
+        <span class="crit-name">Number of participants</span>
+        <span class="crit-tags"><span class="ct-tag ct-tran">Transferability</span></span>
+      </td>
+      <td class="col-p1"><div class="cell" contenteditable="true" data-key="npar-p1" data-placeholder="How many participants were involved?"></div></td>
+      <td class="col-p2"><div class="cell" contenteditable="true" data-key="npar-p2" data-placeholder="How many participants were involved?"></div></td>
+    </tr>
+
+    <tr>
+      <td class="col-criterion">
+        <span class="crit-name">Description of population</span>
+        <span class="crit-tags"><span class="ct-tag ct-tran">Transferability</span><span class="ct-tag ct-cred">Credibility</span></span>
+      </td>
+      <td class="col-p1"><div class="cell" contenteditable="true" data-key="pop-p1" data-placeholder="How is the study population described?"></div></td>
+      <td class="col-p2"><div class="cell" contenteditable="true" data-key="pop-p2" data-placeholder="How is the study population described?"></div></td>
+    </tr>
+
+    <!-- ══ DISCUSSION ══ -->
     <tr class="section-row">
-      <td class="col-criterion">Rigour</td><td class="col-p1"></td><td class="col-p2"></td>
+      <td class="col-criterion" style="border-top:1px solid var(--rule); padding-top:28px;">Discussion</td>
+      <td class="col-p1" style="border-top:1px solid var(--rule);"></td>
+      <td class="col-p2" style="border-top:1px solid var(--rule);"></td>
+    </tr>
+
+    <tr>
+      <td class="col-criterion">
+        <span class="crit-name">Introduction</span>
+        <span style="display:block;font-size:11px;color:rgba(0,0,0,0.4);margin-top:3px;">Why these papers?</span>
+      </td>
+      <td class="col-p1" colspan="2"><div class="disc-cell" contenteditable="true" data-key="disc-intro" data-placeholder="Which papers did you choose and why? How do they relate to your research interests?"></div></td>
+    </tr>
+
+    <tr>
+      <td class="col-criterion">
+        <span class="crit-name">Methods</span>
+        <span style="display:block;font-size:11px;color:rgba(0,0,0,0.4);margin-top:3px;">How I compared them</span>
+      </td>
+      <td class="col-p1" colspan="2"><div class="disc-cell" contenteditable="true" data-key="disc-methods" data-placeholder="Describe the close reading process. Reference Moon et al. (2016) framework."></div></td>
     </tr>
 
     <tr>
       <td class="col-criterion">
         <span class="crit-name">Credibility</span>
-        <span class="crit-tags"><span class="ct-tag ct-cred">Credibility</span></span>
+        <span style="display:block;font-size:11px;color:rgba(0,0,0,0.4);margin-top:3px;">"confidence in the truth of the findings" (Guba 1981)</span>
       </td>
-      <td class="col-p1"><div class="cell" contenteditable="true" data-key="qcred-p1" data-placeholder="How is credibility established?"></div></td>
-      <td class="col-p2"><div class="cell" contenteditable="true" data-key="qcred-p2" data-placeholder="How is credibility established?"></div></td>
+      <td class="col-p1" colspan="2"><div class="disc-cell" contenteditable="true" data-key="disc-cred" data-placeholder="How does each paper establish credibility? Which does this better and why?"></div></td>
     </tr>
 
     <tr>
       <td class="col-criterion">
         <span class="crit-name">Transferability</span>
-        <span class="crit-tags"><span class="ct-tag ct-tran">Transferability</span></span>
+        <span style="display:block;font-size:11px;color:rgba(0,0,0,0.4);margin-top:3px;">"applicability in other contexts" (Guba 1981)</span>
       </td>
-      <td class="col-p1"><div class="cell" contenteditable="true" data-key="qtran-p1" data-placeholder="Are findings transferable to other contexts?"></div></td>
-      <td class="col-p2"><div class="cell" contenteditable="true" data-key="qtran-p2" data-placeholder="Are findings transferable to other contexts?"></div></td>
+      <td class="col-p1" colspan="2"><div class="disc-cell" contenteditable="true" data-key="disc-tran" data-placeholder="How well does each paper provide thick description? Which is more transferable?"></div></td>
     </tr>
 
     <tr>
       <td class="col-criterion">
         <span class="crit-name">Dependability</span>
-        <span class="crit-tags"><span class="ct-tag ct-dep">Dependability</span></span>
+        <span style="display:block;font-size:11px;color:rgba(0,0,0,0.4);margin-top:3px;">"consistently repeated in the same context" (Guba 1981)</span>
       </td>
-      <td class="col-p1"><div class="cell" contenteditable="true" data-key="qdep-p1" data-placeholder="Is the research process documented and auditable?"></div></td>
-      <td class="col-p2"><div class="cell" contenteditable="true" data-key="qdep-p2" data-placeholder="Is the research process documented and auditable?"></div></td>
+      <td class="col-p1" colspan="2"><div class="disc-cell" contenteditable="true" data-key="disc-dep" data-placeholder="How well is the research process documented? Is the methodology transparent enough to follow?"></div></td>
     </tr>
 
     <tr>
       <td class="col-criterion">
         <span class="crit-name">Confirmability</span>
-        <span class="crit-tags"><span class="ct-tag ct-conf">Confirmability</span></span>
+        <span style="display:block;font-size:11px;color:rgba(0,0,0,0.4);margin-top:3px;">"a function of subjects, not inquirer's biases" (Guba 1981)</span>
       </td>
-      <td class="col-p1"><div class="cell" contenteditable="true" data-key="qconf-p1" data-placeholder="Are findings grounded in data? Is subjectivity addressed?"></div></td>
-      <td class="col-p2"><div class="cell" contenteditable="true" data-key="qconf-p2" data-placeholder="Are findings grounded in data? Is subjectivity addressed?"></div></td>
+      <td class="col-p1" colspan="2"><div class="disc-cell" contenteditable="true" data-key="disc-conf" data-placeholder="Is the researcher's philosophical position stated? How does reflexivity address potential bias?"></div></td>
+    </tr>
+
+    <tr>
+      <td class="col-criterion">
+        <span class="crit-name">Synthesis</span>
+      </td>
+      <td class="col-p1" colspan="2"><div class="disc-cell" contenteditable="true" data-key="disc-synth" data-placeholder="Overall evaluation: what does comparing these two papers reveal about qualitative research quality?"></div></td>
+    </tr>
+
+    <!-- ══ RIGOUR ══ -->
+    <tr class="section-row">
+      <td class="col-criterion" style="border-top:1px solid var(--rule); padding-top:28px;">Rigour</td>
+      <td class="col-p1" style="border-top:1px solid var(--rule);"></td>
+      <td class="col-p2" style="border-top:1px solid var(--rule);"></td>
+    </tr>
+
+    <tr>
+      <td class="col-criterion">
+        <span class="crit-name">Credibility</span>
+        <span style="display:block;font-size:11px;color:rgba(0,0,0,0.4);margin-top:3px;">"confidence in the truth of the findings" (Guba 1981)</span>
+      </td>
+      <td class="col-p1" colspan="2"><div class="disc-cell" contenteditable="true" data-key="rig-cred" data-placeholder="How is credibility established across both papers?"></div></td>
+    </tr>
+
+    <tr>
+      <td class="col-criterion">
+        <span class="crit-name">Transferability</span>
+        <span style="display:block;font-size:11px;color:rgba(0,0,0,0.4);margin-top:3px;">"applicability in other contexts" (Guba 1981)</span>
+      </td>
+      <td class="col-p1" colspan="2"><div class="disc-cell" contenteditable="true" data-key="rig-tran" data-placeholder="How transferable are the findings of each paper?"></div></td>
+    </tr>
+
+    <tr>
+      <td class="col-criterion">
+        <span class="crit-name">Dependability</span>
+        <span style="display:block;font-size:11px;color:rgba(0,0,0,0.4);margin-top:3px;">"consistently repeated in the same context" (Guba 1981)</span>
+      </td>
+      <td class="col-p1" colspan="2"><div class="disc-cell" contenteditable="true" data-key="rig-dep" data-placeholder="Is the research process documented and auditable?"></div></td>
+    </tr>
+
+    <tr>
+      <td class="col-criterion">
+        <span class="crit-name">Confirmability</span>
+        <span style="display:block;font-size:11px;color:rgba(0,0,0,0.4);margin-top:3px;">"a function of subjects, not inquirer's biases" (Guba 1981)</span>
+      </td>
+      <td class="col-p1" colspan="2"><div class="disc-cell" contenteditable="true" data-key="rig-conf" data-placeholder="Are findings grounded in data? Is subjectivity addressed?"></div></td>
     </tr>
 
     <tr>
       <td class="col-criterion">
         <span class="crit-name">Reflexivity</span>
-        <span class="crit-tags"><span class="ct-tag ct-conf">Confirmability</span><span class="ct-tag ct-dep">Dependability</span></span>
+        <span style="display:block;font-size:11px;color:rgba(0,0,0,0.4);margin-top:3px;">Researcher's position and awareness of influence</span>
       </td>
-      <td class="col-p1"><div class="cell" contenteditable="true" data-key="ref-p1" data-placeholder="Is a reflexive assessment of the research process present?">High. The paper is itself a reflexive act — thinking-being enacts rather than reports. The entanglement of researcher and garden is foregrounded throughout.</div></td>
-      <td class="col-p2"><div class="cell" contenteditable="true" data-key="ref-p2" data-placeholder="Is a reflexive assessment of the research process present?">Moderate. The first author's embodied participation in Cree land practices is acknowledged. Some accounting of positionality present.</div></td>
+      <td class="col-p1" colspan="2" style="padding-bottom:80px;"><div class="disc-cell" contenteditable="true" data-key="rig-ref" data-placeholder="Is a reflexive assessment of the research process present?"></div></td>
     </tr>
 
   </tbody>
 </table>
 
-<!-- ══════════════════════════════════
-     DISCUSSION
-══════════════════════════════════ -->
-
-<div class="page-section" style="margin-top:36px;">Discussion — Evaluation against Moon et al. quality criteria</div>
-
-<div class="disc-block" style="margin-top:10px;">
-  <div class="disc-label">Introduction — why these papers, relation to my research</div>
-  <div class="disc-cell" contenteditable="true" data-key="disc-intro" data-placeholder="Which papers did I choose and why? How do they relate to my research interests?"></div>
-</div>
-
-<div class="disc-block">
-  <div class="disc-label">Methods — how I read and compared these papers</div>
-  <div class="disc-cell" contenteditable="true" data-key="disc-methods" data-placeholder="Describe the close reading process. Reference Moon et al. (2016) framework."></div>
-</div>
-
-<div class="disc-block">
-  <div class="disc-label">Credibility — "confidence in the truth of the findings for the subjects and context" (Guba 1981)</div>
-  <div class="disc-cell" contenteditable="true" data-key="disc-cred" data-placeholder="How does each paper establish credibility? Which does this better and why?"></div>
-</div>
-
-<div class="disc-block">
-  <div class="disc-label">Transferability — "the degree to which findings may have applicability in other contexts" (Guba 1981)</div>
-  <div class="disc-cell" contenteditable="true" data-key="disc-tran" data-placeholder="How well does each paper provide thick description? Which is more transferable?"></div>
-</div>
-
-<div class="disc-block">
-  <div class="disc-label">Dependability — "whether findings would be consistently repeated in the same context" (Guba 1981)</div>
-  <div class="disc-cell" contenteditable="true" data-key="disc-dep" data-placeholder="How well is the research process documented? Is the methodology transparent enough to follow?"></div>
-</div>
-
-<div class="disc-block">
-  <div class="disc-label">Confirmability — "the degree to which findings are a function of the subjects and not of the inquirer's biases" (Guba 1981)</div>
-  <div class="disc-cell" contenteditable="true" data-key="disc-conf" data-placeholder="Is the researcher's philosophical position stated? How does reflexivity address potential bias?"></div>
-</div>
-
-<div class="disc-block" style="margin-bottom:80px;">
-  <div class="disc-label">Synthesis</div>
-  <div class="disc-cell" contenteditable="true" data-key="disc-synth" data-placeholder="Overall evaluation: what does comparing these two papers reveal about qualitative research quality?"></div>
-</div>
-
+<button class="export-btn" onclick="doExport()">↓ Export</button>
 <div id="save-toast">Saved</div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const STORE = 'qa-diffraction-v1';
+const SUPABASE_URL = 'https://dnqtrzsiqkosrxoitzol.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRucXRyenNpcWtvc3J4b2l0em9sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI0OTY4MDIsImV4cCI6MjA4ODA3MjgwMn0.DRKZA1h9mWBZcp7wWgf-s5ZYpuYUYd1-Z_96GIONjZU';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const DOC_ID = 'moon-et-al-comparison';
 
-function loadSaved() {
-  try {
-    const raw = localStorage.getItem(STORE);
-    if (!raw) return;
-    const data = JSON.parse(raw);
-    document.querySelectorAll('[data-key]').forEach(el => {
-      if (data[el.dataset.key] !== undefined && data[el.dataset.key] !== '') {
-        el.textContent = data[el.dataset.key];
-      }
-    });
-  } catch(e) {}
-}
-
-function saveAll() {
+function collectData() {
   const data = {};
   document.querySelectorAll('[data-key]').forEach(el => {
     data[el.dataset.key] = el.textContent;
   });
+  return data;
+}
+
+function applyData(data) {
+  document.querySelectorAll('[data-key]').forEach(el => {
+    if (data[el.dataset.key] !== undefined && data[el.dataset.key] !== '') {
+      el.textContent = data[el.dataset.key];
+    }
+  });
+}
+
+// Always save to localStorage as backup
+function saveLocal(data) {
   try { localStorage.setItem(STORE, JSON.stringify(data)); } catch(e) {}
+}
+
+function loadLocal() {
+  try {
+    const raw = localStorage.getItem(STORE);
+    return raw ? JSON.parse(raw) : null;
+  } catch(e) { return null; }
+}
+
+async function saveAll() {
+  const data = collectData();
+  saveLocal(data);
+  try {
+    const { error } = await sb.from('diffraction_notes')
+      .upsert({ id: DOC_ID, data, updated_at: new Date().toISOString() });
+    if (error) console.warn('Supabase save error:', error.message);
+  } catch(e) { console.warn('Supabase unavailable, saved to localStorage only'); }
+}
+
+async function loadSaved() {
+  // Try Supabase first
+  try {
+    const { data: rows, error } = await sb.from('diffraction_notes')
+      .select('data').eq('id', DOC_ID).single();
+    if (!error && rows?.data) {
+      applyData(rows.data);
+      saveLocal(rows.data); // sync to localStorage
+      return;
+    }
+  } catch(e) {}
+  // Fall back to localStorage
+  const local = loadLocal();
+  if (local) applyData(local);
 }
 
 let _t;
