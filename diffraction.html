@@ -568,8 +568,10 @@ function doExport() {
       const crit = tr.querySelector('.crit-name');
       const p1   = tr.querySelector('.col-p1 [data-key]');
       const p2   = tr.querySelector('.col-p2 [data-key]');
+      const tags = [...tr.querySelectorAll('.ct-tag')].map(t => t.textContent.trim());
       if (crit) currentSection.rows.push({
         criterion: crit.textContent.trim(),
+        tags,
         p1: p1 ? p1.textContent.trim() : '',
         p2: p2 ? p2.textContent.trim() : ''
       });
@@ -582,8 +584,11 @@ function doExport() {
   sections.forEach(sec => {
     tableHTML += `<tr class="sec-hdr"><td colspan="3">${sec.label}</td></tr>`;
     sec.rows.forEach(r => {
+      const tagHTML = r.tags && r.tags.length
+        ? `<div class="ex-tags">${r.tags.map(t => `<span class="ex-tag">${t}</span>`).join('')}</div>`
+        : '';
       tableHTML += `<tr>
-        <td class="td-crit">${r.criterion}</td>
+        <td class="td-crit">${r.criterion}${tagHTML}</td>
         <td class="td-p">${r.p1 || '<span class="empty">—</span>'}</td>
         <td class="td-p">${r.p2 || '<span class="empty">—</span>'}</td>
       </tr>`;
@@ -618,6 +623,8 @@ function doExport() {
   .td-crit { font-size: 7.5pt; font-weight: 700; padding: 4px 7px 4px 0; vertical-align: top; border-bottom: 0.5pt solid rgba(0,0,0,0.12); }
   .td-p { font-family: 'EB Garamond', Georgia, serif; font-size: 9pt; line-height: 1.55; padding: 4px 6px 4px 7px; vertical-align: top; border-left: 0.5pt solid rgba(0,0,0,0.12); border-bottom: 0.5pt solid rgba(0,0,0,0.12); }
   span.empty { color: rgba(0,0,0,0.2); font-style: italic; }
+  .ex-tags { display: flex; flex-wrap: wrap; gap: 2px; margin-top: 3px; }
+  .ex-tag { font-size: 5.5pt; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; background: rgba(0,0,0,0.07); color: #111; padding: 1px 4px; border-radius: 2px; }
   .disc-item { margin-bottom: 12px; }
   .disc-lbl { font-size: 7pt; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 3px; }
   .foot { margin-top: 28px; border-top: 0.5pt solid rgba(0,0,0,0.15); padding-top: 5px; font-size: 6.5pt; letter-spacing: 0.07em; text-transform: uppercase; color: rgba(0,0,0,0.3); display: flex; justify-content: space-between; }
